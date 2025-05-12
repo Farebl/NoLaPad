@@ -64,8 +64,8 @@ Project::Project(int row, int column, int bpm, QWidget *parent)
     minimizeButton->setStyleSheet("background-color: #ffbd44; border-radius: 10px;");
     maximizeButton->setStyleSheet("background-color: #00ca4e; border-radius: 10px;");
 
-    //bpm lcd
 
+    //bpm lcd and metronome
     // Загрузка шрифта
     int fontId = QFontDatabase::addApplicationFont("..//..//fonts//dseg7-classic-latin-400-italic.ttf");
     QFont lcdFont;
@@ -115,7 +115,8 @@ Project::Project(int row, int column, int bpm, QWidget *parent)
         "QPushButton:hover {"
         "    background-color: #555555;" // Изменение цвета при наведении
         "}"
-        );
+    );
+
     downButton->setStyleSheet(
         "QPushButton {"
         "    background-color: #444444;" // Темный фон
@@ -128,7 +129,7 @@ Project::Project(int row, int column, int bpm, QWidget *parent)
         "QPushButton:hover {"
         "    background-color: #555555;" // Изменение цвета при наведении
         "}"
-        );
+    );
 
     // Логика управления значением
     connect(upButton, &QPushButton::clicked, [=]() {
@@ -150,6 +151,16 @@ Project::Project(int row, int column, int bpm, QWidget *parent)
         m_timer->start();
     });
 
+
+    //metronome
+    Metronome* metronome = new Metronome(
+        m_timer, this, 1.0,
+        "..//..//music//metronome//strong_measure.wav",
+        "..//..//music//metronome//weak_measure.wav",
+        {true, false, false, false}
+    );
+    metronome->setFixedSize(30, 25); //
+
     // Создание layout для кнопок и QSpinBox
     QVBoxLayout* bpm_buttons = new QVBoxLayout();
     bpm_buttons->addWidget(upButton);
@@ -159,6 +170,7 @@ Project::Project(int row, int column, int bpm, QWidget *parent)
     QHBoxLayout* bpmLayout = new QHBoxLayout();
     bpmLayout->addLayout(bpm_buttons);
     bpmLayout->addWidget(bpmSpinBox);
+    bpmLayout->addWidget(metronome);
     bpmLayout->setSpacing(5); // Отступ между элементами
     bpmLayout->setContentsMargins(0, 0, 0, 0);
 
@@ -169,6 +181,14 @@ Project::Project(int row, int column, int bpm, QWidget *parent)
     titleLayout->addWidget(minimizeButton);
     titleLayout->addWidget(maximizeButton);
     titleLayout->addWidget(closeButton);
+
+
+
+
+
+
+
+
 
     // Центральный виджет
     m_centralWidget->setStyleSheet(

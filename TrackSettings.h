@@ -18,7 +18,7 @@ class TrackSettings: public QDialog
 {
     Q_OBJECT
 public:
-    explicit TrackSettings(bool is_loop = false, ushort volume_percent = 100, ushort beats_per_measure = 1, const QColor& color = Qt::gray, QWidget *parent = nullptr);
+    explicit TrackSettings(bool is_loop = false, quint8 volume_percent = 100, quint8 beats_per_measure = 1, const QColor& color = Qt::gray, QWidget *parent = nullptr);
 
 protected:
     void closeEvent(QCloseEvent *event) override;

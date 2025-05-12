@@ -1,8 +1,7 @@
-#include <QFileDialog>
 #include "TrackSettings.h"
 
 
-TrackSettings::TrackSettings(bool is_loop, ushort volume_percent, ushort beats_per_measure, const QColor& color, QWidget* parent)
+TrackSettings::TrackSettings(bool is_loop, quint8 volume_percent, quint8 beats_per_measure, const QColor& color, QWidget* parent)
     : QDialog(parent),
     m_loop_state(new QCheckBox(this)),
     m_volume_slider(new QSlider(this)),
@@ -23,6 +22,7 @@ TrackSettings::TrackSettings(bool is_loop, ushort volume_percent, ushort beats_p
     else{
         m_loop_state->setCheckState(Qt::Unchecked);
     }
+
 
     m_volume_slider->setOrientation(Qt::Horizontal);
     m_volume_slider->setRange(0, 100);
@@ -53,6 +53,7 @@ TrackSettings::TrackSettings(bool is_loop, ushort volume_percent, ushort beats_p
     QHBoxLayout *volumeLayout = new QHBoxLayout();
     volumeLayout->addWidget(m_volume_slider);
     volumeLayout->addWidget(m_volume_display);
+
 
     if(beats_per_measure > 32){
         m_beats_per_measure->setValue(32);

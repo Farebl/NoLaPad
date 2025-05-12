@@ -1,11 +1,8 @@
 #include "Track.h"
-#include <QMouseEvent>
-#include <QThread>
-#include <QMessageBox>
 
 #define BORDER_RADIUS_COEF 10
 
-Track::Track(MicroTimer* timer, QWidget *parent, bool is_loop, double volume, ushort beats_per_measure, QString sound_path, const QColor& background_color)
+Track::Track(MicroTimer* timer, QWidget *parent, bool is_loop, float volume, ushort beats_per_measure, QString sound_path, const QColor& background_color)
     : QPushButton(parent),
     m_is_loop(is_loop),
     m_is_active(false),
@@ -182,12 +179,12 @@ void Track::setLoopState(Qt::CheckState state){
 }
 
 
-void Track::setVolume(int volum_percent){
-    if ((volum_percent<0) || (volum_percent>100)){
+void Track::setVolume(int volume_percent){
+    if ((volume_percent < 0) || (volume_percent > 100)){
         return;
     }
 
-    m_audioOutput->setVolume(static_cast<double>(volum_percent)/100.0);
+    m_audioOutput->setVolume(static_cast<double>(volume_percent)/100.0);
 }
 
 void Track::setBeatsPerMeasure(int beats_per_measure){

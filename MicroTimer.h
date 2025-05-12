@@ -4,6 +4,7 @@
 #include <QThread>
 #include <QElapsedTimer>
 
+
 class MicroTimer : public QThread {
     Q_OBJECT
 

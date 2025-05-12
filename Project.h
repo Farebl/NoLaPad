@@ -10,6 +10,7 @@
 #include <QVector>
 
 #include "Track.h"
+#include "Metronome.h"
 
 
 class Project : public QMainWindow {
@@ -18,7 +19,6 @@ class Project : public QMainWindow {
 public:
     explicit Project(int row = 8, int column = 8, int bpm = 60, QWidget *parent = nullptr);
     ~Project();
-
 
 private:
     int m_row;
@@ -35,6 +35,8 @@ private:
 
     QTableWidget *m_tableWidget;
     MicroTimer* m_timer;
+
+    Metronome* m_metronome;
 
     void toggleMaximize();
 

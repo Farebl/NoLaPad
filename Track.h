@@ -6,6 +6,12 @@
 #include <QAudioOutput>
 #include <QTimer>
 #include <QPainter>
+
+#include <QMouseEvent>
+
+#include <QThread>
+#include <QMessageBox>
+
 #include "TrackSettings.h"
 #include "MicroTimer.h"
 
@@ -13,11 +19,11 @@ class Track : public QPushButton
 {
     Q_OBJECT
 public:
-    explicit Track(MicroTimer* timer = nullptr, QWidget *parent = nullptr, bool is_loop = false, double volume = 1.0, ushort beats_per_measure = 1, QString sound_path = "", const QColor& background_color = Qt::gray);
+    explicit Track(MicroTimer* timer = nullptr, QWidget *parent = nullptr, bool is_loop = false, float volume = 1.0, ushort beats_per_measure = 1, QString sound_path = "", const QColor& background_color = Qt::gray);
 
     ~Track();
     void setLoopState(Qt::CheckState state);
-    void setVolume(int volum_percent);
+    void setVolume(int volume_percent);
     void setBeatsPerMeasure(int beats_per_measure);
     void setBackgroundColor(QColor color);
     void setSoundPath(QString path);
