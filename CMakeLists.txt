@@ -28,6 +28,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         MicroTimer.h MicroTimer.cpp
         Metronome.h Metronome.cpp
         MetronomeSettings.h MetronomeSettings.cpp
+        REC.h REC.cpp
+        RECButton.h RECButton.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET ${PROJECT_NAME_CUSTOM} APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

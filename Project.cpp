@@ -152,20 +152,24 @@ Project::Project(int row, int column, int bpm, QWidget *parent)
     });
 
 
-    //metronome
-    Metronome* metronome = new Metronome(
-        m_timer, this, 1.0,
-        "..//..//music//metronome//strong_measure.wav",
-        "..//..//music//metronome//weak_measure.wav",
-        {true, false, false, false}
-    );
-    metronome->setFixedSize(30, 25); //
 
     // Создание layout для кнопок и QSpinBox
     QVBoxLayout* bpm_buttons = new QVBoxLayout();
     bpm_buttons->addWidget(upButton);
     bpm_buttons->addWidget(downButton);
     bpm_buttons->setSpacing(1);
+
+
+
+    //metronome
+    Metronome* metronome = new Metronome(
+        m_timer, m_titleBar, 1.0,
+        "..//..//music//metronome//strong_measure.wav",
+        "..//..//music//metronome//weak_measure.wav",
+        {true, false, false, false}
+        );
+    metronome->setFixedSize(30, 25); //
+
 
     QHBoxLayout* bpmLayout = new QHBoxLayout();
     bpmLayout->addLayout(bpm_buttons);
@@ -174,17 +178,20 @@ Project::Project(int row, int column, int bpm, QWidget *parent)
     bpmLayout->setSpacing(5); // Отступ между элементами
     bpmLayout->setContentsMargins(0, 0, 0, 0);
 
+
+
+    // REC
+    REC* rec = new REC(m_titleBar, 25, 25);
+
+
     // Центрирование BPM блока
+    titleLayout->addWidget(rec);
     titleLayout->addStretch(); // Добавляем растяжение слева
     titleLayout->addLayout(bpmLayout);
     titleLayout->addStretch(); // Добавляем растяжение справа
     titleLayout->addWidget(minimizeButton);
     titleLayout->addWidget(maximizeButton);
     titleLayout->addWidget(closeButton);
-
-
-
-
 
 
 

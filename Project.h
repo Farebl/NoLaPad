@@ -11,7 +11,7 @@
 
 #include "Track.h"
 #include "Metronome.h"
-
+#include "REC.h"
 
 class Project : public QMainWindow {
     Q_OBJECT
