@@ -20,12 +20,15 @@ public:
     explicit REC(QWidget *parent = nullptr, uint width = 35, uint height = 35);
     void updateDigitalClockFace();
     void redrawStartAndStopButton();
+    RECButton* getRecButton();
+    QLabel* getDigitalClockFace();
 
 private:
+    RECButton* m_REC_button;
     QLabel* m_digital_clock_face;
     QTimer* m_timer;
     QElapsedTimer* m_elapsedTimer;
-    RECButton* m_REC_button;
+
 
 
 

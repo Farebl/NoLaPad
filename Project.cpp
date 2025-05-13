@@ -7,16 +7,16 @@
 #include <QLCDNumber>
 #include <QFontDatabase>
 
-Project::Project(int row, int column, int bpm, QWidget *parent)
+Project::Project(int row, int column, int bpm_value, QWidget *parent)
     : QMainWindow(parent),
     m_row(row),
     m_column(column),
-    m_bpm(bpm),
     m_centralWidget(new QWidget(this)),
     m_titleBar(new QWidget(this)),
     m_dragging(false),
     m_resizing(false),
-    m_timer(new MicroTimer(static_cast<quint32>(60.0/(m_bpm*2)*1'000'000), this)) // (m_bpm*2) for eighth beats
+    m_timer(new MicroTimer(static_cast<quint32>(60.0/(bpm_value*2)*1'000'000), this)), // (m_bpm*2) for eighth beats
+    m_bpm(new BPM(m_timer, bpm_value, this))
 {
     // Убираем системную рамку
     setWindowFlags(Qt::FramelessWindowHint);
@@ -48,8 +48,7 @@ Project::Project(int row, int column, int bpm, QWidget *parent)
         "border-top-right-radius: 10px;"
         );
 
-    QHBoxLayout* titleLayout = new QHBoxLayout(m_titleBar);
-    titleLayout->setContentsMargins(10, 0, 10, 0);
+
 
     // Кнопки управления
     QPushButton* closeButton = new QPushButton("✖", m_titleBar);
@@ -65,100 +64,15 @@ Project::Project(int row, int column, int bpm, QWidget *parent)
     maximizeButton->setStyleSheet("background-color: #00ca4e; border-radius: 10px;");
 
 
-    //bpm lcd and metronome
-    // Загрузка шрифта
-    int fontId = QFontDatabase::addApplicationFont("..//..//fonts//dseg7-classic-latin-400-italic.ttf");
-    QFont lcdFont;
-    if (fontId == -1) {
-        qWarning() << "Не удалось загрузить шрифт DSEG7Classic-Regular.ttf, используется стандартный шрифт";
-        lcdFont = QFont("Arial", 12); // Стандартный шрифт в качестве запасного
-    } else {
-        QString fontFamily = QFontDatabase::applicationFontFamilies(fontId).at(0);
-        lcdFont = QFont(fontFamily, 12);
-    }
-
-    // Настройка QSpinBox
-    QSpinBox* bpmSpinBox = new QSpinBox(m_titleBar);
-    bpmSpinBox->setRange(1, 500);
-    bpmSpinBox->setValue(m_bpm);
-    bpmSpinBox->setFont(lcdFont);
-    bpmSpinBox->setFixedSize(55, 35); // Увеличен размер для отображения цифр и кнопок
-    bpmSpinBox->setAlignment(Qt::AlignCenter); // Центрирование текста
-    bpmSpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons); // Убираем стандартные кнопки
-    bpmSpinBox->setStyleSheet(
-        "QSpinBox {"
-        "    background-color: #000000;" // Черный фон
-        "    color: #FFFFFF;" // Белый текст
-        "    border: 2px solid #333333;" // Серая рамка
-        "    border-radius: 5px;" // Скругленные углы
-        "    padding: 2px 2px;" // Отступы для текста
-        "    qproperty-alignment: AlignRight;" // Центрирование текста
-        "}"
-        );
-
-    // Создание кастомных кнопок
-    QPushButton* upButton = new QPushButton("▲", m_titleBar);
-    QPushButton* downButton = new QPushButton("▼", m_titleBar);
-
-    // Стилизация кнопок
-    upButton->setFixedSize(25, 16); // Компактный размер
-    downButton->setFixedSize(25, 16);
-    upButton->setStyleSheet(
-        "QPushButton {"
-        "    background-color: #444444;" // Темный фон
-        "    color: #FFFFFF;" // Белый текст
-        "    border: none;" // Без рамки
-        "    border-radius: 2px;" // Скругление всех углов
-        "    font-size: 12px;" // Размер символа
-        "    padding: 0px;"
-        "}"
-        "QPushButton:hover {"
-        "    background-color: #555555;" // Изменение цвета при наведении
-        "}"
-    );
-
-    downButton->setStyleSheet(
-        "QPushButton {"
-        "    background-color: #444444;" // Темный фон
-        "    color: #FFFFFF;" // Белый текст
-        "    border: none;" // Без рамки
-        "    border-radius: 2px;" // Скругление всех углов
-        "    font-size: 12px;" // Размер символа
-        "    padding: 0px;"
-        "}"
-        "QPushButton:hover {"
-        "    background-color: #555555;" // Изменение цвета при наведении
-        "}"
-    );
-
-    // Логика управления значением
-    connect(upButton, &QPushButton::clicked, [=]() {
-        if (m_bpm < 500) {
-            bpmSpinBox->setValue(bpmSpinBox->value() + 1);
-        }
-    });
-    connect(downButton, &QPushButton::clicked, [=]() {
-        if (m_bpm > 1) {
-            bpmSpinBox->setValue(bpmSpinBox->value() - 1);
-        }
-    });
-
-    // Обновление таймера при изменении значения
-    connect(bpmSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [&](int newBpm) {
-        m_bpm = newBpm;
-        m_timer->stop();
-        m_timer->setInterval(static_cast<quint32>(60.0 / (m_bpm * 2) * 1'000'000));
-        m_timer->start();
-    });
 
 
+    //bpm_lcd and metronome
 
     // Создание layout для кнопок и QSpinBox
-    QVBoxLayout* bpm_buttons = new QVBoxLayout();
-    bpm_buttons->addWidget(upButton);
-    bpm_buttons->addWidget(downButton);
-    bpm_buttons->setSpacing(1);
-
+    QVBoxLayout* bpmButtons = new QVBoxLayout();
+    bpmButtons->addWidget(m_bpm->getUpButton());
+    bpmButtons->addWidget(m_bpm->getDownButton());
+    bpmButtons->setSpacing(1);
 
 
     //metronome
@@ -172,8 +86,8 @@ Project::Project(int row, int column, int bpm, QWidget *parent)
 
 
     QHBoxLayout* bpmLayout = new QHBoxLayout();
-    bpmLayout->addLayout(bpm_buttons);
-    bpmLayout->addWidget(bpmSpinBox);
+    bpmLayout->addLayout(bpmButtons);
+    bpmLayout->addWidget(m_bpm->getBpmDisplay());
     bpmLayout->addWidget(metronome);
     bpmLayout->setSpacing(5); // Отступ между элементами
     bpmLayout->setContentsMargins(0, 0, 0, 0);
@@ -183,18 +97,20 @@ Project::Project(int row, int column, int bpm, QWidget *parent)
     // REC
     REC* rec = new REC(m_titleBar, 25, 25);
 
+    QHBoxLayout* recLayout = new QHBoxLayout();
+    recLayout->addWidget(rec->getRecButton());
+    recLayout->addWidget(rec->getDigitalClockFace());
 
-    // Центрирование BPM блока
-    titleLayout->addWidget(rec);
+
+    QHBoxLayout* titleLayout = new QHBoxLayout(m_titleBar);
+    titleLayout->setContentsMargins(10, 0, 10, 0);
+    titleLayout->addLayout(recLayout);
     titleLayout->addStretch(); // Добавляем растяжение слева
     titleLayout->addLayout(bpmLayout);
     titleLayout->addStretch(); // Добавляем растяжение справа
     titleLayout->addWidget(minimizeButton);
     titleLayout->addWidget(maximizeButton);
     titleLayout->addWidget(closeButton);
-
-
-
 
 
     // Центральный виджет
@@ -255,10 +171,10 @@ void Project::mousePressEvent(QMouseEvent* event) {
     if (event->button() == Qt::LeftButton) {
         if (event->pos().y() < 30) {  // Перемещение по заголовку
             m_dragging = true;
-            m_dragPosition = event->globalPos() - frameGeometry().topLeft();
+            m_dragPosition = event->globalPosition().toPoint() - frameGeometry().topLeft();
         } else if (event->pos().y() > height() - 10 || event->pos().x() > width() - 10) {  // Изменение размера
             m_resizing = true;
-            m_resizeStart = event->globalPos();
+            m_resizeStart = event->globalPosition().toPoint();
             m_resizeStartSize = size();
         }
         event->accept();
@@ -267,10 +183,10 @@ void Project::mousePressEvent(QMouseEvent* event) {
 
 void Project::mouseMoveEvent(QMouseEvent* event) {
     if (m_dragging) {
-        move(event->globalPos() - m_dragPosition);
+        move(event->globalPosition().toPoint() - m_dragPosition);
         event->accept();
     } else if (m_resizing) {
-        QPoint delta = event->globalPos() - m_resizeStart;
+        QPoint delta = event->globalPosition().toPoint() - m_resizeStart;
         resize(m_resizeStartSize.width() + delta.x(), m_resizeStartSize.height() + delta.y());
         event->accept();
     }
