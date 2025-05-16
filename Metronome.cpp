@@ -90,10 +90,10 @@ void Metronome::mousePressEvent(QMouseEvent *event){
         }
 
         if (isChecked()){
-            disconnect(m_timer, MicroTimer::tick1, this, m_strong_and_weak_measures[0]);
-            disconnect(m_timer, MicroTimer::tick3, this, m_strong_and_weak_measures[1]);
-            disconnect(m_timer, MicroTimer::tick5, this, m_strong_and_weak_measures[2]);
-            disconnect(m_timer, MicroTimer::tick7, this, m_strong_and_weak_measures[3]);
+            disconnect(m_timer, &MicroTimer::tick1, this, m_strong_and_weak_measures[0]);
+            disconnect(m_timer, &MicroTimer::tick3, this, m_strong_and_weak_measures[1]);
+            disconnect(m_timer, &MicroTimer::tick5, this, m_strong_and_weak_measures[2]);
+            disconnect(m_timer, &MicroTimer::tick7, this, m_strong_and_weak_measures[3]);
             setChecked(false);
             setText("▶");
             setStyleSheet(
@@ -111,10 +111,10 @@ void Metronome::mousePressEvent(QMouseEvent *event){
                 );
         }
         else{
-            connect(m_timer, MicroTimer::tick1, this, m_strong_and_weak_measures[0]);
-            connect(m_timer, MicroTimer::tick3, this, m_strong_and_weak_measures[1]);
-            connect(m_timer, MicroTimer::tick5, this, m_strong_and_weak_measures[2]);
-            connect(m_timer, MicroTimer::tick7, this, m_strong_and_weak_measures[3]);
+            connect(m_timer, &MicroTimer::tick1, this, m_strong_and_weak_measures[0]);
+            connect(m_timer, &MicroTimer::tick3, this, m_strong_and_weak_measures[1]);
+            connect(m_timer, &MicroTimer::tick5, this, m_strong_and_weak_measures[2]);
+            connect(m_timer, &MicroTimer::tick7, this, m_strong_and_weak_measures[3]);
             setChecked(true);
             setStyleSheet(
                 "QPushButton {"

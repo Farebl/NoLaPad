@@ -59,16 +59,16 @@ void Track::mousePressEvent(QMouseEvent *event){
             if (!m_is_active){
                 m_is_active = true;
                 update();
-                connect(m_timer, MicroTimer::tick1, this, play);
-                connect(m_timer, MicroTimer::tick3, this, play);
-                connect(m_timer, MicroTimer::tick5, this, play);
-                connect(m_timer, MicroTimer::tick7, this, play);
+                connect(m_timer, &MicroTimer::tick1, this, &Track::play);
+                connect(m_timer, &MicroTimer::tick3, this, &Track::play);
+                connect(m_timer, &MicroTimer::tick5, this, &Track::play);
+                connect(m_timer, &MicroTimer::tick7, this, &Track::play);
             }
             else{
-                disconnect(m_timer, MicroTimer::tick1, this, play);
-                disconnect(m_timer, MicroTimer::tick3, this, play);
-                disconnect(m_timer, MicroTimer::tick5, this, play);
-                disconnect(m_timer, MicroTimer::tick7, this, play);
+                disconnect(m_timer, &MicroTimer::tick1, this, &Track::play);
+                disconnect(m_timer, &MicroTimer::tick3, this, &Track::play);
+                disconnect(m_timer, &MicroTimer::tick5, this, &Track::play);
+                disconnect(m_timer, &MicroTimer::tick7, this, &Track::play);
                 m_is_active = false;
             }
         }
