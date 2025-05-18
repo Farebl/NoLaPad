@@ -35,6 +35,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(${PROJECT_NAME_CUSTOM}
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+        BeatCheckBox.h BeatCheckBox.cpp
     )
 else()
     if(ANDROID)

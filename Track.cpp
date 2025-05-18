@@ -2,20 +2,24 @@
 
 #define BORDER_RADIUS_COEF 10
 
-Track::Track(MicroTimer* timer, QWidget *parent, bool is_loop, float volume, ushort beats_per_measure, QString sound_path, const QColor& background_color)
+Track::Track(MicroTimer* timer, QWidget *parent, float volume, bool is_loop, std::vector<bool> beats_per_measure, QString sound_path, const QColor& background_color)
     : QPushButton(parent),
     m_is_loop(is_loop),
     m_is_active(false),
-    m_beats_per_measure(beats_per_measure),
     m_player (new QMediaPlayer(this)),
     m_audioOutput(new QAudioOutput(this)),
-    m_settingsWindow(new TrackSettings(is_loop, static_cast<ushort>(volume)*100, beats_per_measure, background_color, this)),
+    m_settingsWindow(new TrackSettings(static_cast<quint8>(((volume>0)? (volume<101)? volume : 100 : 0)*100), is_loop, beats_per_measure, background_color, this)),
     m_style("#Track {background-color: %1; color: %2; border-radius: %3px;}"),
     m_color(background_color),
-    m_timer(timer)
+    m_timer(timer),
+    m_beats_per_measure(beats_per_measure)
 {
     setObjectName("Track");
     setStyleSheet(m_style.arg(background_color.name()).arg("black").arg(width()/BORDER_RADIUS_COEF));
+
+    if (m_beats_per_measure.size() < 8){
+        m_beats_per_measure.resize(8, false);
+    }
 
     m_player->setSource(QUrl::fromLocalFile(sound_path));
     m_player->setAudioOutput(m_audioOutput);
@@ -23,9 +27,17 @@ Track::Track(MicroTimer* timer, QWidget *parent, bool is_loop, float volume, ush
 
     connect(m_settingsWindow, &TrackSettings::changedLoopState, this, &Track::setLoopState);
     connect(m_settingsWindow, &TrackSettings::changedVolume, this, &Track::setVolume);
-    connect(m_settingsWindow, &TrackSettings::changedBeatsPerMeasure, this, &Track::setBeatsPerMeasure);
     connect( m_settingsWindow, &TrackSettings::changedBackgroundColor, this, &Track::setBackgroundColor);
     connect(m_settingsWindow, &TrackSettings::changedSoundPath, this, &Track::setSoundPath);
+
+    connect(m_settingsWindow, &TrackSettings::changedBeat1, this, &Track::setBeat1);
+    connect(m_settingsWindow, &TrackSettings::changedBeat2, this, &Track::setBeat2);
+    connect(m_settingsWindow, &TrackSettings::changedBeat3, this, &Track::setBeat3);
+    connect(m_settingsWindow, &TrackSettings::changedBeat4, this, &Track::setBeat4);
+    connect(m_settingsWindow, &TrackSettings::changedBeat5, this, &Track::setBeat5);
+    connect(m_settingsWindow, &TrackSettings::changedBeat6, this, &Track::setBeat6);
+    connect(m_settingsWindow, &TrackSettings::changedBeat7, this, &Track::setBeat7);
+    connect(m_settingsWindow, &TrackSettings::changedBeat8, this, &Track::setBeat8);
 }
 
 
@@ -59,22 +71,37 @@ void Track::mousePressEvent(QMouseEvent *event){
             if (!m_is_active){
                 m_is_active = true;
                 update();
-                connect(m_timer, &MicroTimer::tick1, this, &Track::play);
-                connect(m_timer, &MicroTimer::tick3, this, &Track::play);
-                connect(m_timer, &MicroTimer::tick5, this, &Track::play);
-                connect(m_timer, &MicroTimer::tick7, this, &Track::play);
+                if(m_beats_per_measure[0])
+                    connect(m_timer, &MicroTimer::tick1, this, &Track::play);
+                if (m_beats_per_measure[1])
+                    connect(m_timer, &MicroTimer::tick2, this, &Track::play);
+                if (m_beats_per_measure[2])
+                    connect(m_timer, &MicroTimer::tick3, this, &Track::play);
+                if (m_beats_per_measure[3])
+                    connect(m_timer, &MicroTimer::tick4, this, &Track::play);
+                if (m_beats_per_measure[4])
+                    connect(m_timer, &MicroTimer::tick5, this, &Track::play);
+                if (m_beats_per_measure[5])
+                    connect(m_timer, &MicroTimer::tick6, this, &Track::play);
+                if (m_beats_per_measure[6])
+                    connect(m_timer, &MicroTimer::tick7, this, &Track::play);
+                if (m_beats_per_measure[7])
+                    connect(m_timer, &MicroTimer::tick8, this, &Track::play);
             }
             else{
-                disconnect(m_timer, &MicroTimer::tick1, this, &Track::play);
-                disconnect(m_timer, &MicroTimer::tick3, this, &Track::play);
-                disconnect(m_timer, &MicroTimer::tick5, this, &Track::play);
-                disconnect(m_timer, &MicroTimer::tick7, this, &Track::play);
                 m_is_active = false;
+                disconnect(m_timer, &MicroTimer::tick1, this, &Track::play);
+                disconnect(m_timer, &MicroTimer::tick2, this, &Track::play);
+                disconnect(m_timer, &MicroTimer::tick3, this, &Track::play);
+                disconnect(m_timer, &MicroTimer::tick4, this, &Track::play);
+                disconnect(m_timer, &MicroTimer::tick5, this, &Track::play);
+                disconnect(m_timer, &MicroTimer::tick6, this, &Track::play);
+                disconnect(m_timer, &MicroTimer::tick7, this, &Track::play);
+                disconnect(m_timer, &MicroTimer::tick8, this, &Track::play);
             }
         }
     }
     if(event->button() == Qt::RightButton){
-
         m_settingsWindow->exec();
     }
 
@@ -187,9 +214,6 @@ void Track::setVolume(int volume_percent){
     m_audioOutput->setVolume(static_cast<double>(volume_percent)/100.0);
 }
 
-void Track::setBeatsPerMeasure(int beats_per_measure){
-    m_beats_per_measure = beats_per_measure;
-}
 
 void Track::setBackgroundColor(QColor background_color){
     m_color=background_color;
@@ -203,6 +227,71 @@ void Track::setSoundPath(QString path){
         return;
     }
     m_player->setSource(QUrl::fromLocalFile(path));
+}
+
+
+
+void Track::setBeat1(bool state){
+    m_beats_per_measure[0] = state;
+    if (m_beats_per_measure[0])
+        connect(m_timer, &MicroTimer::tick1, this, &Track::play);
+    else
+        disconnect(m_timer, &MicroTimer::tick1, this, &Track::play);
+}
+
+void Track::setBeat2(bool state){
+    m_beats_per_measure[1] = state;
+    if (m_beats_per_measure[1])
+        connect(m_timer, &MicroTimer::tick2, this, &Track::play);
+    else
+        disconnect(m_timer, &MicroTimer::tick2, this, &Track::play);
+}
+void Track::setBeat3(bool state){
+    m_beats_per_measure[2] = state;
+    if (m_beats_per_measure[2])
+        connect(m_timer, &MicroTimer::tick3, this, &Track::play);
+    else
+        disconnect(m_timer, &MicroTimer::tick3, this, &Track::play);
+}
+
+void Track::setBeat4(bool state){
+    m_beats_per_measure[3] = state;
+    if (m_beats_per_measure[3])
+        connect(m_timer, &MicroTimer::tick4, this, &Track::play);
+    else
+        disconnect(m_timer, &MicroTimer::tick4, this, &Track::play);
+}
+
+void Track::setBeat5(bool state){
+    m_beats_per_measure[4] = state;
+    if (m_beats_per_measure[4])
+        connect(m_timer, &MicroTimer::tick5, this, &Track::play);
+    else
+        disconnect(m_timer, &MicroTimer::tick5, this, &Track::play);
+}
+
+void Track::setBeat6(bool state){
+    m_beats_per_measure[5] = state;
+    if (m_beats_per_measure[5])
+        connect(m_timer, &MicroTimer::tick6, this, &Track::play);
+    else
+        disconnect(m_timer, &MicroTimer::tick6, this, &Track::play);
+}
+
+void Track::setBeat7(bool state){
+    m_beats_per_measure[6] = state;
+    if (m_beats_per_measure[6])
+        connect(m_timer, &MicroTimer::tick7, this, &Track::play);
+    else
+        disconnect(m_timer, &MicroTimer::tick7, this, &Track::play);
+}
+
+void Track::setBeat8(bool state){
+    m_beats_per_measure[7] = state;
+    if (m_beats_per_measure[7])
+        connect(m_timer, &MicroTimer::tick8, this, &Track::play);
+    else
+        disconnect(m_timer, &MicroTimer::tick8, this, &Track::play);
 }
 
 

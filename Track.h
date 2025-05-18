@@ -19,7 +19,7 @@ class Track : public QPushButton
 {
     Q_OBJECT
 public:
-    explicit Track(MicroTimer* timer = nullptr, QWidget *parent = nullptr, bool is_loop = false, float volume = 1.0, ushort beats_per_measure = 1, QString sound_path = "", const QColor& background_color = Qt::gray);
+    explicit Track(MicroTimer* timer = nullptr, QWidget *parent = nullptr, float volume = 1.0, bool is_loop = false, std::vector<bool> beats_per_measure = {1,0,0,0,0,0,0,0}, QString sound_path = "", const QColor& background_color = Qt::gray);
 
     ~Track();
     void setLoopState(Qt::CheckState state);
@@ -27,7 +27,16 @@ public:
     void setBeatsPerMeasure(int beats_per_measure);
     void setBackgroundColor(QColor color);
     void setSoundPath(QString path);
+    void setBeat1(bool state);
+    void setBeat2(bool state);
+    void setBeat3(bool state);
+    void setBeat4(bool state);
+    void setBeat5(bool state);
+    void setBeat6(bool state);
+    void setBeat7(bool state);
+    void setBeat8(bool state);
     void play();
+
 
 protected:
     bool m_is_loop;
@@ -38,7 +47,8 @@ protected:
     QString m_style;
     QColor m_color;
     MicroTimer* m_timer;
-    ushort m_beats_per_measure;
+
+    std::vector<bool> m_beats_per_measure;
 
     void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;

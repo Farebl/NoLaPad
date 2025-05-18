@@ -17,6 +17,7 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
     m_resizing(false),
     m_timer(new MicroTimer(static_cast<quint32>(60.0/(bpm_value*2)*1'000'000), this)), // (m_bpm*2) for eighth beats
     m_bpm(new BPM(m_timer, bpm_value, this))
+
 {
     // Убираем системную рамку
     setWindowFlags(Qt::FramelessWindowHint);
@@ -49,6 +50,7 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
         );
 
     // Кнопки управления
+
     QPushButton* closeButton = new QPushButton("✖", m_titleBar);
     QPushButton* minimizeButton = new QPushButton("—", m_titleBar);
     QPushButton* maximizeButton = new QPushButton("⬜", m_titleBar);
@@ -62,44 +64,49 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
     maximizeButton->setStyleSheet("background-color: #00ca4e; border-radius: 10px;");
 
     // bpm_lcd and metronome
-    // Создание layout для кнопок и QSpinBox
+
     QVBoxLayout* bpmButtons = new QVBoxLayout();
     bpmButtons->addWidget(m_bpm->getUpButton());
     bpmButtons->addWidget(m_bpm->getDownButton());
     bpmButtons->setSpacing(1);
 
     // metronome
+
     Metronome* metronome = new Metronome(
         m_timer, m_titleBar, 1.0,
-        "..//..//music//metronome//strong_measure.wav",
-        "..//..//music//metronome//weak_measure.wav",
+        "../../music/metronome/strong_measure.wav", // Виправлені шляхи
+        "../../music/metronome/weak_measure.wav",
         {true, false, false, false}
         );
     metronome->setFixedSize(30, 25);
+
 
     QHBoxLayout* bpmLayout = new QHBoxLayout();
     bpmLayout->addLayout(bpmButtons);
     bpmLayout->addWidget(m_bpm->getBpmDisplay());
     bpmLayout->addWidget(metronome);
-    bpmLayout->setSpacing(5); // Отступ между элементами
+    bpmLayout->setSpacing(5);
     bpmLayout->setContentsMargins(0, 0, 0, 0);
 
-    // REC
-    REC* rec = new REC(m_titleBar, 25, 25);
 
+    // REC
+
+    REC* rec = new REC(m_titleBar, 25, 25);
     QHBoxLayout* recLayout = new QHBoxLayout();
     recLayout->addWidget(rec->getRecButton());
     recLayout->addWidget(rec->getDigitalClockFace());
 
+
     QHBoxLayout* titleLayout = new QHBoxLayout(m_titleBar);
-    titleLayout->setContentsMargins(10, 0, 10, 0); // Додаємо відступи зліва і справа
+    titleLayout->setContentsMargins(10, 0, 10, 0);
     titleLayout->addLayout(recLayout);
-    titleLayout->addStretch(); // Добавляем растяжение слева
+    titleLayout->addStretch();
     titleLayout->addLayout(bpmLayout);
-    titleLayout->addStretch(); // Добавляем растяжение справа
+    titleLayout->addStretch();
     titleLayout->addWidget(minimizeButton);
     titleLayout->addWidget(maximizeButton);
     titleLayout->addWidget(closeButton);
+
 
     // Центральный виджет
     m_centralWidget->setStyleSheet(
@@ -109,6 +116,7 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
         );
 
     // Создаем таблицу для кнопок
+
     m_tableWidget = new QTableWidget(m_row, m_column, m_centralWidget);
     m_tableWidget->setShowGrid(false);
     m_tableWidget->horizontalHeader()->setVisible(false);
@@ -125,6 +133,7 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
 
     m_tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     m_tableWidget->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
 
     // Layout для центрального виджета
     QVBoxLayout* contentLayout = new QVBoxLayout(m_centralWidget);
@@ -146,6 +155,7 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
     connect(closeButton, &QPushButton::clicked, this, &Project::close);
     connect(minimizeButton, &QPushButton::clicked, this, &Project::showMinimized);
     connect(maximizeButton, &QPushButton::clicked, this, &Project::toggleMaximize);
+
 }
 
 Project::~Project() {}
@@ -163,6 +173,7 @@ void Project::mousePressEvent(QMouseEvent* event) {
     if (event->button() == Qt::LeftButton) {
         // Перевірка, чи натиснуто в межах title bar
         QPoint posInTitleBar = m_titleBar->mapFrom(this, event->pos());
+
         if (m_titleBar->rect().contains(posInTitleBar)) {
             m_dragging = true;
             m_dragPosition = event->globalPosition().toPoint() - pos();
@@ -196,5 +207,6 @@ void Project::mouseMoveEvent(QMouseEvent* event) {
 void Project::mouseReleaseEvent(QMouseEvent* event) {
     m_dragging = false;
     m_resizing = false;
+
     event->accept();
 }
