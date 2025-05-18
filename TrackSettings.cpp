@@ -73,23 +73,20 @@ TrackSettings::TrackSettings(quint8 volume_percent, bool is_loop, std::vector<bo
     colorLayout->addWidget(m_color_preview);
     colorLayout->addWidget(select_color_button);
 
-    if (beats_per_measure.size() < 8){
-        beats_per_measure.resize(8, false);
+    if (beats_per_measure.size() < 16){
+        beats_per_measure.resize(16, false);
     }
     QHBoxLayout* beatsLine1Layout = new QHBoxLayout();
     beatsLine1Layout->addWidget((beats_per_measure[0])?new BeatCheckBox(true):new BeatCheckBox(false)); //beat1
-
     beatsLine1Layout->addWidget((beats_per_measure[1])?new BeatCheckBox(true):new BeatCheckBox(false)); //beat2
-
     beatsLine1Layout->addWidget((beats_per_measure[2])?new BeatCheckBox(true):new BeatCheckBox(false)); //beat3
-
     beatsLine1Layout->addWidget((beats_per_measure[3])?new BeatCheckBox(true):new BeatCheckBox(false)); //beat4
-
 
     connect(qobject_cast<QCheckBox*>(beatsLine1Layout->itemAt(0)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat1);
     connect(qobject_cast<QCheckBox*>(beatsLine1Layout->itemAt(1)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat2);
     connect(qobject_cast<QCheckBox*>(beatsLine1Layout->itemAt(2)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat3);
     connect(qobject_cast<QCheckBox*>(beatsLine1Layout->itemAt(3)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat4);
+
 
     QHBoxLayout* beatsLine2Layout = new QHBoxLayout();
     beatsLine2Layout->addWidget((beats_per_measure[4])?new BeatCheckBox(true):new BeatCheckBox(false)); //beat5
@@ -102,9 +99,36 @@ TrackSettings::TrackSettings(quint8 volume_percent, bool is_loop, std::vector<bo
     connect(qobject_cast<QCheckBox*>(beatsLine2Layout->itemAt(2)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat7);
     connect(qobject_cast<QCheckBox*>(beatsLine2Layout->itemAt(3)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat8);
 
+
+    QHBoxLayout* beatsLine3Layout = new QHBoxLayout();
+    beatsLine3Layout->addWidget((beats_per_measure[8])?new BeatCheckBox(true):new BeatCheckBox(false));  //beat9
+    beatsLine3Layout->addWidget((beats_per_measure[9])?new BeatCheckBox(true):new BeatCheckBox(false));  //beat10
+    beatsLine3Layout->addWidget((beats_per_measure[10])?new BeatCheckBox(true):new BeatCheckBox(false)); //beat11
+    beatsLine3Layout->addWidget((beats_per_measure[11])?new BeatCheckBox(true):new BeatCheckBox(false)); //beat12
+
+    connect(qobject_cast<QCheckBox*>(beatsLine3Layout->itemAt(0)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat9);
+    connect(qobject_cast<QCheckBox*>(beatsLine3Layout->itemAt(1)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat10);
+    connect(qobject_cast<QCheckBox*>(beatsLine3Layout->itemAt(2)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat11);
+    connect(qobject_cast<QCheckBox*>(beatsLine3Layout->itemAt(3)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat12);
+
+
+    QHBoxLayout* beatsLine4Layout = new QHBoxLayout();
+    beatsLine4Layout->addWidget((beats_per_measure[12])?new BeatCheckBox(true):new BeatCheckBox(false));  //beat13
+    beatsLine4Layout->addWidget((beats_per_measure[13])?new BeatCheckBox(true):new BeatCheckBox(false));  //beat14
+    beatsLine4Layout->addWidget((beats_per_measure[14])?new BeatCheckBox(true):new BeatCheckBox(false)); //beat15
+    beatsLine4Layout->addWidget((beats_per_measure[15])?new BeatCheckBox(true):new BeatCheckBox(false)); //beat16
+
+    connect(qobject_cast<QCheckBox*>(beatsLine4Layout->itemAt(0)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat13);
+    connect(qobject_cast<QCheckBox*>(beatsLine4Layout->itemAt(1)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat14);
+    connect(qobject_cast<QCheckBox*>(beatsLine4Layout->itemAt(2)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat15);
+    connect(qobject_cast<QCheckBox*>(beatsLine4Layout->itemAt(3)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat16);
+
+
     QVBoxLayout* beatsLayout = new QVBoxLayout();
     beatsLayout->addLayout(beatsLine1Layout);
     beatsLayout->addLayout(beatsLine2Layout);
+    beatsLayout->addLayout(beatsLine3Layout);
+    beatsLayout->addLayout(beatsLine4Layout);
 
     QFormLayout *layout_with_settings  = new QFormLayout(this);
     layout_with_settings->addRow("looping", m_loop_state);

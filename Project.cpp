@@ -15,7 +15,7 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
     m_titleBar(new QWidget(this)),
     m_dragging(false),
     m_resizing(false),
-    m_timer(new MicroTimer(static_cast<quint32>(60.0/(bpm_value*2)*1'000'000), this)), // (m_bpm*2) for eighth beats
+    m_timer(new MicroTimer(static_cast<quint32>(60.0/(bpm_value*4)*1'000'000), this)), // (bpm_value * 4) because the timer generates 16th parts
     m_bpm(new BPM(m_timer, bpm_value, this))
 
 {

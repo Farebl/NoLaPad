@@ -14,7 +14,15 @@ MicroTimer::MicroTimer(quint32 interval, QObject* parent)
         [this]() { emit tick5(); },
         [this]() { emit tick6(); },
         [this]() { emit tick7(); },
-        [this]() { emit tick8(); }
+        [this]() { emit tick8(); },
+        [this]() { emit tick9(); },
+        [this]() { emit tick10(); },
+        [this]() { emit tick11(); },
+        [this]() { emit tick12(); },
+        [this]() { emit tick13(); },
+        [this]() { emit tick14(); },
+        [this]() { emit tick15(); },
+        [this]() { emit tick16(); }
     }
 {
     // Устанавливаем интервал 1 сек. по умолчанию, если передан некорректный
@@ -51,7 +59,7 @@ void MicroTimer::run() {
         if (timer.nsecsElapsed() >= m_interval*1'000) {
             emit m_signas[m_tick_order]();
             ++m_tick_order;
-            if (m_tick_order == 8){
+            if (m_tick_order == 16){
                 m_tick_order = 0;
             }
             timer.restart();  // Сбрасываем таймер для следующего интервала
