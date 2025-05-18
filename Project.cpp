@@ -48,8 +48,6 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
         "border-top-right-radius: 10px;"
         );
 
-
-
     // Кнопки управления
     QPushButton* closeButton = new QPushButton("✖", m_titleBar);
     QPushButton* minimizeButton = new QPushButton("—", m_titleBar);
@@ -63,27 +61,21 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
     minimizeButton->setStyleSheet("background-color: #ffbd44; border-radius: 10px;");
     maximizeButton->setStyleSheet("background-color: #00ca4e; border-radius: 10px;");
 
-
-
-
-    //bpm_lcd and metronome
-
+    // bpm_lcd and metronome
     // Создание layout для кнопок и QSpinBox
     QVBoxLayout* bpmButtons = new QVBoxLayout();
     bpmButtons->addWidget(m_bpm->getUpButton());
     bpmButtons->addWidget(m_bpm->getDownButton());
     bpmButtons->setSpacing(1);
 
-
-    //metronome
+    // metronome
     Metronome* metronome = new Metronome(
         m_timer, m_titleBar, 1.0,
         "..//..//music//metronome//strong_measure.wav",
         "..//..//music//metronome//weak_measure.wav",
         {true, false, false, false}
         );
-    metronome->setFixedSize(30, 25); //
-
+    metronome->setFixedSize(30, 25);
 
     QHBoxLayout* bpmLayout = new QHBoxLayout();
     bpmLayout->addLayout(bpmButtons);
@@ -92,8 +84,6 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
     bpmLayout->setSpacing(5); // Отступ между элементами
     bpmLayout->setContentsMargins(0, 0, 0, 0);
 
-
-
     // REC
     REC* rec = new REC(m_titleBar, 25, 25);
 
@@ -101,9 +91,8 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
     recLayout->addWidget(rec->getRecButton());
     recLayout->addWidget(rec->getDigitalClockFace());
 
-
     QHBoxLayout* titleLayout = new QHBoxLayout(m_titleBar);
-    titleLayout->setContentsMargins(10, 0, 10, 0);
+    titleLayout->setContentsMargins(10, 0, 10, 0); // Додаємо відступи зліва і справа
     titleLayout->addLayout(recLayout);
     titleLayout->addStretch(); // Добавляем растяжение слева
     titleLayout->addLayout(bpmLayout);
@@ -111,7 +100,6 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
     titleLayout->addWidget(minimizeButton);
     titleLayout->addWidget(maximizeButton);
     titleLayout->addWidget(closeButton);
-
 
     // Центральный виджет
     m_centralWidget->setStyleSheet(
@@ -151,6 +139,9 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
     container->setLayout(mainLayout);
     setCentralWidget(container);
 
+    // Прибираємо фокус з m_bpm_display
+    m_bpm->getBpmDisplay()->clearFocus();
+
     // Подключение кнопок
     connect(closeButton, &QPushButton::clicked, this, &Project::close);
     connect(minimizeButton, &QPushButton::clicked, this, &Project::showMinimized);
@@ -168,14 +159,25 @@ void Project::toggleMaximize() {
 }
 
 void Project::mousePressEvent(QMouseEvent* event) {
+
     if (event->button() == Qt::LeftButton) {
-        if (event->pos().y() < 30) {  // Перемещение по заголовку
+        // Перевірка, чи натиснуто в межах title bar
+        QPoint posInTitleBar = m_titleBar->mapFrom(this, event->pos());
+        if (m_titleBar->rect().contains(posInTitleBar)) {
             m_dragging = true;
-            m_dragPosition = event->globalPosition().toPoint() - frameGeometry().topLeft();
+            m_dragPosition = event->globalPosition().toPoint() - pos();
+
+            // Передаємо управління переміщенням віконному менеджеру
+            if (windowHandle()) {
+                windowHandle()->startSystemMove();
+            }
         } else if (event->pos().y() > height() - 10 || event->pos().x() > width() - 10) {  // Изменение размера
             m_resizing = true;
             m_resizeStart = event->globalPosition().toPoint();
             m_resizeStartSize = size();
+
+        } else {
+            event->ignore(); // Дозволяє іншим віджетам обробити подію
         }
         event->accept();
     }
@@ -183,8 +185,7 @@ void Project::mousePressEvent(QMouseEvent* event) {
 
 void Project::mouseMoveEvent(QMouseEvent* event) {
     if (m_dragging) {
-        move(event->globalPosition().toPoint() - m_dragPosition);
-        event->accept();
+        event->globalPosition().toPoint() - m_dragPosition;
     } else if (m_resizing) {
         QPoint delta = event->globalPosition().toPoint() - m_resizeStart;
         resize(m_resizeStartSize.width() + delta.x(), m_resizeStartSize.height() + delta.y());

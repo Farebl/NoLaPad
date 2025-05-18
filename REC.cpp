@@ -59,8 +59,13 @@ void REC::startRecording() {
     int whichResult = QProcess::execute("which ffmpeg");
     qDebug() << "'which ffmpeg' result:" << whichResult;
     if (whichResult != 0) {
-        qDebug() << "FFmpeg executable not found in system path. Please install FFmpeg.";
-        return;
+        qDebug() << "FFmpeg not found with 'which'. Trying direct execution...";
+        QProcess testProcess;
+        testProcess.start(ffmpegPath, QStringList() << "-version");
+        if (!testProcess.waitForStarted(3000) || !testProcess.waitForFinished(3000)) {
+            qDebug() << "FFmpeg executable not found in system path. Please install FFmpeg.";
+            return;
+        }
     }
 
     // Створення папки records, якщо вона не існує
@@ -87,9 +92,12 @@ void REC::startRecording() {
 
     QStringList arguments;
 #ifdef Q_OS_LINUX
-    // Захоплення системного звуку через PulseAudio
+    // Захоплення вихідного звуку через PulseAudio monitor
+    // Виконай: pactl list sources
+    // Знайди джерело типу "alsa_output...monitor" (наприклад, "alsa_output.pci-0000_00_1b.0.analog-stereo.monitor")
+    // Заміни "alsa_output..." на твоє джерело
     arguments << "-f" << "pulse"
-              << "-i" << "default" // Використовуємо джерело за замовчуванням
+              << "-i" << "alsa_output.pci-0000_00_1f.3.analog-stereo.monitor"
               << "-c:a" << (m_recording_format == "MP3" ? "mp3" : "pcm_s16le")
               << "-y" << m_currentOutputFile;
 #elif defined(Q_OS_WIN)

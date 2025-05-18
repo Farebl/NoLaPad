@@ -2,6 +2,7 @@
 #define PROJECT_H
 
 #include <QMainWindow>
+#include <QWindow>
 #include <QTableWidget>
 
 #include <QMediaPlayer>
@@ -25,7 +26,6 @@ private:
     int m_row;
     int m_column;
 
-
     QWidget* m_centralWidget;
     QWidget* m_titleBar;
     bool m_dragging;
@@ -46,7 +46,6 @@ protected:
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
-
 };
 
 #endif // PROJECT_H
