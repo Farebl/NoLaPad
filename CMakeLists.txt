@@ -36,6 +36,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
         BeatCheckBox.h BeatCheckBox.cpp
+        Fader.h Fader.cpp
     )
 else()
     if(ANDROID)
