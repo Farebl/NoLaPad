@@ -37,6 +37,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${PROJECT_SOURCES}
         BeatCheckBox.h BeatCheckBox.cpp
         Fader.h Fader.cpp
+        Potentiometer.h Potentiometer.cpp
+        LoopButton.h LoopButton.cpp
     )
 else()
     if(ANDROID)
