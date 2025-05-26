@@ -11,9 +11,11 @@
 #include <QVector>
 
 #include "Track.h"
+#include "TrackSettings.h"
 #include "Metronome.h"
 #include "REC.h"
 #include "BPM.h"
+
 
 class Project : public QMainWindow {
     Q_OBJECT
@@ -39,8 +41,12 @@ private:
 
     BPM* m_bpm;
     Metronome* m_metronome;
+    TrackSettings* m_settings_window;
+
+    std::vector<QMetaObject::Connection> m_current_connections;
 
     void toggleMaximize();
+    void openTrackSettings(Track* track);
 
 protected:
     void mousePressEvent(QMouseEvent* event) override;

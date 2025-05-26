@@ -16,23 +16,19 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
     m_dragging(false),
     m_resizing(false),
     m_timer(new MicroTimer(static_cast<quint32>(60.0/(bpm_value*4)*1'000'000), this)), // (bpm_value * 4) because the timer generates 16th parts
-    m_bpm(new BPM(m_timer, bpm_value, this))
-
+    m_bpm(new BPM(m_timer, bpm_value, this)),
+    m_settings_window(new TrackSettings(100, false, {{1, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}, Qt::gray, Qt::darkGray, this))
 {
+
     // Убираем системную рамку
-    setWindowFlags(Qt::FramelessWindowHint);
+    setWindowFlags(Qt::FramelessWindowHint | Qt::Window);
     setAttribute(Qt::WA_TranslucentBackground);
 
     // Начальный размер
     resize(800, 800);
     setMinimumSize(400, 300);
 
-    // Стиль для всего окна
-    setStyleSheet(
-        "Project {"
-        "    background-color: transparent;"
-        "}"
-        );
+    m_current_connections.reserve(22);
 
     m_timer->start();
 
@@ -110,7 +106,7 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
 
     // Центральный виджет
     m_centralWidget->setStyleSheet(
-        "background-color: #f0f0f0;"
+        "background-color: #3f3f3f;"
         "border-bottom-left-radius: 10px;"
         "border-bottom-right-radius: 10px;"
         );
@@ -127,7 +123,10 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
     // Заполняем таблицу кнопками
     for (int r = 0; r < m_row; ++r) {
         for (int c = 0; c < m_column; ++c) {
-            m_tableWidget->setCellWidget(r, c, new Track(m_timer, m_centralWidget, false));
+            Track* track = new Track(m_timer, m_centralWidget, false);
+            m_tableWidget->setCellWidget(r, c, track);
+            connect(track, &Track::rightClicked, this, &Project::openTrackSettings);
+            qDebug() << "Created track at" << r << "," << c;
         }
     }
 
@@ -159,6 +158,57 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
 }
 
 Project::~Project() {}
+
+
+
+
+void Project::openTrackSettings(Track* track){
+
+    auto connections_size = m_current_connections.size();
+    for(int i = 0; i<connections_size; ++i){
+        disconnect(m_current_connections[i]);
+        m_current_connections.clear();
+    }
+    qDebug()<<track->getVolume();
+    m_settings_window->setVolume(track->getVolume()*100);
+    //m_settings_window->setEffectVolume(track->getEffectVolume());
+    m_settings_window->setEffectVolume(50);
+    m_settings_window->setOuterBackgroundColor(track->getOuterBackgroundColor());
+    m_settings_window->setInnerBackgroundColor(track->getInnerBackgroundColor());
+    m_settings_window->setLoopState(track->getLoopState());
+    m_settings_window->setBeats(track->getBeats());
+    m_settings_window->setIsAudioSampleSelectedState((!track->getSoundPath().isEmpty())?true:false);
+
+
+    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedVolume, track, &Track::setVolume));
+    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedOuterBackgroundColor, track, &Track::setOuterBackgroundColor));
+    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedInnerBackgroundColor, track, &Track::setInnerBackgroundColor));
+    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedLoopState, track, &Track::setLoopState));
+
+    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat1, track, &Track::setBeat1));
+    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat2, track, &Track::setBeat2));
+    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat3, track, &Track::setBeat3));
+    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat4, track, &Track::setBeat4));
+    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat5, track, &Track::setBeat5));
+    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat6, track, &Track::setBeat6));
+    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat7, track, &Track::setBeat7));
+    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat8, track, &Track::setBeat8));
+    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat9, track, &Track::setBeat9));
+    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat10, track, &Track::setBeat10));
+    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat11, track, &Track::setBeat11));
+    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat12, track, &Track::setBeat12));
+    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat13, track, &Track::setBeat13));
+    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat14, track, &Track::setBeat14));
+    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat15, track, &Track::setBeat15));
+    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat16, track, &Track::setBeat16));
+
+    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedAudioSamplePath, track, &Track::setAudioSamplePath));
+
+    m_settings_window->show();
+}
+
+
+
 
 void Project::toggleMaximize() {
     if (isMaximized()) {
