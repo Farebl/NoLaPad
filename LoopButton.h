@@ -10,7 +10,8 @@ class LoopButton : public QPushButton
 {
     Q_OBJECT
 public:
-    LoopButton(QWidget* parent = nullptr, bool is_pressed = false);
+    LoopButton(QWidget* parent = nullptr, bool is_pressed = false, uint size = 100);
+    void setLooptState(bool state);
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;

@@ -1,11 +1,23 @@
 #include "LoopButton.h"
 
-LoopButton::LoopButton(QWidget* parent, bool is_pressed):
+LoopButton::LoopButton(QWidget* parent, bool is_pressed, uint size):
     QPushButton(parent)
     , m_is_pressed(is_pressed)
 {
+    setFixedSize(size, size);
     setStyleSheet("background-color: #cdcdcd; border-radius: 3px;");
 }
+
+void LoopButton::setLooptState(bool state){
+    m_is_pressed = state;
+    if (m_is_pressed){
+        setStyleSheet("background-color: #ff5050; border-radius: 3px;");
+    }
+    else {
+        setStyleSheet("background-color: #cdcdcd; border-radius: 3px;");
+    }
+}
+
 
 
 void LoopButton::mousePressEvent(QMouseEvent *event){
