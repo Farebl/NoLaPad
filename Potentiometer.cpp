@@ -1,12 +1,13 @@
 #include "Potentiometer.h"
 #include <QtMath>
 
-Potentiometer::Potentiometer(QWidget *parent)
+Potentiometer::Potentiometer(QWidget *parent, uint radius)
     : QDial(parent), m_dragging(false)
 {
     setRange(0, 100); // Діапазон від 0 до 100
     setValue(50);     // Початкове значення
     setWrapping(true);
+    setFixedSize(radius,radius);
 }
 
 void Potentiometer::paintEvent(QPaintEvent *event)
@@ -15,7 +16,8 @@ void Potentiometer::paintEvent(QPaintEvent *event)
     painter.setRenderHint(QPainter::Antialiasing);
 
     // Визначаємо розміри
-    int diameter = qMin(width(), height()) - 10; // Зменшуємо діаметр для відступу
+    int widgetSize = qMin(width(), height()); // Беремо мінімальний розмір віджета
+    int diameter = widgetSize - 20; // Діаметр основи на 20 пікселів менший за розмір віджета
     int centerX = width() / 2;
     int centerY = height() / 2;
     int radius = diameter / 2;
@@ -31,8 +33,6 @@ void Potentiometer::paintEvent(QPaintEvent *event)
     int minValue = minimum();
     int maxValue = maximum();
     qreal angle = 360.0 * (value - minValue) / (maxValue - minValue) + 90; // Від 0 до 360 градусів, 0° угорі
-
-    qreal radians = qDegreesToRadians(angle);
 
     // Параметри прямокутника (стрілки)
     int arrowLength = radius + 10; // Довжина стрілки
@@ -73,15 +73,17 @@ void Potentiometer::mousePressEvent(QMouseEvent *event)
         // Конвертуємо кут у значення (0-100)
         int newValue = (angle / 360.0) * (maximum() - minimum());
         setValue(newValue);
+        if (newValue > 88 || newValue < 14) {
 
-        if (newValue > 13 && newValue < 39) {
-            emit(settedFourthQuarter());
-        } else if (newValue > 38 && newValue < 64) {
-            emit(settedThirdQuarter());
-        } else if (newValue > 63 && newValue < 89) {
-            emit(settedSecondQuarter());
-        } else {
             emit(settedFirstQuarter());
+        } else if (newValue > 13 && newValue < 38) {
+            emit(settedFourthQuarter());
+        }
+        else if (newValue > 37 && newValue < 68) {
+            emit(settedThirdQuarter());
+        }
+        else {
+            emit(settedSecondQuarter());
         }
 
         update(); // Оновлюємо відображення
@@ -108,15 +110,16 @@ void Potentiometer::mouseMoveEvent(QMouseEvent *event)
         // Конвертуємо кут у значення (0-100)
         int newValue = (angle / 360.0) * (maximum() - minimum());
         setValue(newValue);
-
-        if (newValue > 13 && newValue < 39) {
-            emit(settedFourthQuarter());
-        } else if (newValue > 38 && newValue < 64) {
-            emit(settedThirdQuarter());
-        } else if (newValue > 63 && newValue < 89) {
-            emit(settedSecondQuarter());
-        } else {
+        if (newValue > 88 || newValue < 14) {
             emit(settedFirstQuarter());
+        } else if (newValue > 13 && newValue < 38) {
+            emit(settedFourthQuarter());
+        }
+        else if (newValue > 37 && newValue < 68) {
+            emit(settedThirdQuarter());
+        }
+        else {
+            emit(settedSecondQuarter());
         }
         update(); // Оновлюємо відображення
     }
@@ -126,15 +129,17 @@ void Potentiometer::mouseMoveEvent(QMouseEvent *event)
 void Potentiometer::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
-        int val = value();
-        if (val > 13 && val < 39) {
-            setValue(25);
-        } else if (val > 38 && val < 64) {
-            setValue(50);
-        } else if (val > 63 && val < 89) {
-            setValue(75);
-        } else {
+        int newValue = value();
+        if (newValue > 88 || newValue < 14) {
             setValue(0);
+        } else if (newValue > 13 && newValue < 38) {
+            setValue(25);
+        }
+        else if (newValue > 37 && newValue < 68) {
+            setValue(50);
+        }
+        else {
+            setValue(75);
         }
     }
     event->accept();

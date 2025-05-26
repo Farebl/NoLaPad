@@ -39,6 +39,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         Fader.h Fader.cpp
         Potentiometer.h Potentiometer.cpp
         LoopButton.h LoopButton.cpp
+        TrackColorButtons.h TrackColorButtons.cpp
+        ClickableLabel.h ClickableLabel.cpp
+        AudioSampleSelector.h AudioSampleSelector.cpp
     )
 else()
     if(ANDROID)

@@ -9,7 +9,7 @@ class Potentiometer : public QDial
 {
     Q_OBJECT
 public:
-    explicit Potentiometer(QWidget *parent = nullptr);
+    explicit Potentiometer(QWidget *parent = nullptr, uint radius = 60);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
