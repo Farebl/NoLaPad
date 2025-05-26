@@ -12,10 +12,8 @@ class AudioSampleSelector : public QWidget
 {
     Q_OBJECT
 public:
-    explicit AudioSampleSelector(QWidget *parent = nullptr);
+    explicit AudioSampleSelector(QWidget *parent = nullptr, QString activeStateImagePath = "..//..//images//audio_in_plugged.png", QString inactiveStateImagePath  = "..//..//images//audio_in_unplugged.png");
     void setIsAudioSampleSelectedState(bool state);
-    void setActiveStateImage(const QString &activeStateImagePath);
-    void setInactiveStateImage(const QString &inactiveStateImagePath);
 
 
 protected:

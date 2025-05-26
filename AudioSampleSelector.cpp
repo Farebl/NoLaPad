@@ -1,20 +1,10 @@
 #include "AudioSampleSelector.h"
 #include <QFileDialog>
 
-AudioSampleSelector::AudioSampleSelector(QWidget *parent)
+AudioSampleSelector::AudioSampleSelector(QWidget *parent, QString activeStateImagePath, QString inactiveStateImagePath)
     : QWidget(parent), m_is_active(false)
 {
     setMinimumSize(100, 100); // Встановлюємо мінімальний розмір, щоб віджет був видимим
-}
-
-void AudioSampleSelector::setIsAudioSampleSelectedState(bool state){
-    m_is_active = state;
-    update();
-}
-
-
-void AudioSampleSelector::setActiveStateImage(const QString &activeStateImagePath)
-{
     m_activeStateImage = QPixmap(activeStateImagePath);
     if (m_activeStateImage.isNull()) {
         qDebug() << "Failed to load activeState image from:" << activeStateImagePath;
@@ -22,11 +12,7 @@ void AudioSampleSelector::setActiveStateImage(const QString &activeStateImagePat
         m_activeStateImage = m_activeStateImage.scaled(m_activeStateImage.width(), m_activeStateImage.height() + 8, Qt::KeepAspectRatio, Qt::SmoothTransformation);
         setMinimumSize(m_activeStateImage.width(), m_activeStateImage.height()); // Адаптуємо розмір віджета під зображення
     }
-    update();
-}
 
-void AudioSampleSelector::setInactiveStateImage(const QString &inactiveStateImagePath)
-{
     m_inactiveStateImage = QPixmap(inactiveStateImagePath);
     if (m_inactiveStateImage.isNull()) {
         qDebug() << "Failed to load inactiveState image from:" << inactiveStateImagePath;
@@ -34,8 +20,15 @@ void AudioSampleSelector::setInactiveStateImage(const QString &inactiveStateImag
         m_inactiveStateImage = m_inactiveStateImage.scaled(m_inactiveStateImage.width(), m_activeStateImage.height() + 8, Qt::KeepAspectRatio, Qt::SmoothTransformation);
         setMinimumSize(m_inactiveStateImage.width(), m_inactiveStateImage.height()); // Адаптуємо розмір віджета
     }
+
     update();
 }
+
+void AudioSampleSelector::setIsAudioSampleSelectedState(bool state){
+    m_is_active = state;
+    update();
+}
+
 
 void AudioSampleSelector::paintEvent(QPaintEvent *event)
 {
