@@ -4,8 +4,6 @@
 #include <QPushButton>
 #include <QPainter>
 
-
-// Кастомный класс кнопки
 class RECButton : public QPushButton {
     Q_OBJECT
 public:

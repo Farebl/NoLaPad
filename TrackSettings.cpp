@@ -8,8 +8,8 @@ TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::vector<s
     , m_volume_fader(new Fader(this, "..//..//images//fader_track.png", "..//..//images//fader_handle.png", "..//..//images//fader_measures.png"))
     , m_effect_volume_fader(new Fader(this, "..//..//images//fader_track.png", "..//..//images//fader_handle.png", "..//..//images//fader_measures.png"))
     , m_select_track_colors_button(new TrackColorButtons(this, 80, Qt::gray, Qt::darkGray))
-    , m_loop_button(new LoopButton())
-    , m_effects_switch(new Potentiometer(this, 60))
+    , m_loop_button(new LoopButton(this, false, 80))
+    , m_effects_switch(new Potentiometer(this, 140))
     , m_beats_matrix_layout(new QVBoxLayout())
     , m_audio_input_connector(new AudioSampleSelector(this,  "..//..//images//audio_in_plugged.png", "..//..//images//audio_in_unplugged.png"))
     , m_beats_per_measure(beats_per_measure)
@@ -98,7 +98,6 @@ TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::vector<s
     l3->setSpacing(10);
 
 
-    m_select_track_colors_button->setFixedSize(80, 80);
     connect(m_select_track_colors_button, &TrackColorButtons::changedInnerColor, this, &TrackSettings::changedInnerBackgroundColor);
     connect(m_select_track_colors_button, &TrackColorButtons::changedOuterColor, this, &TrackSettings::changedOuterBackgroundColor);
 
@@ -110,9 +109,6 @@ TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::vector<s
     select_track_colors_layout->addWidget(m_select_track_colors_button);
     select_track_colors_layout->setAlignment(Qt::AlignCenter);
     select_track_colors_layout->setSpacing(5);
-
-
-    m_loop_button->setFixedSize(80, 80);
 
     connect(m_loop_button, &LoopButton::changedState, this, &TrackSettings::changedLoopState);
 
@@ -147,56 +143,183 @@ TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::vector<s
     }
 
 
-    QHBoxLayout* beats_line_1_layout = new QHBoxLayout();
-    beats_line_1_layout->addWidget(new BeatCheckBox((m_beats_per_measure[0][0])?true:false)); //beat1
-    beats_line_1_layout->addWidget(new BeatCheckBox((m_beats_per_measure[0][1])?true:false)); //beat2
-    beats_line_1_layout->addWidget(new BeatCheckBox((m_beats_per_measure[0][2])?true:false)); //beat3
-    beats_line_1_layout->addWidget(new BeatCheckBox((m_beats_per_measure[0][3])?true:false)); //beat4
 
-    connect(qobject_cast<QCheckBox*>(beats_line_1_layout->itemAt(0)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat1);
-    connect(qobject_cast<QCheckBox*>(beats_line_1_layout->itemAt(1)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat2);
-    connect(qobject_cast<QCheckBox*>(beats_line_1_layout->itemAt(2)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat3);
-    connect(qobject_cast<QCheckBox*>(beats_line_1_layout->itemAt(3)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat4);
+    QHBoxLayout* beats_line_1_layout = new QHBoxLayout();
+    QString beat_label_style("color: #ebebeb; font-size: 14px; text-align: center;");
+
+    QVBoxLayout* beat1_layout = new QVBoxLayout();
+    beat1_layout->addWidget(new QLabel(QString("1")));
+    qobject_cast<QLabel*>(beat1_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
+    beat1_layout->addWidget(new BeatCheckBox((m_beats_per_measure[0][0]) ? true : false));
+    beat1_layout->setAlignment(Qt::AlignHCenter);
+    beat1_layout->setSpacing(0);
+
+    QVBoxLayout* beat2_layout = new QVBoxLayout();
+    beat2_layout->addWidget(new QLabel(QString("2")));
+    qobject_cast<QLabel*>(beat2_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
+    beat2_layout->addWidget(new BeatCheckBox((m_beats_per_measure[0][1]) ? true : false));
+    beat2_layout->setAlignment(Qt::AlignHCenter);
+    beat2_layout->setSpacing(0);
+
+    QVBoxLayout* beat3_layout = new QVBoxLayout();
+    beat3_layout->addWidget(new QLabel(QString("3")));
+    qobject_cast<QLabel*>(beat3_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
+    beat3_layout->addWidget(new BeatCheckBox((m_beats_per_measure[0][2]) ? true : false));
+    beat3_layout->setAlignment(Qt::AlignHCenter);
+    beat3_layout->setSpacing(0);
+
+    QVBoxLayout* beat4_layout = new QVBoxLayout();
+    beat4_layout->addWidget(new QLabel(QString("4")));
+    qobject_cast<QLabel*>(beat4_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
+    beat4_layout->addWidget(new BeatCheckBox((m_beats_per_measure[0][3]) ? true : false));
+    beat4_layout->setAlignment(Qt::AlignHCenter);
+    beat4_layout->setSpacing(0);
+
+    beats_line_1_layout->addLayout(beat1_layout); // beat1
+    beats_line_1_layout->addLayout(beat2_layout); // beat2
+    beats_line_1_layout->addLayout(beat3_layout); // beat3
+    beats_line_1_layout->addLayout(beat4_layout); // beat4
+    beats_line_1_layout->setSpacing(25);
+
+    // Підключення сигналів
+    connect(qobject_cast<QCheckBox*>(beat1_layout->itemAt(1)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat1);
+    connect(qobject_cast<QCheckBox*>(beat2_layout->itemAt(1)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat2);
+    connect(qobject_cast<QCheckBox*>(beat3_layout->itemAt(1)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat3);
+    connect(qobject_cast<QCheckBox*>(beat4_layout->itemAt(1)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat4);
 
 
     QHBoxLayout* beats_line_2_layout = new QHBoxLayout();
-    beats_line_2_layout->addWidget(new BeatCheckBox((m_beats_per_measure[1][0])?true:false)); //beat5
-    beats_line_2_layout->addWidget(new BeatCheckBox((m_beats_per_measure[1][1])?true:false)); //beat6
-    beats_line_2_layout->addWidget(new BeatCheckBox((m_beats_per_measure[1][2])?true:false)); //beat7
-    beats_line_2_layout->addWidget(new BeatCheckBox((m_beats_per_measure[1][3])?true:false)); //beat8
 
+    QVBoxLayout* beat5_layout = new QVBoxLayout();
+    beat5_layout->addWidget(new QLabel(QString("5")));
+    qobject_cast<QLabel*>(beat5_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
+    beat5_layout->addWidget(new BeatCheckBox((m_beats_per_measure[1][0]) ? true : false));
+    beat5_layout->setAlignment(Qt::AlignHCenter);
+    beat5_layout->setSpacing(0);
 
-    connect(qobject_cast<QCheckBox*>(beats_line_2_layout->itemAt(0)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat5);
-    connect(qobject_cast<QCheckBox*>(beats_line_2_layout->itemAt(1)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat6);
-    connect(qobject_cast<QCheckBox*>(beats_line_2_layout->itemAt(2)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat7);
-    connect(qobject_cast<QCheckBox*>(beats_line_2_layout->itemAt(3)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat8);
+    QVBoxLayout* beat6_layout = new QVBoxLayout();
+    beat6_layout->addWidget(new QLabel(QString("6")));
+    qobject_cast<QLabel*>(beat6_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
+    beat6_layout->addWidget(new BeatCheckBox((m_beats_per_measure[1][1]) ? true : false));
+    beat6_layout->setAlignment(Qt::AlignHCenter);
+    beat6_layout->setSpacing(0);
+
+    QVBoxLayout* beat7_layout = new QVBoxLayout();
+    beat7_layout->addWidget(new QLabel(QString("7")));
+    qobject_cast<QLabel*>(beat7_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
+    beat7_layout->addWidget(new BeatCheckBox((m_beats_per_measure[1][2]) ? true : false));
+    beat7_layout->setAlignment(Qt::AlignHCenter);
+    beat7_layout->setSpacing(0);
+
+    QVBoxLayout* beat8_layout = new QVBoxLayout();
+    beat8_layout->addWidget(new QLabel(QString("8")));
+    qobject_cast<QLabel*>(beat8_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
+    beat8_layout->addWidget(new BeatCheckBox((m_beats_per_measure[1][3]) ? true : false));
+    beat8_layout->setAlignment(Qt::AlignHCenter);
+    beat8_layout->setSpacing(0);
+
+    beats_line_2_layout->addLayout(beat5_layout); // beat1
+    beats_line_2_layout->addLayout(beat6_layout); // beat2
+    beats_line_2_layout->addLayout(beat7_layout); // beat3
+    beats_line_2_layout->addLayout(beat8_layout); // beat4
+    beats_line_2_layout->setSpacing(25);
+
+    // Підключення сигналів
+    connect(qobject_cast<QCheckBox*>(beat5_layout->itemAt(1)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat5);
+    connect(qobject_cast<QCheckBox*>(beat6_layout->itemAt(1)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat6);
+    connect(qobject_cast<QCheckBox*>(beat7_layout->itemAt(1)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat7);
+    connect(qobject_cast<QCheckBox*>(beat8_layout->itemAt(1)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat8);
+
 
 
     QHBoxLayout* beats_line_3_layout = new QHBoxLayout();
-    beats_line_3_layout->addWidget(new BeatCheckBox((m_beats_per_measure[2][0])?true:false)); //beat9
-    beats_line_3_layout->addWidget(new BeatCheckBox((m_beats_per_measure[2][1])?true:false)); //beat10
-    beats_line_3_layout->addWidget(new BeatCheckBox((m_beats_per_measure[2][2])?true:false)); //beat11
-    beats_line_3_layout->addWidget(new BeatCheckBox((m_beats_per_measure[2][3])?true:false)); //beat12
+
+    QVBoxLayout* beat9_layout = new QVBoxLayout();
+    beat9_layout->addWidget(new QLabel(QString("9")));
+    qobject_cast<QLabel*>(beat9_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
+    beat9_layout->addWidget(new BeatCheckBox((m_beats_per_measure[2][0]) ? true : false));
+    beat9_layout->setAlignment(Qt::AlignHCenter);
+    beat9_layout->setSpacing(0);
+
+    QVBoxLayout* beat10_layout = new QVBoxLayout();
+    beat10_layout->addWidget(new QLabel(QString("10")));
+    qobject_cast<QLabel*>(beat10_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
+    beat10_layout->addWidget(new BeatCheckBox((m_beats_per_measure[2][1]) ? true : false));
+    beat10_layout->setAlignment(Qt::AlignHCenter);
+    beat10_layout->setSpacing(0);
+
+    QVBoxLayout* beat11_layout = new QVBoxLayout();
+    beat11_layout->addWidget(new QLabel(QString("11")));
+    qobject_cast<QLabel*>(beat11_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
+    beat11_layout->addWidget(new BeatCheckBox((m_beats_per_measure[2][2]) ? true : false));
+    beat11_layout->setAlignment(Qt::AlignHCenter);
+    beat11_layout->setSpacing(0);
+
+    QVBoxLayout* beat12_layout = new QVBoxLayout();
+    beat12_layout->addWidget(new QLabel(QString("12")));
+    qobject_cast<QLabel*>(beat12_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
+    beat12_layout->addWidget(new BeatCheckBox((m_beats_per_measure[2][3]) ? true : false));
+    beat12_layout->setAlignment(Qt::AlignHCenter);
+    beat12_layout->setSpacing(0);
+
+    beats_line_3_layout->addLayout(beat9_layout); // beat1
+    beats_line_3_layout->addLayout(beat10_layout); // beat2
+    beats_line_3_layout->addLayout(beat11_layout); // beat3
+    beats_line_3_layout->addLayout(beat12_layout); // beat4
+    beats_line_3_layout->setSpacing(25);
 
 
-    connect(qobject_cast<QCheckBox*>(beats_line_3_layout->itemAt(0)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat9);
-    connect(qobject_cast<QCheckBox*>(beats_line_3_layout->itemAt(1)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat10);
-    connect(qobject_cast<QCheckBox*>(beats_line_3_layout->itemAt(2)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat11);
-    connect(qobject_cast<QCheckBox*>(beats_line_3_layout->itemAt(3)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat12);
+
+    // Підключення сигналів
+    connect(qobject_cast<QCheckBox*>(beat9_layout->itemAt(1)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat9);
+    connect(qobject_cast<QCheckBox*>(beat10_layout->itemAt(1)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat10);
+    connect(qobject_cast<QCheckBox*>(beat11_layout->itemAt(1)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat11);
+    connect(qobject_cast<QCheckBox*>(beat12_layout->itemAt(1)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat12);
+
 
 
     QHBoxLayout* beats_line_4_layout = new QHBoxLayout();
-    beats_line_4_layout->addWidget(new BeatCheckBox((m_beats_per_measure[3][0])?true:false)); //beat13
-    beats_line_4_layout->addWidget(new BeatCheckBox((m_beats_per_measure[3][1])?true:false)); //beat14
-    beats_line_4_layout->addWidget(new BeatCheckBox((m_beats_per_measure[3][2])?true:false)); //beat15
-    beats_line_4_layout->addWidget(new BeatCheckBox((m_beats_per_measure[3][3])?true:false)); //beat16
 
 
-    connect(qobject_cast<QCheckBox*>(beats_line_4_layout->itemAt(0)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat13);
-    connect(qobject_cast<QCheckBox*>(beats_line_4_layout->itemAt(1)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat14);
-    connect(qobject_cast<QCheckBox*>(beats_line_4_layout->itemAt(2)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat15);
-    connect(qobject_cast<QCheckBox*>(beats_line_4_layout->itemAt(3)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat16);
+    QVBoxLayout* beat13_layout = new QVBoxLayout();
+    beat13_layout->addWidget(new QLabel(QString("13")));
+    qobject_cast<QLabel*>(beat13_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
+    beat13_layout->addWidget(new BeatCheckBox((m_beats_per_measure[3][0]) ? true : false));
+    beat13_layout->setAlignment(Qt::AlignHCenter);
+    beat13_layout->setSpacing(0);
 
+    QVBoxLayout* beat14_layout = new QVBoxLayout();
+    beat14_layout->addWidget(new QLabel(QString("14")));
+    qobject_cast<QLabel*>(beat14_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
+    beat14_layout->addWidget(new BeatCheckBox((m_beats_per_measure[3][1]) ? true : false));
+    beat14_layout->setAlignment(Qt::AlignHCenter);
+    beat14_layout->setSpacing(0);
+
+    QVBoxLayout* beat15_layout = new QVBoxLayout();
+    beat15_layout->addWidget(new QLabel(QString("15")));
+    qobject_cast<QLabel*>(beat15_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
+    beat15_layout->addWidget(new BeatCheckBox((m_beats_per_measure[3][2]) ? true : false));
+    beat15_layout->setAlignment(Qt::AlignHCenter);
+    beat15_layout->setSpacing(0);
+
+    QVBoxLayout* beat16_layout = new QVBoxLayout();
+    beat16_layout->addWidget(new QLabel(QString("16")));
+    qobject_cast<QLabel*>(beat16_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
+    beat16_layout->addWidget(new BeatCheckBox((m_beats_per_measure[3][1]) ? true : false));
+    beat16_layout->setAlignment(Qt::AlignHCenter);
+    beat16_layout->setSpacing(0);
+
+    beats_line_4_layout->addLayout(beat13_layout); // beat1
+    beats_line_4_layout->addLayout(beat14_layout); // beat2
+    beats_line_4_layout->addLayout(beat15_layout); // beat3
+    beats_line_4_layout->addLayout(beat16_layout); // beat4
+    beats_line_4_layout->setSpacing(25);
+
+    // Підключення сигналів
+    connect(qobject_cast<QCheckBox*>(beat13_layout->itemAt(1)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat13);
+    connect(qobject_cast<QCheckBox*>(beat14_layout->itemAt(1)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat14);
+    connect(qobject_cast<QCheckBox*>(beat15_layout->itemAt(1)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat15);
+    connect(qobject_cast<QCheckBox*>(beat16_layout->itemAt(1)->widget()), &QCheckBox::toggled, this, &TrackSettings::changedBeat16);
 
 
     m_beats_matrix_layout->addLayout(beats_line_1_layout);
@@ -213,10 +336,9 @@ TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::vector<s
     beats_layout->addLayout(m_beats_matrix_layout);
     beats_layout->setSpacing(10); // Прибираємо проміжки між елементами beats_layout
     beats_layout->setContentsMargins(0, 0, 0, 0);
+    beats_layout->setAlignment(Qt::AlignHCenter);
 
 
-
-    m_effects_switch->setFixedSize(80, 80);
     m_effects_switch->setValue(0);
 
     ClickableLabel* effect_title_1 = new ClickableLabel(this, "Reverb ");
@@ -293,12 +415,14 @@ TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::vector<s
     effects_titles_layout->addWidget(effect_title_3);
     effects_titles_layout->addWidget(effect_title_4);
     effects_titles_layout->setAlignment(Qt::AlignCenter);
+    effects_titles_layout->setSpacing(0);
+    effects_titles_layout->setContentsMargins(0, -20, 0 ,-20); // Додаємо відступи
 
     QVBoxLayout* effects_layout= new QVBoxLayout();
     effects_layout->addWidget(m_effects_switch);
     effects_layout->addLayout(effects_titles_layout);
     effects_layout->setAlignment(Qt::AlignCenter);
-    effects_layout->setSpacing(5);
+    effects_layout->setSpacing(90);
 
 
     QLabel* audio_input_connector_title = new QLabel("audio in");
@@ -320,7 +444,7 @@ TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::vector<s
     l5->addLayout(effects_layout);
     l5->addLayout(audio_input_layout);
     l5->setAlignment(Qt::AlignTop);
-    l5->setSpacing(45);
+    l5->setSpacing(20);
 
 
     QHBoxLayout* l6= new QHBoxLayout(this);
@@ -359,10 +483,10 @@ void TrackSettings::setBeats(std::vector<std::vector<bool>> beats_per_measure){
     for (int i = 0; i<4 ; ++i){
         for (int j = 0; j<4 ; ++j){
             if(m_beats_per_measure[i][j]){
-                qobject_cast<QCheckBox*>(m_beats_matrix_layout->itemAt(i)->layout()->itemAt(j)->widget())->setCheckState(Qt::Checked);
+                qobject_cast<QCheckBox*>(m_beats_matrix_layout->itemAt(i)->layout()->itemAt(j)->layout()->itemAt(1)->widget())->setCheckState(Qt::Checked);
             }
             else{
-                qobject_cast<QCheckBox*>(m_beats_matrix_layout->itemAt(i)->layout()->itemAt(j)->widget())->setCheckState(Qt::Unchecked);
+                qobject_cast<QCheckBox*>(m_beats_matrix_layout->itemAt(i)->layout()->itemAt(j)->layout()->itemAt(1)->widget())->setCheckState(Qt::Unchecked);
             }
         }
     }

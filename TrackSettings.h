@@ -50,8 +50,6 @@ private:
     std::vector<std::vector<bool>> m_beats_per_measure;
     std::vector<QMetaObject::Connection> m_current_connections;
 
-
-
 protected:
     void closeEvent(QCloseEvent *event) override;
 

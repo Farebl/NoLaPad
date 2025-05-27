@@ -10,7 +10,7 @@ Track::Track(MicroTimer* timer, QWidget *parent, float volume, bool is_loop, std
     m_audioOutput(new QAudioOutput(this)),
     m_style("#Track {background-color: %1; color: %2; border-radius: %3px;}"),
     m_outer_color(outer_background_color),
-    m_inner_color(outer_background_color),
+    m_inner_color(inner_background_color),
     m_timer(timer),
     m_beats_per_measure(beats_per_measure)
 {
@@ -123,7 +123,6 @@ void Track::mousePressEvent(QMouseEvent *event){
     }
 
     if(event->button() == Qt::RightButton){
-        qDebug()<<"emit from" << this;
         emit(rightClicked(this));
     }
 

@@ -17,7 +17,7 @@ void Potentiometer::paintEvent(QPaintEvent *event)
 
     // Визначаємо розміри
     int widgetSize = qMin(width(), height()); // Беремо мінімальний розмір віджета
-    int diameter = widgetSize - 20; // Діаметр основи на 20 пікселів менший за розмір віджета
+    int diameter = widgetSize - 85; // Діаметр основи на 20 пікселів менший за розмір віджета
     int centerX = width() / 2;
     int centerY = height() / 2;
     int radius = diameter / 2;
@@ -28,6 +28,44 @@ void Potentiometer::paintEvent(QPaintEvent *event)
     painter.setPen(QPen(Qt::black, 2));
     painter.drawEllipse(baseRect);
 
+
+
+    // Малюємо поділки (лінії) і додаємо надписи цифр (1, 2, 3, 4) по колу
+    painter.setPen(QPen(QColor(235, 235, 235), 2));
+    int tickLength = 10; // Довжина поділки
+    int tickRadius = radius + 20; // Радіус, на якому розташовані поділки
+    int labelOffset = 15; // Відступ для тексту міток
+
+    // Налаштування шрифту для тексту
+    QFont font = painter.font();
+    font.setPointSize(12); // Збільшуємо розмір шрифту для видимості
+    painter.setFont(font);
+
+    // Масив кутів для поділок: 90° (1 - зверху), 0° (2 - праворуч), 270° (3 - знизу), 180° (4 - ліворуч)
+    qreal angles[] = {90.0, 0.0, 270.0, 180.0};
+    QString labels[] = {"1", "2", "3", "4"};
+
+    for (int i = 0; i < 4; ++i) {
+        qreal angleRad = qDegreesToRadians(angles[i]);
+        // Координати для початку і кінця поділки
+        qreal x1 = centerX + tickRadius * qCos(angleRad);
+        qreal y1 = centerY - tickRadius * qSin(angleRad);
+        qreal x2 = centerX + (tickRadius - tickLength) * qCos(angleRad);
+        qreal y2 = centerY - (tickRadius - tickLength) * qSin(angleRad);
+
+        // Малюємо поділку
+        painter.drawLine(QPointF(x1, y1), QPointF(x2, y2));
+
+        // Малюємо мітку (число)
+        qreal labelX = centerX + (tickRadius + labelOffset) * qCos(angleRad);
+        qreal labelY = centerY - (tickRadius + labelOffset) * qSin(angleRad);
+        QRectF labelRect(labelX - 10, labelY - 10, 20, 20); // Прямокутник для центрування тексту
+        painter.drawText(labelRect, Qt::AlignCenter, labels[i]);
+    }
+
+
+
+
     // Малюємо стрілку як прямокутник
     int value = this->value();
     int minValue = minimum();
@@ -36,7 +74,7 @@ void Potentiometer::paintEvent(QPaintEvent *event)
 
     // Параметри прямокутника (стрілки)
     int arrowLength = radius + 10; // Довжина стрілки
-    int arrowWidth = width() / 10; // Товщина стрілки
+    int arrowWidth = diameter / 8; // Товщина стрілки
 
     // Зберігаємо стан painter перед обертанням
     painter.save();
