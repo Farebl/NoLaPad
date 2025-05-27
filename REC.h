@@ -10,7 +10,6 @@
 #include <QElapsedTimer>
 #include <QPainter>
 #include <QColor>
-#include <QProcess>
 
 #include "RECButton.h"
 
@@ -30,7 +29,6 @@ private:
     QLabel* m_digital_clock_face;
     QTimer* m_timer;
     QElapsedTimer* m_elapsedTimer;
-    QProcess* m_ffmpegProcess;
     QString m_recording_format;
     QString m_currentOutputFile; // Зберігаємо ім'я файлу для перевірки
 

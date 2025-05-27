@@ -126,7 +126,6 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
             Track* track = new Track(m_timer, m_centralWidget, false);
             m_tableWidget->setCellWidget(r, c, track);
             connect(track, &Track::rightClicked, this, &Project::openTrackSettings);
-            qDebug() << "Created track at" << r << "," << c;
         }
     }
 
@@ -160,8 +159,6 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
 Project::~Project() {}
 
 
-
-
 void Project::openTrackSettings(Track* track){
 
     auto connections_size = m_current_connections.size();
@@ -169,7 +166,6 @@ void Project::openTrackSettings(Track* track){
         disconnect(m_current_connections[i]);
         m_current_connections.clear();
     }
-    qDebug()<<track->getVolume();
     m_settings_window->setVolume(track->getVolume()*100);
     //m_settings_window->setEffectVolume(track->getEffectVolume());
     m_settings_window->setEffectVolume(50);
@@ -204,7 +200,7 @@ void Project::openTrackSettings(Track* track){
 
     m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedAudioSamplePath, track, &Track::setAudioSamplePath));
 
-    m_settings_window->show();
+    m_settings_window->exec();
 }
 
 

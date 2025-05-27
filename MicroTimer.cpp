@@ -43,7 +43,7 @@ void MicroTimer::stop() {
 void MicroTimer::setInterval(quint32 nanosec) {
     // Проверяем корректность интервала
     if (nanosec == 0) {
-        qDebug() << "MicroTimer: Interval must be positive, setting to 1 sec";
+        qDebug() << "MicroTimer: Interval must be positive -> setting to 1 sec";
         m_interval = 1'000'000; // 1 sec
     } else {
         m_interval = nanosec;

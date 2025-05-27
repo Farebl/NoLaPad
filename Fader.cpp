@@ -122,7 +122,6 @@ void Fader::wheelEvent(QWheelEvent *event)
         int delta = event->angleDelta().y() / 120;
         int newValue = value() + delta * 1; // ← інверсія напрямку
         setValue(qBound(0, newValue, 100));
-        qDebug() << value();
         event->accept();
         update();
     } else {
