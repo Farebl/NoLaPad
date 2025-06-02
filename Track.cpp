@@ -30,7 +30,6 @@ Track::Track(MicroTimer* timer, QWidget *parent, float volume, bool is_loop, std
         m_beats_per_measure[3].resize(4, false);
     }
 
-
     m_player->setSource(QUrl::fromLocalFile(sound_path));
     m_player->setAudioOutput(m_audioOutput);
     m_audioOutput->setVolume(volume);
@@ -223,8 +222,25 @@ void Track::setInnerBackgroundColor(QColor color){
 
 
 void Track::setAudioSamplePath(QString path){
-    if (path.isEmpty()){
+    if (path.isEmpty() && m_is_active){
         m_audio_sample_path.clear();
+        m_is_active = false;
+        disconnect(m_timer, &MicroTimer::tick1, this, &Track::play);
+        disconnect(m_timer, &MicroTimer::tick2, this, &Track::play);
+        disconnect(m_timer, &MicroTimer::tick3, this, &Track::play);
+        disconnect(m_timer, &MicroTimer::tick4, this, &Track::play);
+        disconnect(m_timer, &MicroTimer::tick5, this, &Track::play);
+        disconnect(m_timer, &MicroTimer::tick6, this, &Track::play);
+        disconnect(m_timer, &MicroTimer::tick7, this, &Track::play);
+        disconnect(m_timer, &MicroTimer::tick8, this, &Track::play);
+        disconnect(m_timer, &MicroTimer::tick9, this, &Track::play);
+        disconnect(m_timer, &MicroTimer::tick10, this, &Track::play);
+        disconnect(m_timer, &MicroTimer::tick11, this, &Track::play);
+        disconnect(m_timer, &MicroTimer::tick12, this, &Track::play);
+        disconnect(m_timer, &MicroTimer::tick13, this, &Track::play);
+        disconnect(m_timer, &MicroTimer::tick14, this, &Track::play);
+        disconnect(m_timer, &MicroTimer::tick15, this, &Track::play);
+        disconnect(m_timer, &MicroTimer::tick16, this, &Track::play);
         return;
     }
     m_audio_sample_path = path;

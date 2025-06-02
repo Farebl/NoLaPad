@@ -18,7 +18,7 @@ class Track : public QPushButton
 {
     Q_OBJECT
 public:
-    explicit Track(MicroTimer* timer = nullptr, QWidget *parent = nullptr, float volume = 1.0, bool is_loop = false, std::vector<std::vector<bool>> beats_per_measure = {{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}}, QString sound_path = "", const QColor& outer_background_color = Qt::gray, const QColor& inner_background_color = Qt::darkGray);
+    explicit Track(MicroTimer* timer = nullptr, QWidget *parent = nullptr, float volume = 1.0, bool is_loop = false, std::vector<std::vector<bool>> beats_per_measure = {{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}}, QString sound_path = "", const QColor& outer_background_color = Qt::gray, const QColor& inner_background_color = Qt::red);
 
     ~Track();
     void setLoopState(bool state);
@@ -58,10 +58,9 @@ private:
     QAudioOutput* m_audioOutput;
     QString m_audio_sample_path;
     QString m_style;
-    QColor m_outer_color; // Колір зовнішньої зони
-    QColor m_inner_color; // Колір центральної зони
+    QColor m_outer_color; 
+    QColor m_inner_color; 
     MicroTimer* m_timer;
-
 
     std::vector<std::vector<bool>> m_beats_per_measure;
 

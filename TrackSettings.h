@@ -44,11 +44,10 @@ private:
     Fader* m_effect_volume_fader;
     TrackColorButtons* m_select_track_colors_button;
     LoopButton* m_loop_button;
-    Potentiometer* m_effects_switch;
     QVBoxLayout* m_beats_matrix_layout;
+    Potentiometer* m_effects_switch;
     AudioSampleSelector* m_audio_input_connector;
-    std::vector<std::vector<bool>> m_beats_per_measure;
-    std::vector<QMetaObject::Connection> m_current_connections;
+
 
 protected:
     void closeEvent(QCloseEvent *event) override;

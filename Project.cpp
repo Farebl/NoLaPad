@@ -7,18 +7,19 @@
 #include <QLCDNumber>
 #include <QFontDatabase>
 
-Project::Project(int row, int column, int bpm_value, QWidget *parent)
-    : QMainWindow(parent),
-    m_row(row),
-    m_column(column),
-    m_centralWidget(new QWidget(this)),
-    m_titleBar(new QWidget(this)),
-    m_dragging(false),
-    m_resizing(false),
-    m_timer(new MicroTimer(static_cast<quint32>(60.0/(bpm_value*4)*1'000'000), this)), // (bpm_value * 4) because the timer generates 16th parts
-    m_bpm(new BPM(m_timer, bpm_value, this)),
-    m_settings_window(new TrackSettings(100, false, {{1, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}, Qt::gray, Qt::darkGray, this))
+Project::Project(QString name, int row, int column, int bpm_value, QWidget *parent)
+    : QMainWindow(parent)
+    , m_name(name)
+    , m_row(row)
+    , m_column(column)
+    , m_dragging(false)
+    , m_resizing(false)
+    , m_centralWidget(new QWidget(this))
+    , m_titleBar(new QWidget(this))
+    , m_settings_window(new TrackSettings(100, false, {{1, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}, Qt::gray, Qt::darkGray, this))
 {
+
+    m_current_connections.reserve(22);
 
     // Убираем системную рамку
     setWindowFlags(Qt::FramelessWindowHint | Qt::Window);
@@ -28,9 +29,9 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
     resize(800, 800);
     setMinimumSize(400, 300);
 
-    m_current_connections.reserve(22);
+    MicroTimer* timer = new MicroTimer(static_cast<quint32>(60.0/(bpm_value*4)*1'000'000), this);
+    timer->start();
 
-    m_timer->start();
 
     // Главный layout для окна
     QVBoxLayout* mainLayout = new QVBoxLayout;
@@ -59,17 +60,18 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
     minimizeButton->setStyleSheet("background-color: #ffbd44; border-radius: 10px;");
     maximizeButton->setStyleSheet("background-color: #00ca4e; border-radius: 10px;");
 
+
     // bpm_lcd and metronome
+    BPM* bpm = new BPM(timer, bpm_value, this);
 
     QVBoxLayout* bpmButtons = new QVBoxLayout();
-    bpmButtons->addWidget(m_bpm->getUpButton());
-    bpmButtons->addWidget(m_bpm->getDownButton());
+    bpmButtons->addWidget(bpm->getUpButton());
+    bpmButtons->addWidget(bpm->getDownButton());
     bpmButtons->setSpacing(1);
 
     // metronome
-
     Metronome* metronome = new Metronome(
-        m_timer, m_titleBar, 1.0,
+        timer, m_titleBar, 1.0,
         "../../music/metronome/strong_measure.wav", // Виправлені шляхи
         "../../music/metronome/weak_measure.wav",
         {true, false, false, false}
@@ -79,7 +81,7 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
 
     QHBoxLayout* bpmLayout = new QHBoxLayout();
     bpmLayout->addLayout(bpmButtons);
-    bpmLayout->addWidget(m_bpm->getBpmDisplay());
+    bpmLayout->addWidget(bpm->getBpmDisplay());
     bpmLayout->addWidget(metronome);
     bpmLayout->setSpacing(5);
     bpmLayout->setContentsMargins(0, 0, 0, 0);
@@ -92,12 +94,16 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
     recLayout->addWidget(rec->getRecButton());
     recLayout->addWidget(rec->getDigitalClockFace());
 
+    QLabel* project_name_label = new QLabel(m_name);
+    project_name_label->setStyleSheet("color: #303030; font-size: 22px; text-align: center;");
 
     QHBoxLayout* titleLayout = new QHBoxLayout(m_titleBar);
     titleLayout->setContentsMargins(10, 0, 10, 0);
     titleLayout->addLayout(recLayout);
     titleLayout->addStretch();
     titleLayout->addLayout(bpmLayout);
+    titleLayout->addStretch();
+    titleLayout->addWidget(project_name_label);
     titleLayout->addStretch();
     titleLayout->addWidget(minimizeButton);
     titleLayout->addWidget(maximizeButton);
@@ -112,30 +118,42 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
         );
 
     // Создаем таблицу для кнопок
-
-    m_tableWidget = new QTableWidget(m_row, m_column, m_centralWidget);
-    m_tableWidget->setShowGrid(false);
-    m_tableWidget->horizontalHeader()->setVisible(false);
-    m_tableWidget->verticalHeader()->setVisible(false);
-    m_tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    m_tableWidget->setStyleSheet("QTableWidget::item { padding: 3px; }");
+    QTableWidget* tableWidget = new QTableWidget(m_row, m_column, m_centralWidget);
+    tableWidget->setShowGrid(false);
+    tableWidget->horizontalHeader()->setVisible(false);
+    tableWidget->verticalHeader()->setVisible(false);
+    tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    tableWidget->setStyleSheet("QTableWidget::item { padding: 3px; }");
 
     // Заполняем таблицу кнопками
     for (int r = 0; r < m_row; ++r) {
         for (int c = 0; c < m_column; ++c) {
-            Track* track = new Track(m_timer, m_centralWidget, false);
-            m_tableWidget->setCellWidget(r, c, track);
+            Track* track = new Track(
+                timer,
+                m_centralWidget,
+                1.0,
+                false,
+                {
+                    {1, 0, 0, 0},
+                    {0, 0, 0, 0},
+                    {0, 0, 0, 0},
+                    {0, 0, 0, 0}
+                },
+                QString(""),
+                QColor(180, 180, 180)
+                );
+            tableWidget->setCellWidget(r, c, track);
             connect(track, &Track::rightClicked, this, &Project::openTrackSettings);
         }
     }
 
-    m_tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    m_tableWidget->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    tableWidget->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
 
     // Layout для центрального виджета
     QVBoxLayout* contentLayout = new QVBoxLayout(m_centralWidget);
-    contentLayout->addWidget(m_tableWidget);
+    contentLayout->addWidget(tableWidget);
 
     // Собираем все вместе
     mainLayout->addWidget(m_titleBar);
@@ -147,7 +165,7 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
     setCentralWidget(container);
 
     // Прибираємо фокус з m_bpm_display
-    m_bpm->getBpmDisplay()->clearFocus();
+    bpm->getBpmDisplay()->clearFocus();
 
     // Подключение кнопок
     connect(closeButton, &QPushButton::clicked, this, &Project::close);

@@ -21,28 +21,23 @@ class Project : public QMainWindow {
     Q_OBJECT
 
 public:
-    explicit Project(int row = 8, int column = 8, int bpm_value = 60, QWidget *parent = nullptr);
+    explicit Project(QString name, int row = 8, int column = 8, int bpm_value = 60, QWidget *parent = nullptr);
     ~Project();
 
 private:
+    QString m_name;
     int m_row;
     int m_column;
-
-    QWidget* m_centralWidget;
-    QWidget* m_titleBar;
     bool m_dragging;
     bool m_resizing;
     QPoint m_dragPosition;
     QPoint m_resizeStart;
     QSize m_resizeStartSize;
 
-    QTableWidget *m_tableWidget;
-    MicroTimer* m_timer;
+    QWidget* m_centralWidget;
+    QWidget* m_titleBar;
 
-    BPM* m_bpm;
-    Metronome* m_metronome;
     TrackSettings* m_settings_window;
-
     std::vector<QMetaObject::Connection> m_current_connections;
 
     void toggleMaximize();

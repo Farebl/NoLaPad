@@ -9,10 +9,10 @@ TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::vector<s
     , m_effect_volume_fader(new Fader(this, "..//..//images//fader_track.png", "..//..//images//fader_handle.png", "..//..//images//fader_measures.png"))
     , m_select_track_colors_button(new TrackColorButtons(this, 80, Qt::gray, Qt::darkGray))
     , m_loop_button(new LoopButton(this, false, 80))
-    , m_effects_switch(new Potentiometer(this, 140))
     , m_beats_matrix_layout(new QVBoxLayout())
+    , m_effects_switch(new Potentiometer(this, 140))
     , m_audio_input_connector(new AudioSampleSelector(this,  "..//..//images//audio_in_plugged.png", "..//..//images//audio_in_unplugged.png"))
-    , m_beats_per_measure(beats_per_measure)
+
 {
     setWindowTitle("Track settings");
     setWindowFlags(Qt::Dialog);
@@ -26,13 +26,13 @@ TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::vector<s
 
 
     m_volume_display->setRange(0, 100);
-    m_volume_display->setValue(120);
+    m_volume_display->setValue(volume_percent);
     m_volume_display->setFont(lcdFont);
     m_volume_display->setFixedSize(100, 70);
     m_volume_display->setButtonSymbols(QAbstractSpinBox::NoButtons);
 
     m_effect_volume_display->setRange(0, 100);
-    m_effect_volume_display->setValue(120);
+    m_effect_volume_display->setValue(50);
     m_effect_volume_display->setFont(lcdFont);
     m_effect_volume_display->setFixedSize(100, 70);
     m_effect_volume_display->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -60,7 +60,7 @@ TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::vector<s
     volume_display_layout->setAlignment(Qt::AlignHCenter);
     volume_display_layout->setSpacing(5);
 
-    QLabel* effect_volume_title = new QLabel("volume");
+    QLabel* effect_volume_title = new QLabel("effect volume");
     effect_volume_title->setStyleSheet("color: #ebebeb; ");
 
     QVBoxLayout* effect_volume_display_layout = new QVBoxLayout();
@@ -129,17 +129,17 @@ TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::vector<s
     l4->setContentsMargins(0, 0, 0, 0);
 
 
-    if (m_beats_per_measure[0].size() < 4){
-        m_beats_per_measure[0].resize(4, false);
+    if (beats_per_measure[0].size() < 4){
+        beats_per_measure[0].resize(4, false);
     }
-    if (m_beats_per_measure[1].size() < 4){
-        m_beats_per_measure[1].resize(4, false);
+    if (beats_per_measure[1].size() < 4){
+        beats_per_measure[1].resize(4, false);
     }
-    if (m_beats_per_measure[2].size() < 4){
-        m_beats_per_measure[2].resize(4, false);
+    if (beats_per_measure[2].size() < 4){
+        beats_per_measure[2].resize(4, false);
     }
-    if (m_beats_per_measure[3].size() < 4){
-        m_beats_per_measure[3].resize(4, false);
+    if (beats_per_measure[3].size() < 4){
+        beats_per_measure[3].resize(4, false);
     }
 
 
@@ -150,28 +150,28 @@ TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::vector<s
     QVBoxLayout* beat1_layout = new QVBoxLayout();
     beat1_layout->addWidget(new QLabel(QString("1")));
     qobject_cast<QLabel*>(beat1_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
-    beat1_layout->addWidget(new BeatCheckBox((m_beats_per_measure[0][0]) ? true : false));
+    beat1_layout->addWidget(new BeatCheckBox((beats_per_measure[0][0]) ? true : false));
     beat1_layout->setAlignment(Qt::AlignHCenter);
     beat1_layout->setSpacing(0);
 
     QVBoxLayout* beat2_layout = new QVBoxLayout();
     beat2_layout->addWidget(new QLabel(QString("2")));
     qobject_cast<QLabel*>(beat2_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
-    beat2_layout->addWidget(new BeatCheckBox((m_beats_per_measure[0][1]) ? true : false));
+    beat2_layout->addWidget(new BeatCheckBox((beats_per_measure[0][1]) ? true : false));
     beat2_layout->setAlignment(Qt::AlignHCenter);
     beat2_layout->setSpacing(0);
 
     QVBoxLayout* beat3_layout = new QVBoxLayout();
     beat3_layout->addWidget(new QLabel(QString("3")));
     qobject_cast<QLabel*>(beat3_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
-    beat3_layout->addWidget(new BeatCheckBox((m_beats_per_measure[0][2]) ? true : false));
+    beat3_layout->addWidget(new BeatCheckBox((beats_per_measure[0][2]) ? true : false));
     beat3_layout->setAlignment(Qt::AlignHCenter);
     beat3_layout->setSpacing(0);
 
     QVBoxLayout* beat4_layout = new QVBoxLayout();
     beat4_layout->addWidget(new QLabel(QString("4")));
     qobject_cast<QLabel*>(beat4_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
-    beat4_layout->addWidget(new BeatCheckBox((m_beats_per_measure[0][3]) ? true : false));
+    beat4_layout->addWidget(new BeatCheckBox((beats_per_measure[0][3]) ? true : false));
     beat4_layout->setAlignment(Qt::AlignHCenter);
     beat4_layout->setSpacing(0);
 
@@ -193,28 +193,28 @@ TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::vector<s
     QVBoxLayout* beat5_layout = new QVBoxLayout();
     beat5_layout->addWidget(new QLabel(QString("5")));
     qobject_cast<QLabel*>(beat5_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
-    beat5_layout->addWidget(new BeatCheckBox((m_beats_per_measure[1][0]) ? true : false));
+    beat5_layout->addWidget(new BeatCheckBox((beats_per_measure[1][0]) ? true : false));
     beat5_layout->setAlignment(Qt::AlignHCenter);
     beat5_layout->setSpacing(0);
 
     QVBoxLayout* beat6_layout = new QVBoxLayout();
     beat6_layout->addWidget(new QLabel(QString("6")));
     qobject_cast<QLabel*>(beat6_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
-    beat6_layout->addWidget(new BeatCheckBox((m_beats_per_measure[1][1]) ? true : false));
+    beat6_layout->addWidget(new BeatCheckBox((beats_per_measure[1][1]) ? true : false));
     beat6_layout->setAlignment(Qt::AlignHCenter);
     beat6_layout->setSpacing(0);
 
     QVBoxLayout* beat7_layout = new QVBoxLayout();
     beat7_layout->addWidget(new QLabel(QString("7")));
     qobject_cast<QLabel*>(beat7_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
-    beat7_layout->addWidget(new BeatCheckBox((m_beats_per_measure[1][2]) ? true : false));
+    beat7_layout->addWidget(new BeatCheckBox((beats_per_measure[1][2]) ? true : false));
     beat7_layout->setAlignment(Qt::AlignHCenter);
     beat7_layout->setSpacing(0);
 
     QVBoxLayout* beat8_layout = new QVBoxLayout();
     beat8_layout->addWidget(new QLabel(QString("8")));
     qobject_cast<QLabel*>(beat8_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
-    beat8_layout->addWidget(new BeatCheckBox((m_beats_per_measure[1][3]) ? true : false));
+    beat8_layout->addWidget(new BeatCheckBox((beats_per_measure[1][3]) ? true : false));
     beat8_layout->setAlignment(Qt::AlignHCenter);
     beat8_layout->setSpacing(0);
 
@@ -237,28 +237,28 @@ TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::vector<s
     QVBoxLayout* beat9_layout = new QVBoxLayout();
     beat9_layout->addWidget(new QLabel(QString("9")));
     qobject_cast<QLabel*>(beat9_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
-    beat9_layout->addWidget(new BeatCheckBox((m_beats_per_measure[2][0]) ? true : false));
+    beat9_layout->addWidget(new BeatCheckBox((beats_per_measure[2][0]) ? true : false));
     beat9_layout->setAlignment(Qt::AlignHCenter);
     beat9_layout->setSpacing(0);
 
     QVBoxLayout* beat10_layout = new QVBoxLayout();
     beat10_layout->addWidget(new QLabel(QString("10")));
     qobject_cast<QLabel*>(beat10_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
-    beat10_layout->addWidget(new BeatCheckBox((m_beats_per_measure[2][1]) ? true : false));
+    beat10_layout->addWidget(new BeatCheckBox((beats_per_measure[2][1]) ? true : false));
     beat10_layout->setAlignment(Qt::AlignHCenter);
     beat10_layout->setSpacing(0);
 
     QVBoxLayout* beat11_layout = new QVBoxLayout();
     beat11_layout->addWidget(new QLabel(QString("11")));
     qobject_cast<QLabel*>(beat11_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
-    beat11_layout->addWidget(new BeatCheckBox((m_beats_per_measure[2][2]) ? true : false));
+    beat11_layout->addWidget(new BeatCheckBox((beats_per_measure[2][2]) ? true : false));
     beat11_layout->setAlignment(Qt::AlignHCenter);
     beat11_layout->setSpacing(0);
 
     QVBoxLayout* beat12_layout = new QVBoxLayout();
     beat12_layout->addWidget(new QLabel(QString("12")));
     qobject_cast<QLabel*>(beat12_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
-    beat12_layout->addWidget(new BeatCheckBox((m_beats_per_measure[2][3]) ? true : false));
+    beat12_layout->addWidget(new BeatCheckBox((beats_per_measure[2][3]) ? true : false));
     beat12_layout->setAlignment(Qt::AlignHCenter);
     beat12_layout->setSpacing(0);
 
@@ -284,28 +284,28 @@ TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::vector<s
     QVBoxLayout* beat13_layout = new QVBoxLayout();
     beat13_layout->addWidget(new QLabel(QString("13")));
     qobject_cast<QLabel*>(beat13_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
-    beat13_layout->addWidget(new BeatCheckBox((m_beats_per_measure[3][0]) ? true : false));
+    beat13_layout->addWidget(new BeatCheckBox((beats_per_measure[3][0]) ? true : false));
     beat13_layout->setAlignment(Qt::AlignHCenter);
     beat13_layout->setSpacing(0);
 
     QVBoxLayout* beat14_layout = new QVBoxLayout();
     beat14_layout->addWidget(new QLabel(QString("14")));
     qobject_cast<QLabel*>(beat14_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
-    beat14_layout->addWidget(new BeatCheckBox((m_beats_per_measure[3][1]) ? true : false));
+    beat14_layout->addWidget(new BeatCheckBox((beats_per_measure[3][1]) ? true : false));
     beat14_layout->setAlignment(Qt::AlignHCenter);
     beat14_layout->setSpacing(0);
 
     QVBoxLayout* beat15_layout = new QVBoxLayout();
     beat15_layout->addWidget(new QLabel(QString("15")));
     qobject_cast<QLabel*>(beat15_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
-    beat15_layout->addWidget(new BeatCheckBox((m_beats_per_measure[3][2]) ? true : false));
+    beat15_layout->addWidget(new BeatCheckBox((beats_per_measure[3][2]) ? true : false));
     beat15_layout->setAlignment(Qt::AlignHCenter);
     beat15_layout->setSpacing(0);
 
     QVBoxLayout* beat16_layout = new QVBoxLayout();
     beat16_layout->addWidget(new QLabel(QString("16")));
     qobject_cast<QLabel*>(beat16_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
-    beat16_layout->addWidget(new BeatCheckBox((m_beats_per_measure[3][1]) ? true : false));
+    beat16_layout->addWidget(new BeatCheckBox((beats_per_measure[3][1]) ? true : false));
     beat16_layout->setAlignment(Qt::AlignHCenter);
     beat16_layout->setSpacing(0);
 
@@ -339,13 +339,13 @@ TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::vector<s
     beats_layout->setAlignment(Qt::AlignHCenter);
 
 
-    m_effects_switch->setValue(0);
+    m_effects_switch->setValue(50);
 
-    ClickableLabel* effect_title_1 = new ClickableLabel(this, "Reverb ");
-    ClickableLabel* effect_title_2 = new ClickableLabel(this, "Chorus ");
-    ClickableLabel* effect_title_3 = new ClickableLabel(this, "Delay ");
-    ClickableLabel* effect_title_4 = new ClickableLabel(this, "Distortion");
-    effect_title_1->setStyleSheet("color: #ebebeb");
+    ClickableLabel* effect_title_1 = new ClickableLabel(this, "1 Reverb ");
+    ClickableLabel* effect_title_2 = new ClickableLabel(this, "2 Chorus ");
+    ClickableLabel* effect_title_3 = new ClickableLabel(this, "3 Delay ");
+    ClickableLabel* effect_title_4 = new ClickableLabel(this, "4 Distortion");
+    effect_title_1->setStyleSheet("color: #ffef40");
     effect_title_2->setStyleSheet("color: #ebebeb");
     effect_title_3->setStyleSheet("color: #ebebeb");
     effect_title_4->setStyleSheet("color: #ebebeb");
@@ -478,11 +478,10 @@ void TrackSettings::setOuterBackgroundColor(QColor color){
 }
 
 void TrackSettings::setBeats(std::vector<std::vector<bool>> beats_per_measure){
-    m_beats_per_measure = beats_per_measure;
 
     for (int i = 0; i<4 ; ++i){
         for (int j = 0; j<4 ; ++j){
-            if(m_beats_per_measure[i][j]){
+            if(beats_per_measure[i][j]){
                 qobject_cast<QCheckBox*>(m_beats_matrix_layout->itemAt(i)->layout()->itemAt(j)->layout()->itemAt(1)->widget())->setCheckState(Qt::Checked);
             }
             else{
