@@ -8,16 +8,15 @@ BPM::BPM(MicroTimer *timer, uint16_t bpm_value, QWidget *parent)
     m_downButton(new QPushButton("▼", this)),
     m_timer(timer)
 {
-    setWindowFlags(Qt::FramelessWindowHint); // Убираем рамку окна
-    setAttribute(Qt::WA_TranslucentBackground); // Прозрачный фон
-    setStyleSheet("background-color: transparent;"); // Прозрачный фон
-
+    setWindowFlags(Qt::FramelessWindowHint);
+    setAttribute(Qt::WA_TranslucentBackground);
+    setStyleSheet("background-color: transparent;");
 
     int fontId = QFontDatabase::addApplicationFont("..//..//fonts//dseg7-classic-latin-400-italic.ttf");
     QFont lcdFont;
     if (fontId == -1) {
-        qWarning() << "Не удалось загрузить шрифт DSEG7Classic-Regular.ttf, используется стандартный шрифт";
-        lcdFont = QFont("Arial", 12); // Стандартный шрифт в качестве запасного
+        qWarning() << "ERROR: Failed to load font DSEG7Classic-Regular.ttf, that's why the standard font is used";
+        lcdFont = QFont("Arial", 12);
     } else {
         QString fontFamily = QFontDatabase::applicationFontFamilies(fontId).at(0);
         lcdFont = QFont(fontFamily, 12);
@@ -25,71 +24,67 @@ BPM::BPM(MicroTimer *timer, uint16_t bpm_value, QWidget *parent)
     m_bpm_display->setRange(1, 500);
     m_bpm_display->setValue(m_bpm);
     m_bpm_display->setFont(lcdFont);
-    m_bpm_display->setFixedSize(55, 35); // Увеличен размер для отображения цифр и кнопок
-    m_bpm_display->setAlignment(Qt::AlignCenter); // Центрирование текста
-    m_bpm_display->setButtonSymbols(QAbstractSpinBox::NoButtons); // Убираем стандартные кнопки
+    m_bpm_display->setFixedSize(55, 35);
+    m_bpm_display->setAlignment(Qt::AlignCenter);
+    m_bpm_display->setButtonSymbols(QAbstractSpinBox::NoButtons);
     m_bpm_display->setStyleSheet(
         "QSpinBox {"
-        "    background-color: #000000;" // Черный фон
-        "    color: #FFFFFF;" // Белый текст
-        "    border: 2px solid #333333;" // Серая рамка
-        "    border-radius: 5px;" // Скругленные углы
-        "    padding: 2px 2px;" // Отступы для текста
-        "    qproperty-alignment: AlignRight;" // Центрирование текста
+        "    background-color: #000000;"
+        "    color: #FFFFFF;"
+        "    border: 2px solid #333333;"
+        "    border-radius: 5px;"
+        "    padding: 2px 2px;"
+        "    qproperty-alignment: AlignRight;"
         "}"
     );
 
-
-    m_upButton->setFixedSize(25, 16); // Компактный размер
+    m_upButton->setFixedSize(25, 16);
     m_upButton->setStyleSheet(
         "QPushButton {"
-        "    background-color: #444444;" // Темный фон
-        "    color: #FFFFFF;" // Белый текст
-        "    border: none;" // Без рамки
-        "    border-radius: 2px;" // Скругление всех углов
-        "    font-size: 12px;" // Размер символа
+        "    background-color: #444444;"
+        "    color: #FFFFFF;"
+        "    border: none;"
+        "    border-radius: 2px;"
+        "    font-size: 12px;"
         "    padding: 0px;"
         "}"
         "QPushButton:hover {"
-        "    background-color: #555555;" // Изменение цвета при наведении
+        "    background-color: #555555;"
         "}"
     );
-
 
     m_downButton->setFixedSize(25, 16);
     m_downButton->setStyleSheet(
         "QPushButton {"
-        "    background-color: #444444;" // Темный фон
-        "    color: #FFFFFF;" // Белый текст
-        "    border: none;" // Без рамки
-        "    border-radius: 2px;" // Скругление всех углов
-        "    font-size: 12px;" // Размер символа
+        "    background-color: #444444;"
+        "    color: #FFFFFF;"
+        "    border: none;"
+        "    border-radius: 2px;"
+        "    font-size: 12px;"
         "    padding: 0px;"
         "}"
         "QPushButton:hover {"
-        "    background-color: #555555;" // Изменение цвета при наведении
+        "    background-color: #555555;"
         "}"
         );
-
 
     connect(m_upButton, &QPushButton::clicked, this, [this]() {
         if (m_bpm < 500) {
             m_bpm_display->setValue(m_bpm_display->value() + 1);
         }
     });
+
     connect(m_downButton, &QPushButton::clicked, this, [this]() {
         if (m_bpm > 1) {
             m_bpm_display->setValue(m_bpm_display->value() - 1);
         }
     });
 
-    // Обновление таймера при изменении значения
     connect(m_bpm_display, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int newBpm) {
         m_bpm = newBpm;
-        m_timer->setInterval(static_cast<quint32>(60.0 / (m_bpm * 4) * 1'000'000)); // (m_bpm * 4) because the timer generates 16th parts
+        m_timer->setInterval(static_cast<quint32>(60.0 / (m_bpm * 4) * 1'000'000));
     });
 }
-
 
 
 QSpinBox* BPM::getBpmDisplay(){return m_bpm_display;}

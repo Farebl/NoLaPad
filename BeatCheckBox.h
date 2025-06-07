@@ -1,7 +1,7 @@
 #ifndef BEATCHECKBOX_H
 #define BEATCHECKBOX_H
 
-#include <QObject>
+
 #include <QWidget>
 #include <QCheckBox>
 #include <QPainter>
@@ -15,6 +15,5 @@ public:
 protected:
     void paintEvent(QPaintEvent* event) override;
 };
-
 
 #endif // BEATCHECKBOX_H

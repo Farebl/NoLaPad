@@ -1,7 +1,6 @@
 #ifndef LOOPBUTTON_H
 #define LOOPBUTTON_H
 
-#include <QObject>
 #include <QPushButton>
 #include <QPainter>
 #include <QMouseEvent>

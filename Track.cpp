@@ -48,12 +48,20 @@ Track::~Track() {
     }
 }
 
+
+void Track::play(){
+    m_player->stop();
+    m_player->play();
+}
+
+
 void Track::mousePressEvent(QMouseEvent *event){
 
     if(event->button() == Qt::LeftButton){
 
         if (m_player->source().isEmpty()){
             QMessageBox::information(this, "Error", "Треку не назначено звук для відтворювання");
+            emit(badPlay());
             return;
         }
 
@@ -101,6 +109,7 @@ void Track::mousePressEvent(QMouseEvent *event){
             }
             else{
                 m_is_active = false;
+                m_player->stop();
                 disconnect(m_timer, &MicroTimer::tick1, this, &Track::play);
                 disconnect(m_timer, &MicroTimer::tick2, this, &Track::play);
                 disconnect(m_timer, &MicroTimer::tick3, this, &Track::play);
@@ -117,6 +126,7 @@ void Track::mousePressEvent(QMouseEvent *event){
                 disconnect(m_timer, &MicroTimer::tick14, this, &Track::play);
                 disconnect(m_timer, &MicroTimer::tick15, this, &Track::play);
                 disconnect(m_timer, &MicroTimer::tick16, this, &Track::play);
+
             }
         }
     }
@@ -124,8 +134,6 @@ void Track::mousePressEvent(QMouseEvent *event){
     if(event->button() == Qt::RightButton){
         emit(rightClicked(this));
     }
-
-
 
 
     if (event->button() != Qt::LeftButton && event->button() != Qt::RightButton) {
@@ -374,12 +382,6 @@ void Track::setBeat16(bool state){
         connect(m_timer, &MicroTimer::tick16, this, &Track::play);
     else
         disconnect(m_timer, &MicroTimer::tick16, this, &Track::play);
-}
-
-
-void Track::play(){
-    m_player->stop();
-    m_player->play();
 }
 
 

@@ -7,12 +7,11 @@
 class ClickableLabel : public QLabel
 {
     Q_OBJECT
-
 public:
     explicit ClickableLabel(QWidget *parent = nullptr, QString text = "");
 
 signals:
-    void clicked(); // Сигнал, который будет испускаться при клике
+    void clicked();
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;

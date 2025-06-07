@@ -1,15 +1,13 @@
 #ifndef BPM_H
 #define BPM_H
 
-#include <QObject>
-#include <QWidget>
 #include <QSpinBox>
 #include <QPushButton>
 #include "MicroTimer.h"
-
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QFontDatabase>
+
 class BPM : public QWidget
 {
     Q_OBJECT
@@ -25,7 +23,6 @@ private:
     QPushButton* m_upButton;
     QPushButton* m_downButton;
     MicroTimer* m_timer;
-
 
 signals:
 };

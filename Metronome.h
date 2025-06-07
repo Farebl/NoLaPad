@@ -1,13 +1,11 @@
 #ifndef METRONOME_H
 #define METRONOME_H
 
-#include <QObject>
 #include <QPushButton>
 #include <QSlider>
 #include <QSpinBox>
 #include <QMediaPlayer>
 #include <QAudioOutput>
-
 #include <QMouseEvent>
 
 #include "MicroTimer.h"

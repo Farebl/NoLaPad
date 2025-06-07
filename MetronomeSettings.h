@@ -1,11 +1,9 @@
 #ifndef METRONOMESETTINGS_H
 #define METRONOMESETTINGS_H
 
-#include <QWidget>
 
 #include <QCloseEvent>
 #include <QMessageBox>
-
 #include <QHBoxLayout>
 #include <QFormLayout>
 #include <QSlider>

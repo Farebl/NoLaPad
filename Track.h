@@ -69,6 +69,7 @@ private:
     void paintEvent(QPaintEvent *event) override;
 
 signals:
+    void badPlay();
     void rightClicked(Track* _this);
 };
 
