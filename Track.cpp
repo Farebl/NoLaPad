@@ -2,19 +2,19 @@
 
 #define BORDER_RADIUS_COEF 10
 
-Track::Track(MicroTimer* timer, QWidget *parent, float volume, bool is_loop, std::vector<std::vector<bool>> beats_per_measure, QString sound_path, const QColor& outer_background_color, const QColor& inner_background_color)
+Track::Track(MicroTimer* timer, QWidget *parent, float volume, bool is_loop, std::vector<std::vector<bool>> beats_per_measure, QString sound_path, const QColor& outer_background_color, const QColor& inner_active_background_color)
     : QPushButton(parent),
     m_is_loop(is_loop),
     m_is_active(false),
     m_player (new QMediaPlayer(this)),
-    m_audioOutput(new QAudioOutput(this)),
-    m_style("#Track {background-color: %1; color: %2; border-radius: %3px;}"),
+    m_audio_output(new QAudioOutput(this)),
+    m_style("background-color: %1; color: %2; border-radius: %3px;"),
     m_outer_color(outer_background_color),
-    m_inner_color(inner_background_color),
+    m_inner_color(inner_active_background_color),
     m_timer(timer),
     m_beats_per_measure(beats_per_measure)
 {
-    setObjectName("Track");
+
     setStyleSheet(m_style.arg(m_outer_color.name()).arg("black").arg(width()/BORDER_RADIUS_COEF));
 
     if (m_beats_per_measure[0].size() < 4){
@@ -32,8 +32,8 @@ Track::Track(MicroTimer* timer, QWidget *parent, float volume, bool is_loop, std
 
 
     m_player->setSource(QUrl::fromLocalFile(sound_path));
-    m_player->setAudioOutput(m_audioOutput);
-    m_audioOutput->setVolume(volume);
+    m_player->setAudioOutput(m_audio_output);
+    m_audio_output->setVolume(volume);
 }
 
 
@@ -43,9 +43,9 @@ Track::~Track() {
         delete m_player;
         m_player = nullptr;
     }
-    if (m_audioOutput) {
-        delete m_audioOutput;
-        m_audioOutput = nullptr;
+    if (m_audio_output) {
+        delete m_audio_output;
+        m_audio_output = nullptr;
     }
 }
 
@@ -126,9 +126,6 @@ void Track::mousePressEvent(QMouseEvent *event){
         emit(rightClicked(this));
     }
 
-
-
-
     if (event->button() != Qt::LeftButton && event->button() != Qt::RightButton) {
         QPushButton::mousePressEvent(event);
     }
@@ -162,8 +159,8 @@ void Track::paintEvent(QPaintEvent *event){
 
     painter.setPen(Qt::NoPen);
 
-    int centerX = width() / 2;
-    int centerY = height() / 2;
+    int center_x = width() / 2;
+    int center_y = height() / 2;
 
     int radius;
     if (width()>=height()){
@@ -172,7 +169,7 @@ void Track::paintEvent(QPaintEvent *event){
     if (width()<height()){
         radius = width() / 6;
     }
-    painter.drawEllipse(QPoint(centerX, centerY), radius, radius);
+    painter.drawEllipse(QPoint(center_x, center_y), radius, radius);
 }
 
 
@@ -205,7 +202,7 @@ void Track::setVolume(int volume_percent){
         return;
     }
 
-    m_audioOutput->setVolume(static_cast<double>(volume_percent)/100.0);
+    m_audio_output->setVolume(static_cast<double>(volume_percent)/100.0);
 }
 
 
@@ -214,7 +211,7 @@ void Track::setOuterBackgroundColor(QColor color){
     update();
 }
 
-void Track::setInnerBackgroundColor(QColor color){
+void Track::setInnerActiveBackgroundColor(QColor color){
     m_inner_color=color;
     update();
 }
@@ -372,10 +369,10 @@ bool Track::getLoopState(){
 }
 
 float Track::getVolume(){
-    return m_audioOutput->volume();
+    return m_audio_output->volume();
 }
 
-QColor Track::getInnerBackgroundColor(){
+QColor Track::getInnerActiveBackgroundColor(){
     return m_inner_color;
 }
 QColor Track::getOuterBackgroundColor(){

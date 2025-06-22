@@ -28,10 +28,10 @@ protected:
 private:
     QMediaPlayer* m_player_strong_measure;
     QMediaPlayer* m_player_weak_measure;
-    QAudioOutput* m_strong_audioOutput;
-    QAudioOutput* m_weak_audioOutput;
+    QAudioOutput* m_strong_audio_output;
+    QAudioOutput* m_weak_audio_output;
     MicroTimer* m_timer;
-    MetronomeSettings* m_settingsWindow;
+    MetronomeSettings* m_settings_window;
     std::array<void(Metronome::*)(), 4> m_strong_and_weak_measures;
 };
 

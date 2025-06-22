@@ -10,10 +10,10 @@ REC::REC(QWidget *parent, uint width, uint height, QString recording_format)
     m_REC_button(new RECButton(this, (width < height) ? width : height)),
     m_digital_clock_face(new QLabel(this)),
     m_timer(new QTimer(this)),
-    m_elapsedTimer(new QElapsedTimer()),
-    m_ffmpegProcess(new QProcess(this)),
+    m_elapsed_timer(new QElapsedTimer()),
+    m_ffmpeg_process(new QProcess(this)),
     m_recording_format(recording_format),
-    m_currentOutputFile("")
+    m_current_output_file("")
 {
     setWindowFlags(Qt::FramelessWindowHint);
     setAttribute(Qt::WA_TranslucentBackground);
@@ -31,7 +31,7 @@ REC::REC(QWidget *parent, uint width, uint height, QString recording_format)
     connect(m_REC_button, &RECButton::clicked, this, [this]() {
         if (m_timer->isActive()) {
             m_timer->stop();
-            m_elapsedTimer->invalidate();
+            m_elapsed_timer->invalidate();
             m_digital_clock_face->setText("00:00:00:0");
             m_REC_button->setChecked(false);
             stopRecording();
@@ -39,7 +39,7 @@ REC::REC(QWidget *parent, uint width, uint height, QString recording_format)
         } else {
             m_REC_button->setChecked(true);
             m_timer->start();
-            m_elapsedTimer->start();
+            m_elapsed_timer->start();
             startRecording();
             emit recordingStarted();
         }
@@ -51,7 +51,7 @@ REC::REC(QWidget *parent, uint width, uint height, QString recording_format)
 void REC::startRecording() {
     // Отримання шляху до директорії виконуваного файлу
     QString appDir = QCoreApplication::applicationDirPath();
-    QString ffmpegPath = "ffmpeg"; // На Ubuntu ffmpeg викликається без повного шляху, якщо встановлено системно
+    QString ffmpeg_path = "ffmpeg"; // На Ubuntu ffmpeg викликається без повного шляху, якщо встановлено системно
     QString recordingsDir = appDir + "/../records";
 
     // Перевірка існування ffmpeg
@@ -61,7 +61,7 @@ void REC::startRecording() {
     if (whichResult != 0) {
         qDebug() << "FFmpeg not found with 'which'. Trying direct execution...";
         QProcess testProcess;
-        testProcess.start(ffmpegPath, QStringList() << "-version");
+        testProcess.start(ffmpeg_path, QStringList() << "-version");
         if (!testProcess.waitForStarted(3000) || !testProcess.waitForFinished(3000)) {
             qDebug() << "FFmpeg executable not found in system path. Please install FFmpeg.";
             return;
@@ -85,13 +85,13 @@ void REC::startRecording() {
     }
 
     // Формування повного шляху до файлу
-    m_currentOutputFile = QString("%1/recording_%2.%3")
+    m_current_output_file = QString("%1/recording_%2.%3")
                               .arg(recordingsDir)
                               .arg(QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss"))
                               .arg(m_recording_format.toLower());
 
     QStringList arguments;
-#ifdef Q_OS_LINUX
+#ifdef Q_OS_LINU_x
     // Захоплення вихідного звуку через PulseAudio monitor
     // Виконай: pactl list sources
     // Знайди джерело типу "alsa_output...monitor" (наприклад, "alsa_output.pci-0000_00_1b.0.analog-stereo.monitor")
@@ -99,60 +99,60 @@ void REC::startRecording() {
     arguments << "-f" << "pulse"
               << "-i" << "alsa_output.pci-0000_00_1f.3.analog-stereo.monitor"
               << "-c:a" << (m_recording_format == "MP3" ? "mp3" : "pcm_s16le")
-              << "-y" << m_currentOutputFile;
+              << "-y" << m_current_output_file;
 #elif defined(Q_OS_WIN)
     // Захоплення системного звуку через dshow (для Windows)
     arguments << "-f" << "dshow"
               << "-i" << "audio=\"Stereo Mix (Realtek High Definition Audio)\""
               << "-c:a" << (m_recording_format == "MP3" ? "mp3" : "pcm_s16le")
-              << "-y" << m_currentOutputFile;
+              << "-y" << m_current_output_file;
 #else
     qDebug() << "Unsupported platform for audio recording";
     return;
 #endif
 
     // Налаштування шляху до ffmpeg
-    m_ffmpegProcess->setProgram(ffmpegPath);
+    m_ffmpeg_process->setProgram(ffmpeg_path);
 
     // Додавання детального виведення помилок FFmpeg
-    connect(m_ffmpegProcess, &QProcess::readyReadStandardError, this, [this]() {
-        qDebug() << "FFmpeg error:" << m_ffmpegProcess->readAllStandardError();
+    connect(m_ffmpeg_process, &QProcess::readyReadStandardError, this, [this]() {
+        qDebug() << "FFmpeg error:" << m_ffmpeg_process->readAllStandardError();
     });
 
-    connect(m_ffmpegProcess, &QProcess::readyReadStandardOutput, this, [this]() {
-        qDebug() << "FFmpeg output:" << m_ffmpegProcess->readAllStandardOutput();
+    connect(m_ffmpeg_process, &QProcess::readyReadStandardOutput, this, [this]() {
+        qDebug() << "FFmpeg output:" << m_ffmpeg_process->readAllStandardOutput();
     });
 
-    m_ffmpegProcess->setArguments(arguments);
-    m_ffmpegProcess->start();
-    if (!m_ffmpegProcess->waitForStarted(3000)) {
-        qDebug() << "FFmpeg failed to start:" << m_ffmpegProcess->errorString();
-        qDebug() << "Command:" << ffmpegPath << arguments.join(" ");
+    m_ffmpeg_process->setArguments(arguments);
+    m_ffmpeg_process->start();
+    if (!m_ffmpeg_process->waitForStarted(3000)) {
+        qDebug() << "FFmpeg failed to start:" << m_ffmpeg_process->errorString();
+        qDebug() << "Command:" << ffmpeg_path << arguments.join(" ");
     } else {
-        qDebug() << "FFmpeg started successfully, recording to:" << m_currentOutputFile;
+        qDebug() << "FFmpeg started successfully, recording to:" << m_current_output_file;
     }
 }
 
 void REC::stopRecording() {
-    if (m_ffmpegProcess->state() == QProcess::Running) {
-        m_ffmpegProcess->terminate();
-        m_ffmpegProcess->waitForFinished(3000);
-        if (m_ffmpegProcess->state() != QProcess::NotRunning) {
-            m_ffmpegProcess->kill();
+    if (m_ffmpeg_process->state() == QProcess::Running) {
+        m_ffmpeg_process->terminate();
+        m_ffmpeg_process->waitForFinished(3000);
+        if (m_ffmpeg_process->state() != QProcess::NotRunning) {
+            m_ffmpeg_process->kill();
         }
         qDebug() << "FFmpeg stopped.";
     }
 
     // Перевірка, чи створено файл запису
-    QFileInfo fileInfo(m_currentOutputFile);
-    if (fileInfo.exists()) {
-        qDebug() << "Recording file created:" << m_currentOutputFile;
+    QFileInfo file_info(m_current_output_file);
+    if (file_info.exists()) {
+        qDebug() << "Recording file created:" << m_current_output_file;
     } else {
-        qDebug() << "Recording file not found:" << m_currentOutputFile;
+        qDebug() << "Recording file not found:" << m_current_output_file;
     }
 
     // Очистка імені файлу після завершення запису
-    m_currentOutputFile = "";
+    m_current_output_file = "";
 }
 
 void REC::setRecordingFormat(const QString& format) {
@@ -163,13 +163,13 @@ void REC::setRecordingFormat(const QString& format) {
 
 void REC::updateDigitalClockFace() {
     QTime time(0, 0);
-    qint64 elapsed = m_elapsedTimer->elapsed();
+    qint64 elapsed = m_elapsed_timer->elapsed();
     time = time.addMSecs(elapsed);
     m_digital_clock_face->setText(time.toString("HH:mm:ss:%1").arg(time.msec() / 100));
 
     if (elapsed >= 359999999) { // 99:59:59:999 у мілісекундах
         m_timer->stop();
-        m_elapsedTimer->invalidate();
+        m_elapsed_timer->invalidate();
         m_digital_clock_face->setText("00:00:00:0");
         m_REC_button->setChecked(false);
         stopRecording();

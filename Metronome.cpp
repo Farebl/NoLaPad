@@ -4,10 +4,10 @@ Metronome::Metronome(MicroTimer* timer, QWidget *parent, float volume, QString s
     : QPushButton(parent),
     m_player_strong_measure(new QMediaPlayer(this)),
     m_player_weak_measure(new QMediaPlayer(this)),
-    m_strong_audioOutput(new QAudioOutput(this)),
-    m_weak_audioOutput(new QAudioOutput(this)),
+    m_strong_audio_output(new QAudioOutput(this)),
+    m_weak_audio_output(new QAudioOutput(this)),
     m_timer(timer),
-    m_settingsWindow(new MetronomeSettings(this))
+    m_settings_window(new MetronomeSettings(this))
 
 {
     if (strong_and_weak_measures.size() != 4) {
@@ -42,14 +42,14 @@ Metronome::Metronome(MicroTimer* timer, QWidget *parent, float volume, QString s
     );
 
     m_player_strong_measure->setSource(QUrl::fromLocalFile(strong_measure_sound_path));
-    m_player_strong_measure->setAudioOutput(m_strong_audioOutput);
+    m_player_strong_measure->setAudioOutput(m_strong_audio_output);
 
     m_player_weak_measure->setSource(QUrl::fromLocalFile(weak_measure_sound_path));
-    m_player_weak_measure->setAudioOutput(m_weak_audioOutput);
+    m_player_weak_measure->setAudioOutput(m_weak_audio_output);
 
-    m_strong_audioOutput->setVolume(volume);
+    m_strong_audio_output->setVolume(volume);
 
-    connect(m_settingsWindow, &MetronomeSettings::changedVolume, this, &Metronome::setVolume);
+    connect(m_settings_window, &MetronomeSettings::changedVolume, this, &Metronome::setVolume);
 }
 
 
@@ -64,13 +64,13 @@ Metronome::~Metronome() {
         delete m_player_weak_measure;
         m_player_weak_measure = nullptr;
     }
-    if (m_strong_audioOutput) {
-        delete m_strong_audioOutput;
-        m_strong_audioOutput = nullptr;
+    if (m_strong_audio_output) {
+        delete m_strong_audio_output;
+        m_strong_audio_output = nullptr;
     }
-    if (m_weak_audioOutput) {
-        delete m_weak_audioOutput;
-        m_weak_audioOutput = nullptr;
+    if (m_weak_audio_output) {
+        delete m_weak_audio_output;
+        m_weak_audio_output = nullptr;
     }
 }
 
@@ -134,7 +134,7 @@ void Metronome::mousePressEvent(QMouseEvent *event){
     }
 
     if(event->button() == Qt::RightButton){
-        m_settingsWindow->exec();
+        m_settings_window->exec();
     }
 
     if (event->button() != Qt::LeftButton && event->button() != Qt::RightButton) {
@@ -161,8 +161,8 @@ void Metronome::setVolume(int volume_percent){
         return;
     }
 
-    m_strong_audioOutput->setVolume(static_cast<double>(volume_percent)/100.0);
-    m_weak_audioOutput->setVolume(static_cast<double>(volume_percent)/100.0);
+    m_strong_audio_output->setVolume(static_cast<double>(volume_percent)/100.0);
+    m_weak_audio_output->setVolume(static_cast<double>(volume_percent)/100.0);
 }
 
 

@@ -13,21 +13,21 @@ void BeatCheckBox::paintEvent(QPaintEvent* event){
     painter.setRenderHint(QPainter::Antialiasing);
 
     // Размер квадрата для чекбокса
-    const int boxSize = 16;
-    QRect boxRect(0, (height() - boxSize) / 2, boxSize, boxSize);
+    const int box_size = 16;
+    QRect box_rect(0, (height() - box_size) / 2, box_size, box_size);
 
     // Цвет в зависимости от состояния
-    QColor boxColor = isChecked() ? Qt::red : Qt::gray;
+    QColor box_color = isChecked() ? Qt::red : Qt::gray;
 
     // Рисуем квадрат с закруглением 1px
-    painter.setBrush(boxColor);
+    painter.setBrush(box_color);
     painter.setPen(Qt::NoPen);
-    painter.drawRoundedRect(boxRect, 1, 1);
+    painter.drawRoundedRect(box_rect, 1, 1);
 
     // Рисуем текст справа от квадрата с небольшим отступом
-    int textX = boxRect.right() + 8;
-    QRect textRect(textX, 0, width() - textX, height());
+    int text_x = box_rect.right() + 8;
+    QRect text_rect(text_x, 0, width() - text_x, height());
 
     painter.setPen(palette().color(QPalette::WindowText));
-    painter.drawText(textRect, Qt::AlignVCenter | Qt::AlignLeft, text());
+    painter.drawText(text_rect, Qt::AlignVCenter | Qt::AlignLeft, text());
 }

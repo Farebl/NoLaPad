@@ -9,7 +9,7 @@ class MicroTimer : public QThread {
     Q_OBJECT
 
 public:
-    explicit MicroTimer(quint32 intervalNs = 1'000'000'000, QObject* parent = nullptr);
+    explicit MicroTimer(quint32 interval_in_nanoseconds = 1'000'000'000, QObject* parent = nullptr);
     ~MicroTimer() override;
 
     void stop();              // Остановка таймера

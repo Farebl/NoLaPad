@@ -16,14 +16,14 @@ void Potentiometer::paintEvent(QPaintEvent *event)
     painter.setRenderHint(QPainter::Antialiasing);
 
     // Визначаємо розміри
-    int widgetSize = qMin(width(), height()); // Беремо мінімальний розмір віджета
-    int diameter = widgetSize - 85; // Діаметр основи на 20 пікселів менший за розмір віджета
-    int centerX = width() / 2;
-    int centerY = height() / 2;
+    int widget_size = qMin(width(), height()); // Беремо мінімальний розмір віджета
+    int diameter = widget_size - 85; // Діаметр основи на 20 пікселів менший за розмір віджета
+    int center_x = width() / 2;
+    int center_y = height() / 2;
     int radius = diameter / 2;
 
     // Малюємо основу (круг)
-    QRectF baseRect(centerX - radius, centerY - radius, diameter, diameter);
+    QRectF baseRect(center_x - radius, center_y - radius, diameter, diameter);
     painter.setBrush(QBrush(Qt::lightGray));
     painter.setPen(QPen(Qt::black, 2));
     painter.drawEllipse(baseRect);
@@ -32,9 +32,9 @@ void Potentiometer::paintEvent(QPaintEvent *event)
 
     // Малюємо поділки (лінії) і додаємо надписи цифр (1, 2, 3, 4) по колу
     painter.setPen(QPen(QColor(235, 235, 235), 2));
-    int tickLength = 10; // Довжина поділки
-    int tickRadius = radius + 20; // Радіус, на якому розташовані поділки
-    int labelOffset = 15; // Відступ для тексту міток
+    int tick_length = 10; // Довжина поділки
+    int tick_radius = radius + 20; // Радіус, на якому розташовані поділки
+    int label_offset = 15; // Відступ для тексту міток
 
     // Налаштування шрифту для тексту
     QFont font = painter.font();
@@ -48,19 +48,19 @@ void Potentiometer::paintEvent(QPaintEvent *event)
     for (int i = 0; i < 4; ++i) {
         qreal angleRad = qDegreesToRadians(angles[i]);
         // Координати для початку і кінця поділки
-        qreal x1 = centerX + tickRadius * qCos(angleRad);
-        qreal y1 = centerY - tickRadius * qSin(angleRad);
-        qreal x2 = centerX + (tickRadius - tickLength) * qCos(angleRad);
-        qreal y2 = centerY - (tickRadius - tickLength) * qSin(angleRad);
+        qreal x1 = center_x + tick_radius * qCos(angleRad);
+        qreal y1 = center_y - tick_radius * qSin(angleRad);
+        qreal x2 = center_x + (tick_radius - tick_length) * qCos(angleRad);
+        qreal y2 = center_y - (tick_radius - tick_length) * qSin(angleRad);
 
         // Малюємо поділку
         painter.drawLine(QPointF(x1, y1), QPointF(x2, y2));
 
         // Малюємо мітку (число)
-        qreal labelX = centerX + (tickRadius + labelOffset) * qCos(angleRad);
-        qreal labelY = centerY - (tickRadius + labelOffset) * qSin(angleRad);
-        QRectF labelRect(labelX - 10, labelY - 10, 20, 20); // Прямокутник для центрування тексту
-        painter.drawText(labelRect, Qt::AlignCenter, labels[i]);
+        qreal label_x = center_x + (tick_radius + label_offset) * qCos(angleRad);
+        qreal label_y = center_y - (tick_radius + label_offset) * qSin(angleRad);
+        QRectF label_rect(label_x - 10, label_y - 10, 20, 20); // Прямокутник для центрування тексту
+        painter.drawText(label_rect, Qt::AlignCenter, labels[i]);
     }
 
 
@@ -68,24 +68,24 @@ void Potentiometer::paintEvent(QPaintEvent *event)
 
     // Малюємо стрілку як прямокутник
     int value = this->value();
-    int minValue = minimum();
+    int min_value = minimum();
     int maxValue = maximum();
-    qreal angle = 360.0 * (value - minValue) / (maxValue - minValue) + 90; // Від 0 до 360 градусів, 0° угорі
+    qreal angle = 360.0 * (value - min_value) / (maxValue - min_value) + 90; // Від 0 до 360 градусів, 0° угорі
 
     // Параметри прямокутника (стрілки)
-    int arrowLength = radius + 10; // Довжина стрілки
-    int arrowWidth = diameter / 8; // Товщина стрілки
+    int arrow_length = radius + 10; // Довжина стрілки
+    int arrow_width = diameter / 8; // Товщина стрілки
 
     // Зберігаємо стан painter перед обертанням
     painter.save();
-    painter.translate(centerX, centerY); // Переміщаємо центр координат у центр потенціометра
+    painter.translate(center_x, center_y); // Переміщаємо центр координат у центр потенціометра
     painter.rotate(angle);               // Обертаємо систему координат
 
     // Малюємо прямокутник (стрілку) із заокругленими кутами
-    QRectF arrowRect(-3, -arrowWidth / 2, arrowLength, arrowWidth); // Прямокутник від центру до краю
+    QRectF arrow_rect(-3, -arrow_width / 2, arrow_length, arrow_width); // Прямокутник від центру до краю
     painter.setBrush(QBrush(QColor(65, 65, 65)));
     painter.setPen(Qt::NoPen); // Без обводки
-    painter.drawRoundedRect(arrowRect, 2, 2); // Заокруглення кутів 2 пікселя
+    painter.drawRoundedRect(arrow_rect, 2, 2); // Заокруглення кутів 2 пікселя
 
     // Відновлюємо стан painter
     painter.restore();
@@ -96,10 +96,10 @@ void Potentiometer::mousePressEvent(QMouseEvent *event)
     if (event->button() == Qt::LeftButton) {
         m_dragging = true;
         // Обчислюємо кут до курсора
-        int centerX = width() / 2;
-        int centerY = height() / 2;
-        int dx = event->x() - centerX;
-        int dy = event->y() - centerY;
+        int center_x = width() / 2;
+        int center_y = height() / 2;
+        int dx = event->x() - center_x;
+        int dy = event->y() - center_y;
         qreal angle = qRadiansToDegrees(qAtan2(-dy, dx)); // Кут у градусах (від -180 до 180)
 
         // Переводимо кут у діапазон 0-360 і враховуємо, що 0° угорі
@@ -109,15 +109,15 @@ void Potentiometer::mousePressEvent(QMouseEvent *event)
         }
 
         // Конвертуємо кут у значення (0-100)
-        int newValue = (angle / 360.0) * (maximum() - minimum());
-        setValue(newValue);
-        if (newValue > 88 || newValue < 14) {
+        int new_value = (angle / 360.0) * (maximum() - minimum());
+        setValue(new_value);
+        if (new_value > 88 || new_value < 14) {
 
             emit(settedFirstQuarter());
-        } else if (newValue > 13 && newValue < 38) {
+        } else if (new_value > 13 && new_value < 38) {
             emit(settedFourthQuarter());
         }
-        else if (newValue > 37 && newValue < 68) {
+        else if (new_value > 37 && new_value < 68) {
             emit(settedThirdQuarter());
         }
         else {
@@ -133,10 +133,10 @@ void Potentiometer::mouseMoveEvent(QMouseEvent *event)
 {
     if (m_dragging) {
         // Обчислюємо кут до курсора
-        int centerX = width() / 2;
-        int centerY = height() / 2;
-        int dx = event->x() - centerX;
-        int dy = event->y() - centerY;
+        int center_x = width() / 2;
+        int center_y = height() / 2;
+        int dx = event->x() - center_x;
+        int dy = event->y() - center_y;
         qreal angle = qRadiansToDegrees(qAtan2(-dy, dx)); // Кут у градусах (від -180 до 180)
 
         // Переводимо кут у діапазон 0-360 і враховуємо, що 0° угорі
@@ -146,14 +146,14 @@ void Potentiometer::mouseMoveEvent(QMouseEvent *event)
         }
 
         // Конвертуємо кут у значення (0-100)
-        int newValue = (angle / 360.0) * (maximum() - minimum());
-        setValue(newValue);
-        if (newValue > 88 || newValue < 14) {
+        int new_value = (angle / 360.0) * (maximum() - minimum());
+        setValue(new_value);
+        if (new_value > 88 || new_value < 14) {
             emit(settedFirstQuarter());
-        } else if (newValue > 13 && newValue < 38) {
+        } else if (new_value > 13 && new_value < 38) {
             emit(settedFourthQuarter());
         }
-        else if (newValue > 37 && newValue < 68) {
+        else if (new_value > 37 && new_value < 68) {
             emit(settedThirdQuarter());
         }
         else {
@@ -167,13 +167,13 @@ void Potentiometer::mouseMoveEvent(QMouseEvent *event)
 void Potentiometer::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
-        int newValue = value();
-        if (newValue > 88 || newValue < 14) {
+        int new_value = value();
+        if (new_value > 88 || new_value < 14) {
             setValue(0);
-        } else if (newValue > 13 && newValue < 38) {
+        } else if (new_value > 13 && new_value < 38) {
             setValue(25);
         }
-        else if (newValue > 37 && newValue < 68) {
+        else if (new_value > 37 && new_value < 68) {
             setValue(50);
         }
         else {

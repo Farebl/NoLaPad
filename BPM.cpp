@@ -4,8 +4,8 @@ BPM::BPM(MicroTimer *timer, uint16_t bpm_value, QWidget *parent)
     : QWidget{parent},
     m_bpm(bpm_value),
     m_bpm_display(new QSpinBox(this)),
-    m_upButton(new QPushButton("▲", this)),
-    m_downButton(new QPushButton("▼", this)),
+    m_up_button(new QPushButton("▲", this)),
+    m_down_button(new QPushButton("▼", this)),
     m_timer(timer)
 {
     setWindowFlags(Qt::FramelessWindowHint); // Убираем рамку окна
@@ -13,18 +13,18 @@ BPM::BPM(MicroTimer *timer, uint16_t bpm_value, QWidget *parent)
     setStyleSheet("background-color: transparent;"); // Прозрачный фон
 
 
-    int fontId = QFontDatabase::addApplicationFont("..//..//fonts//dseg7-classic-latin-400-italic.ttf");
-    QFont lcdFont;
-    if (fontId == -1) {
+    int font_id = QFontDatabase::addApplicationFont("..//..//fonts//dseg7-classic-latin-400-italic.ttf");
+    QFont lcd_font;
+    if (font_id == -1) {
         qWarning() << "Не удалось загрузить шрифт DSEG7Classic-Regular.ttf, используется стандартный шрифт";
-        lcdFont = QFont("Arial", 12); // Стандартный шрифт в качестве запасного
+        lcd_font = QFont("Arial", 12); // Стандартный шрифт в качестве запасного
     } else {
-        QString fontFamily = QFontDatabase::applicationFontFamilies(fontId).at(0);
-        lcdFont = QFont(fontFamily, 12);
+        QString font_family = QFontDatabase::applicationFontFamilies(font_id).at(0);
+        lcd_font = QFont(font_family, 12);
     }
     m_bpm_display->setRange(1, 500);
     m_bpm_display->setValue(m_bpm);
-    m_bpm_display->setFont(lcdFont);
+    m_bpm_display->setFont(lcd_font);
     m_bpm_display->setFixedSize(55, 35); // Увеличен размер для отображения цифр и кнопок
     m_bpm_display->setAlignment(Qt::AlignCenter); // Центрирование текста
     m_bpm_display->setButtonSymbols(QAbstractSpinBox::NoButtons); // Убираем стандартные кнопки
@@ -40,8 +40,8 @@ BPM::BPM(MicroTimer *timer, uint16_t bpm_value, QWidget *parent)
     );
 
 
-    m_upButton->setFixedSize(25, 16); // Компактный размер
-    m_upButton->setStyleSheet(
+    m_up_button->setFixedSize(25, 16); // Компактный размер
+    m_up_button->setStyleSheet(
         "QPushButton {"
         "    background-color: #444444;" // Темный фон
         "    color: #FFFFFF;" // Белый текст
@@ -56,8 +56,8 @@ BPM::BPM(MicroTimer *timer, uint16_t bpm_value, QWidget *parent)
     );
 
 
-    m_downButton->setFixedSize(25, 16);
-    m_downButton->setStyleSheet(
+    m_down_button->setFixedSize(25, 16);
+    m_down_button->setStyleSheet(
         "QPushButton {"
         "    background-color: #444444;" // Темный фон
         "    color: #FFFFFF;" // Белый текст
@@ -72,12 +72,12 @@ BPM::BPM(MicroTimer *timer, uint16_t bpm_value, QWidget *parent)
         );
 
 
-    connect(m_upButton, &QPushButton::clicked, this, [this]() {
+    connect(m_up_button, &QPushButton::clicked, this, [this]() {
         if (m_bpm < 500) {
             m_bpm_display->setValue(m_bpm_display->value() + 1);
         }
     });
-    connect(m_downButton, &QPushButton::clicked, this, [this]() {
+    connect(m_down_button, &QPushButton::clicked, this, [this]() {
         if (m_bpm > 1) {
             m_bpm_display->setValue(m_bpm_display->value() - 1);
         }
@@ -85,7 +85,6 @@ BPM::BPM(MicroTimer *timer, uint16_t bpm_value, QWidget *parent)
 
     // Обновление таймера при изменении значения
     connect(m_bpm_display, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int newBpm) {
-        qDebug()<<"New bpm"<<newBpm;
         m_bpm = newBpm;
         m_timer->setInterval(static_cast<quint32>(60.0 / (m_bpm * 4) * 1'000'000)); // (m_bpm * 4) because the timer generates 16th parts
     });
@@ -94,5 +93,5 @@ BPM::BPM(MicroTimer *timer, uint16_t bpm_value, QWidget *parent)
 
 
 QSpinBox* BPM::getBpmDisplay(){return m_bpm_display;}
-QPushButton* BPM::getUpButton(){return m_upButton;}
-QPushButton* BPM::getDownButton(){return m_downButton;}
+QPushButton* BPM::getUpButton(){return m_up_button;}
+QPushButton* BPM::getDownButton(){return m_down_button;}

@@ -24,9 +24,9 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
 
 private:
-    QColor m_outerColor;
-    QColor m_innerColor;
-    int m_innerRadius;
+    QColor m_outer_color;
+    QColor m_inner_color;
+    int m_inner_radius;
 };
 
 #endif // TRACKCOLORBUTTONS_H

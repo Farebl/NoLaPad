@@ -10,7 +10,7 @@ class Fader : public QSlider
 {
     Q_OBJECT
 public:
-    explicit Fader(QWidget *parent = nullptr, QString trackImagePath = "..//..//images//fader_track.png", QString handleImagePath = "..//..//images//fader_handle.png", QString measuresImagePath = "..//..//images//fader_meaures.png");
+    explicit Fader(QWidget *parent = nullptr, QString track_image_path = "..//..//images//fader_track.png", QString handle_image_path = "..//..//images//fader_handle.png", QString measures_image_path = "..//..//images//fader_meaures.png");
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -22,15 +22,15 @@ protected:
     bool event(QEvent *event) override;
 
 private:
-    QPixmap m_trackImage;
-    QPixmap m_handleImage;
-    QPixmap m_measuresImage;
-    int m_handleWidth;
-    int m_handleHeight;
+    QPixmap m_track_image;
+    QPixmap m_handle_image;
+    QPixmap m_measures_image;
+    int m_handle_width;
+    int m_handle_height;
     bool m_dragging;
-    int m_trackX;
-    int m_measuresX;
-    int m_measuresY;
+    int m_track_x;
+    int m_measures_x;
+    int m_measures_y;
 };
 
 #endif // FADER_H

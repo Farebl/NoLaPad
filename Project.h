@@ -28,15 +28,15 @@ private:
     int m_row;
     int m_column;
 
-    QWidget* m_centralWidget;
-    QWidget* m_titleBar;
+    QWidget* m_central_widget;
+    QWidget* m_title_bar;
     bool m_dragging;
     bool m_resizing;
-    QPoint m_dragPosition;
-    QPoint m_resizeStart;
-    QSize m_resizeStartSize;
+    QPoint m_drag_position;
+    QPoint m_resize_start;
+    QSize m_resize_start_size;
 
-    QTableWidget *m_tableWidget;
+    QTableWidget *m_table_widget;
     MicroTimer* m_timer;
 
     BPM* m_bpm;

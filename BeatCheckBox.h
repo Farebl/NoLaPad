@@ -1,5 +1,5 @@
-#ifndef BEATCHECKBOX_H
-#define BEATCHECKBOX_H
+#ifndef BEATCHECKBO_x_H
+#define BEATCHECKBO_x_H
 
 #include <QObject>
 #include <QWidget>
@@ -17,4 +17,4 @@ protected:
 };
 
 
-#endif // BEATCHECKBOX_H
+#endif // BEATCHECKBO_x_H

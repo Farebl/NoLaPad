@@ -1,9 +1,9 @@
 #include "MicroTimer.h"
 #include <QDebug>
 
-MicroTimer::MicroTimer(quint32 interval, QObject* parent)
+MicroTimer::MicroTimer(quint32 interval_in_nanosecond, QObject* parent)
     : QThread(parent),
-    m_interval(interval),
+    m_interval(interval_in_nanosecond),
     m_tick_order(0),
     m_running(false),
     m_signas{

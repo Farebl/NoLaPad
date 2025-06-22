@@ -1,13 +1,13 @@
 #include "Fader.h"
 
-Fader::Fader(QWidget *parent, QString trackImagePath, QString handleImagePath, QString measuresImagePath)
+Fader::Fader(QWidget *parent, QString track_image_path, QString handle_image_path, QString measures_image_path)
     : QSlider(Qt::Vertical, parent)
-    , m_handleWidth(20)
-    , m_handleHeight(20)
+    , m_handle_width(20)
+    , m_handle_height(20)
     , m_dragging(false)
-    , m_trackX(0)
-    , m_measuresX(0)
-    , m_measuresY(0)
+    , m_track_x(0)
+    , m_measures_x(0)
+    , m_measures_y(0)
 {
     setRange(0, 100);
     setValue(50);
@@ -15,21 +15,21 @@ Fader::Fader(QWidget *parent, QString trackImagePath, QString handleImagePath, Q
                   "QSlider::handle:vertical { background: transparent; }");
     setMouseTracking(false);
 
-    m_handleImage = QPixmap(handleImagePath);
-    m_handleImage = m_handleImage.scaled(m_handleImage.width(), m_handleImage.height()+8);
-    if (m_handleImage.isNull()) {
-        qDebug() << "Failed to load handle image from:" << handleImagePath;
+    m_handle_image = QPixmap(handle_image_path);
+    m_handle_image = m_handle_image.scaled(m_handle_image.width(), m_handle_image.height()+8);
+    if (m_handle_image.isNull()) {
+        qDebug() << "Failed to load handle image from:" << handle_image_path;
     } else {
-        m_handleWidth = m_handleImage.width();
-        m_handleHeight = m_handleImage.height();
+        m_handle_width = m_handle_image.width();
+        m_handle_height = m_handle_image.height();
     }
-    m_trackImage = QPixmap(trackImagePath);
-    if (m_trackImage.isNull()) {
-        qDebug() << "Failed to load track image from:" << trackImagePath;
+    m_track_image = QPixmap(track_image_path);
+    if (m_track_image.isNull()) {
+        qDebug() << "Failed to load track image from:" << track_image_path;
     }
-    m_measuresImage = QPixmap(measuresImagePath);
-    if (m_measuresImage.isNull()) {
-        qDebug() << "Failed to load measures image from:" << measuresImagePath;
+    m_measures_image = QPixmap(measures_image_path);
+    if (m_measures_image.isNull()) {
+        qDebug() << "Failed to load measures image from:" << measures_image_path;
     }
     update();
 }
@@ -41,34 +41,34 @@ void Fader::paintEvent(QPaintEvent *event)
     painter.setRenderHint(QPainter::Antialiasing);
 
     // Малюємо фіксовану розмітку поділки
-    if (!m_measuresImage.isNull()) {
-        m_measuresX = 0;
-        m_measuresY = 50;
-        painter.drawPixmap(m_measuresX, m_measuresY, m_measuresImage);
+    if (!m_measures_image.isNull()) {
+        m_measures_x = 0;
+        m_measures_y = 50;
+        painter.drawPixmap(m_measures_x, m_measures_y, m_measures_image);
     }
     else {
         painter.fillRect(0, 0, width(), height(), Qt::gray);
     }
 
     // Малюємо фіксовану доріжку
-    if (!m_trackImage.isNull()) {
-        m_trackX = m_measuresX+m_measuresImage.width();
-        int y = -((m_trackImage.height() - m_measuresImage.height())/2) + m_measuresY;
-        painter.drawPixmap(m_trackX, y, m_trackImage);
+    if (!m_track_image.isNull()) {
+        m_track_x = m_measures_x+m_measures_image.width();
+        int y = -((m_track_image.height() - m_measures_image.height())/2) + m_measures_y;
+        painter.drawPixmap(m_track_x, y, m_track_image);
     }
     else {
         painter.fillRect(0, 0, width(), height(), Qt::gray);
     }
 
     // Малюємо повзунок відносно доріжки
-    if (!m_handleImage.isNull() && !m_trackImage.isNull()) {
-        int totalHeight = m_measuresImage.height() - 32; // Висота, котра доступна для повзунка
-        int valueRange = maximum() - minimum();
+    if (!m_handle_image.isNull() && !m_track_image.isNull()) {
+        int total_height = m_measures_image.height() - 32; // Висота, котра доступна для повзунка
+        int value_range = maximum() - minimum();
         int pos = maximum() - value(); // Інвертуємо для вертикального слайдера
 
-        int y = ((pos * totalHeight) / valueRange); // Позиція повзунка
-        int x = m_trackX + (m_trackImage.width()/2) - (m_handleImage.width()/2) ; // Центруємо в межах доріжки
-        painter.drawPixmap(x, y, m_handleImage);
+        int y = ((pos * total_height) / value_range); // Позиція повзунка
+        int x = m_track_x + (m_track_image.width()/2) - (m_handle_image.width()/2) ; // Центруємо в межах доріжки
+        painter.drawPixmap(x, y, m_handle_image);
     }
 
 }
@@ -81,14 +81,14 @@ void Fader::resizeEvent(QResizeEvent *event)
 
 void Fader::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton && !m_trackImage.isNull()) {
+    if (event->button() == Qt::LeftButton && !m_track_image.isNull()) {
         m_dragging = true;
-        int totalHeight = m_measuresImage.height() - 32; // Висота, котра доступна для повзунка
-        int valueRange = maximum() - minimum();
+        int total_height = m_measures_image.height() - 32; // Висота, котра доступна для повзунка
+        int value_range = maximum() - minimum();
         int y = event->y()-4; // Центруємо хендл
-        y = qBound(0, y - m_trackX, totalHeight); // Обмежуємо позицію в межах доріжки
-        int newValue = maximum() - (y * valueRange) / totalHeight;
-        setValue(qBound(minimum(), newValue, maximum()));
+        y = qBound(0, y - m_track_x, total_height); // Обмежуємо позицію в межах доріжки
+        int new_value = maximum() - (y * value_range) / total_height;
+        setValue(qBound(minimum(), new_value, maximum()));
         update();
     }
     event->accept();
@@ -96,13 +96,13 @@ void Fader::mousePressEvent(QMouseEvent *event)
 
 void Fader::mouseMoveEvent(QMouseEvent *event)
 {
-    if (m_dragging && !m_trackImage.isNull()) {
-        int totalHeight = m_measuresImage.height() - 32; // Висота, котра доступна для повзунка
-        int valueRange = maximum() - minimum();
+    if (m_dragging && !m_track_image.isNull()) {
+        int total_height = m_measures_image.height() - 32; // Висота, котра доступна для повзунка
+        int value_range = maximum() - minimum();
         int y = event->y()-4;
-        y = qBound(0, y - m_trackX, totalHeight);
-        int newValue = maximum() - (y * valueRange) / totalHeight;
-        setValue(qBound(minimum(), newValue, maximum()));
+        y = qBound(0, y - m_track_x, total_height);
+        int new_value = maximum() - (y * value_range) / total_height;
+        setValue(qBound(minimum(), new_value, maximum()));
         update();
     }
     event->accept();
@@ -118,11 +118,10 @@ void Fader::mouseReleaseEvent(QMouseEvent *event)
 
 void Fader::wheelEvent(QWheelEvent *event)
 {
-    if (!m_trackImage.isNull()) {
+    if (!m_track_image.isNull()) {
         int delta = event->angleDelta().y() / 120;
-        int newValue = value() + delta * 1; // ← інверсія напрямку
-        setValue(qBound(0, newValue, 100));
-        qDebug() << value();
+        int new_value = value() + delta * 1; // ← інверсія напрямку
+        setValue(qBound(0, new_value, 100));
         event->accept();
         update();
     } else {

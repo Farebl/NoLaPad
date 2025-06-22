@@ -19,21 +19,21 @@ TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::vector<s
     setFixedSize(410, 770);
     setStyleSheet("background-color: #8e8e8e;");
 
-    int fontId = QFontDatabase::addApplicationFont("..//..//fonts//dseg7-classic-latin-400-italic.ttf");
-    QFont lcdFont;
-    QString fontFamily = QFontDatabase::applicationFontFamilies(fontId).at(0);
-    lcdFont = QFont(fontFamily, 24);
+    int font_id = QFontDatabase::addApplicationFont("..//..//fonts//dseg7-classic-latin-400-italic.ttf");
+    QFont lcd_font;
+    QString font_family = QFontDatabase::applicationFontFamilies(font_id).at(0);
+    lcd_font = QFont(font_family, 24);
 
 
     m_volume_display->setRange(0, 100);
     m_volume_display->setValue(120);
-    m_volume_display->setFont(lcdFont);
+    m_volume_display->setFont(lcd_font);
     m_volume_display->setFixedSize(100, 70);
     m_volume_display->setButtonSymbols(QAbstractSpinBox::NoButtons);
 
     m_effect_volume_display->setRange(0, 100);
     m_effect_volume_display->setValue(120);
-    m_effect_volume_display->setFont(lcdFont);
+    m_effect_volume_display->setFont(lcd_font);
     m_effect_volume_display->setFixedSize(100, 70);
     m_effect_volume_display->setButtonSymbols(QAbstractSpinBox::NoButtons);
 
@@ -69,7 +69,7 @@ TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::vector<s
     effect_volume_display_layout->setAlignment(Qt::AlignHCenter);
     effect_volume_display_layout->setSpacing(5);
 
-    QHBoxLayout* l1 = new QHBoxLayout();
+    QHBoxLayout* l1 = new QHBoxLayout(); // lcd displays
     l1->addLayout(volume_display_layout);
     l1->addLayout(effect_volume_display_layout);
 
@@ -92,13 +92,13 @@ TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::vector<s
     l2->addWidget(m_effect_volume_fader);
 
 
-    QVBoxLayout* l3 = new QVBoxLayout(); // displays faders
-    l3->addLayout(l1); // displays
+    QVBoxLayout* l3 = new QVBoxLayout(); // displays & faders
+    l3->addLayout(l1); // lcd displays
     l3->addLayout(l2); // faders
     l3->setSpacing(10);
 
 
-    connect(m_select_track_colors_button, &TrackColorButtons::changedInnerColor, this, &TrackSettings::changedInnerBackgroundColor);
+    connect(m_select_track_colors_button, &TrackColorButtons::changedInnerColor, this, &TrackSettings::changedInnerActiveBackgroundColor);
     connect(m_select_track_colors_button, &TrackColorButtons::changedOuterColor, this, &TrackSettings::changedOuterBackgroundColor);
 
     QLabel* select_track_color_title = new QLabel("track colors");
@@ -448,7 +448,7 @@ TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::vector<s
 
 
     QHBoxLayout* l6= new QHBoxLayout(this);
-    l6->addLayout(l3); // displays faders
+    l6->addLayout(l3); // displays & faders
     l6->addLayout(l5); //colors & loop & beats & effects & plug_in
     l6->setSpacing(10);
 }
@@ -470,7 +470,7 @@ void TrackSettings::setEffectVolume(int volum_percent){
     m_effect_volume_fader->setValue(volum_percent);
 }
 
-void TrackSettings::setInnerBackgroundColor(QColor color){
+void TrackSettings::setInnerActiveBackgroundColor(QColor color){
     m_select_track_colors_button->setInnerColor(color);
 }
 void TrackSettings::setOuterBackgroundColor(QColor color){

@@ -5,68 +5,68 @@
 
 TrackColorButtons::TrackColorButtons(QWidget *parent, uint size, const QColor& outer_background_color, const QColor& inner_background_color)
     : QWidget(parent)
-    , m_outerColor(outer_background_color)
-    , m_innerColor(inner_background_color)
-    , m_innerRadius(size/6)
+    , m_outer_color(outer_background_color)
+    , m_inner_color(inner_background_color)
+    , m_inner_radius(size/6)
 {
     setFixedSize(size, size);
 }
 
 void TrackColorButtons::setOuterColor(QColor color) {
-    m_outerColor = color;
+    m_outer_color = color;
     update();
 }
 
 void TrackColorButtons::setInnerColor(QColor color) {
-    m_innerColor = color;
+    m_inner_color = color;
     update();
 }
 
 void TrackColorButtons::paintEvent(QPaintEvent *event) {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
-    int centerX = width() / 2;
-    int centerY = height() / 2;
-    int outerSize = qMin(width(), height()) - 2;
+    int center_x = width() / 2;
+    int center_y = height() / 2;
+    int outer_size = qMin(width(), height()) - 2;
 
-    QRectF outerRect(centerX - outerSize / 2, centerY - outerSize / 2, outerSize, outerSize);
-    painter.setBrush(QBrush(m_outerColor));
-    QColor borderColor = m_outerColor.darker(130);
+    QRectF outerRect(center_x - outer_size / 2, center_y - outer_size / 2, outer_size, outer_size);
+    painter.setBrush(QBrush(m_outer_color));
+    QColor borderColor = m_outer_color.darker(130);
     painter.setPen(QPen(borderColor, 1));
     painter.drawRoundedRect(outerRect, 10, 10);
 
-    QRectF innerRect(centerX - m_innerRadius, centerY - m_innerRadius, m_innerRadius * 2, m_innerRadius * 2);
+    QRectF innerRect(center_x - m_inner_radius, center_y - m_inner_radius, m_inner_radius * 2, m_inner_radius * 2);
 
-    painter.setBrush(QBrush(m_innerColor));
-    painter.setPen(QPen(m_outerColor.darker(160), 0.6));
+    painter.setBrush(QBrush(m_inner_color));
+    painter.setPen(QPen(m_outer_color.darker(160), 0.6));
     painter.drawEllipse(innerRect);
 }
 
 void TrackColorButtons::mousePressEvent(QMouseEvent *event) {
     if (event->button() == Qt::LeftButton) {
-        int centerX = width() / 2;
-        int centerY = height() / 2;
-        int dx = event->x() - centerX;
-        int dy = event->y() - centerY;
-        qreal distance = qSqrt(dx * dx + dy * dy);
+        int center_x = width() / 2;
+        int center_y = height() / 2;
+        int d_x = event->x() - center_x;
+        int d_y = event->y() - center_y;
+        qreal distance = qSqrt(d_x * d_x + d_y * d_y);
 
         QColorDialog dialog(this); // Встановлюємо батьківське вікно
         dialog.setOption(QColorDialog::DontUseNativeDialog); // Використовуємо нативний діалог Qt
 
-        if (distance <= m_innerRadius) {
-            dialog.setCurrentColor(m_innerColor);
+        if (distance <= m_inner_radius) {
+            dialog.setCurrentColor(m_inner_color);
         } else {
-            dialog.setCurrentColor(m_outerColor);
+            dialog.setCurrentColor(m_outer_color);
         }
 
         if (dialog.exec() == QDialog::Accepted) {
             QColor color = dialog.selectedColor();
             if (color.isValid()) {
-                if (distance <= m_innerRadius) {
-                    m_innerColor = color;
+                if (distance <= m_inner_radius) {
+                    m_inner_color = color;
                     emit changedInnerColor(color);
                 } else {
-                    m_outerColor = color;
+                    m_outer_color = color;
                     emit changedOuterColor(color);
                 }
                 update();

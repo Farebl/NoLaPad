@@ -17,12 +17,12 @@ void RECButton::paintEvent(QPaintEvent *event) {
         painter.setBrush(QColor(255, 70, 70)); // Красная заливка
 
         // Вычисляем центр и радиус
-        int centerX = width() / 2;
-        int centerY = height() / 2;
+        int center_x = width() / 2;
+        int center_y = height() / 2;
         int radius = size().height()/2;
 
         // Рисуем кружок
-        painter.drawEllipse(QPoint(centerX, centerY), radius, radius);
+        painter.drawEllipse(QPoint(center_x, center_y), radius, radius);
     } else {
         // Отрисовка для неактивного состояния: серый квадрат 20x20 с радиусом углов 2
         painter.setPen(Qt::NoPen); // Без контура

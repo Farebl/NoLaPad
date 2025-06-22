@@ -22,8 +22,8 @@ public:
 private:
     int m_bpm;
     QSpinBox* m_bpm_display;
-    QPushButton* m_upButton;
-    QPushButton* m_downButton;
+    QPushButton* m_up_button;
+    QPushButton* m_down_button;
     MicroTimer* m_timer;
 
 

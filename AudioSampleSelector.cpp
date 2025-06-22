@@ -1,24 +1,24 @@
 #include "AudioSampleSelector.h"
 #include <QFileDialog>
 
-AudioSampleSelector::AudioSampleSelector(QWidget *parent, QString activeStateImagePath, QString inactiveStateImagePath)
+AudioSampleSelector::AudioSampleSelector(QWidget *parent, QString active_state_image_path, QString inactive_state_image_path)
     : QWidget(parent), m_is_active(false)
 {
     setMinimumSize(100, 100); // Встановлюємо мінімальний розмір, щоб віджет був видимим
-    m_activeStateImage = QPixmap(activeStateImagePath);
-    if (m_activeStateImage.isNull()) {
-        qDebug() << "Failed to load activeState image from:" << activeStateImagePath;
+    m_active_state_image = QPixmap(active_state_image_path);
+    if (m_active_state_image.isNull()) {
+        qDebug() << "Failed to load activeState image from:" << active_state_image_path;
     } else {
-        m_activeStateImage = m_activeStateImage.scaled(m_activeStateImage.width(), m_activeStateImage.height() + 8, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-        setMinimumSize(m_activeStateImage.width(), m_activeStateImage.height()); // Адаптуємо розмір віджета під зображення
+        m_active_state_image = m_active_state_image.scaled(m_active_state_image.width(), m_active_state_image.height() + 8, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        setMinimumSize(m_active_state_image.width(), m_active_state_image.height()); // Адаптуємо розмір віджета під зображення
     }
 
-    m_inactiveStateImage = QPixmap(inactiveStateImagePath);
-    if (m_inactiveStateImage.isNull()) {
-        qDebug() << "Failed to load inactiveState image from:" << inactiveStateImagePath;
+    m_inactive_state_image = QPixmap(inactive_state_image_path);
+    if (m_inactive_state_image.isNull()) {
+        qDebug() << "Failed to load inactiveState image from:" << inactive_state_image_path;
     } else {
-        m_inactiveStateImage = m_inactiveStateImage.scaled(m_inactiveStateImage.width(), m_activeStateImage.height() + 8, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-        setMinimumSize(m_inactiveStateImage.width(), m_inactiveStateImage.height()); // Адаптуємо розмір віджета
+        m_inactive_state_image = m_inactive_state_image.scaled(m_inactive_state_image.width(), m_active_state_image.height() + 8, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        setMinimumSize(m_inactive_state_image.width(), m_inactive_state_image.height()); // Адаптуємо розмір віджета
     }
 
     update();
@@ -36,10 +36,10 @@ void AudioSampleSelector::paintEvent(QPaintEvent *event)
     painter.setRenderHint(QPainter::Antialiasing);
 
     // Малюємо зображення залежно від стану
-    if (m_is_active && !m_activeStateImage.isNull()) {
-        painter.drawPixmap(0, 0, m_activeStateImage);
-    } else if (!m_is_active && !m_inactiveStateImage.isNull()) {
-        painter.drawPixmap(0, 0, m_inactiveStateImage);
+    if (m_is_active && !m_active_state_image.isNull()) {
+        painter.drawPixmap(0, 0, m_active_state_image);
+    } else if (!m_is_active && !m_inactive_state_image.isNull()) {
+        painter.drawPixmap(0, 0, m_inactive_state_image);
     } else {
         painter.fillRect(rect(), Qt::gray); // Показуємо сірий фон, якщо зображення не завантажено
     }

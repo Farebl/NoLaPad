@@ -32,7 +32,7 @@ public:
     void setLoopState(bool state);
     void setVolume(int volum_percent);
     void setEffectVolume(int volum_percent);
-    void setInnerBackgroundColor(QColor color);
+    void setInnerActiveBackgroundColor(QColor color);
     void setOuterBackgroundColor(QColor color);
     void setBeats(std::vector<std::vector<bool>> beats_per_measure);
     void setIsAudioSampleSelectedState(bool state);
@@ -56,7 +56,7 @@ protected:
 signals:
     void changedLoopState(bool state);
     void changedVolume(int volum_percent);
-    void changedInnerBackgroundColor(QColor color);
+    void changedInnerActiveBackgroundColor(QColor color);
     void changedOuterBackgroundColor(QColor color);
     void changedAudioSamplePath(QString path);
     void changedBeat1(bool state);
