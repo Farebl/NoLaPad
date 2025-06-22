@@ -43,6 +43,7 @@ public:
     void setBeat15(bool state);
     void setBeat16(bool state);
     void play();
+    void stop();
     bool getLoopState();
     float getVolume();
     QColor getInnerActiveBackgroundColor();

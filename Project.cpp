@@ -118,12 +118,24 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
     m_table_widget->horizontalHeader()->setVisible(false);
     m_table_widget->verticalHeader()->setVisible(false);
     m_table_widget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    m_table_widget->setStyleSheet("QTable_widget::item { padding: 3px; }");
 
     // Заполняем таблицу кнопками
     for (int r = 0; r < m_row; ++r) {
         for (int c = 0; c < m_column; ++c) {
-            Track* track = new Track(m_timer, m_central_widget, false);
+            Track* track = new Track(
+                m_timer,
+                m_central_widget,
+                1.0,
+                false,
+                {
+                    {1, 0, 0, 0},
+                    {0, 0, 0, 0},
+                    {0, 0, 0, 0},
+                    {0, 0, 0, 0}
+                },
+                QString(""),
+                QColor(180, 180, 180)
+                );
             m_table_widget->setCellWidget(r, c, track);
             connect(track, &Track::rightClicked, this, &Project::openTrackSettings);
         }

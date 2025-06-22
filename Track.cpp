@@ -8,7 +8,7 @@ Track::Track(MicroTimer* timer, QWidget *parent, float volume, bool is_loop, std
     m_is_active(false),
     m_player (new QMediaPlayer(this)),
     m_audio_output(new QAudioOutput(this)),
-    m_style("background-color: %1; color: %2; border-radius: %3px;"),
+    m_style("background-color: %1; color: %2; border-radius: %3px; margin: 2px; "),
     m_outer_color(outer_background_color),
     m_inner_color(inner_active_background_color),
     m_timer(timer),
@@ -67,6 +67,8 @@ void Track::mousePressEvent(QMouseEvent *event){
             if (!m_is_active){
                 m_is_active = true;
                 update();
+                disconnect(m_timer, &MicroTimer::tick1, this, &Track::stop);
+
                 if (m_beats_per_measure[0][0])
                     connect(m_timer, &MicroTimer::tick1, this, &Track::play);
                 if (m_beats_per_measure[0][1])
@@ -102,6 +104,8 @@ void Track::mousePressEvent(QMouseEvent *event){
             }
             else{
                 m_is_active = false;
+                connect(m_timer, &MicroTimer::tick1, this, &Track::stop);
+
                 disconnect(m_timer, &MicroTimer::tick1, this, &Track::play);
                 disconnect(m_timer, &MicroTimer::tick2, this, &Track::play);
                 disconnect(m_timer, &MicroTimer::tick3, this, &Track::play);
@@ -193,6 +197,7 @@ void Track::setLoopState(bool state){
         disconnect(m_timer, &MicroTimer::tick14, this, &Track::play);
         disconnect(m_timer, &MicroTimer::tick15, this, &Track::play);
         disconnect(m_timer, &MicroTimer::tick16, this, &Track::play);
+        stop();
     }
 }
 
@@ -362,6 +367,11 @@ void Track::play(){
     m_player->stop();
     m_player->play();
 }
+
+void Track::stop(){
+    m_player->stop();
+}
+
 
 
 bool Track::getLoopState(){
