@@ -2,8 +2,6 @@
 #define Track_H
 
 #include <QPushButton>
-#include <QMediaPlayer>
-#include <QAudioOutput>
 #include <QTimer>
 #include <QPainter>
 
@@ -14,15 +12,17 @@
 
 #include "MicroTimer.h"
 
+#include "TransportCallback.h"
+
 class Track : public QPushButton
 {
     Q_OBJECT
 public:
-    explicit Track(MicroTimer* timer = nullptr, QWidget *parent = nullptr, float volume = 1.0, bool is_loop = false, std::vector<std::vector<bool>> beats_per_measure = {{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}}, QString sound_path = "", const QColor& outer_background_color = Qt::gray, const QColor& inner_active_background_color = Qt::red);
+    explicit Track(QWidget *parent, juce::AudioDeviceManager& device_manager, juce::MixerAudioSource& mixer, MicroTimer* timer = nullptr, float volume = 1.0, bool is_loop = false, std::vector<std::vector<bool>> beats_per_measure = {{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}}, QString sound_path = "", const QColor& outer_background_color = Qt::gray, const QColor& inner_active_background_color = Qt::red);
 
     ~Track();
     void setLoopState(bool state);
-    void setVolume(int volume_percent);
+    void setVolume(float volume);
     void setInnerActiveBackgroundColor(QColor color);
     void setOuterBackgroundColor(QColor color);
     void setAudioSamplePath(QString path);
@@ -53,16 +53,19 @@ public:
 
 
 private:
+    juce::AudioDeviceManager& m_device_manager;
+    juce::MixerAudioSource& m_mixer_source;
+    juce::AudioFormatManager m_format_manager;
+    juce::AudioTransportSource m_transport_source;
+    std::unique_ptr<juce::AudioFormatReaderSource> m_reader_source;
+
     bool m_is_loop;
     bool m_is_active;
-    QMediaPlayer* m_player;
-    QAudioOutput* m_audio_output;
     QString m_audio_sample_path;
     QString m_style;
     QColor m_outer_color; // Колір зовнішньої зони
     QColor m_inner_color; // Колір центральної зони
     MicroTimer* m_timer;
-
 
     std::vector<std::vector<bool>> m_beats_per_measure;
 

@@ -49,6 +49,7 @@ void AudioSampleSelector::mousePressEvent(QMouseEvent *event) {
     if (event->button() == Qt::LeftButton) {
         if (m_is_active) {
             m_is_active = false;
+            emit selectedAudioSample("");
             update();
         } else {
             QFileDialog dialog(this, "Choose MP3 file", "../../music", "Audio Files (*.mp3 *.wav)");;

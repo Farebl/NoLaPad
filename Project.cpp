@@ -9,6 +9,9 @@
 
 Project::Project(int row, int column, int bpm_value, QWidget *parent)
     : QMainWindow(parent),
+    m_device_manager(),
+    m_mixer_source(),
+    m_callback(m_mixer_source),
     m_row(row),
     m_column(column),
     m_central_widget(new QWidget(this)),
@@ -66,11 +69,23 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
     bpm_buttons->addWidget(m_bpm->getDownButton());
     bpm_buttons->setSpacing(1);
 
-    // metronome
+    // metronome + JUCE
+
+    // Инициализация JUCE аудио
+    auto result = m_device_manager.initialise(0, 2, nullptr, true);
+    if (result.isNotEmpty())
+    {
+        std::cerr << "Audio device initialization failed: " << result.toStdString() << std::endl;
+    }
+
+    m_device_manager.addAudioCallback(&m_callback);
 
     Metronome* metronome = new Metronome(
-        m_timer, m_title_bar, 1.0,
-        "../../music/metronome/strong_measure.wav", // Виправлені шляхи
+        m_title_bar,
+        m_device_manager, m_mixer_source,
+        m_timer,
+        1.0,
+        "../../music/metronome/strong_measure.wav",
         "../../music/metronome/weak_measure.wav",
         {true, false, false, false}
         );
@@ -83,6 +98,7 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
     bpm_layout->addWidget(metronome);
     bpm_layout->setSpacing(5);
     bpm_layout->setContentsMargins(0, 0, 0, 0);
+
 
 
     // REC
@@ -119,21 +135,24 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
     m_table_widget->verticalHeader()->setVisible(false);
     m_table_widget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
+
+
     // Заполняем таблицу кнопками
     for (int r = 0; r < m_row; ++r) {
         for (int c = 0; c < m_column; ++c) {
             Track* track = new Track(
-                m_timer,
                 m_central_widget,
-                1.0,
-                false,
+                m_device_manager, m_mixer_source,
+                m_timer,
+                0.01,
+                true,
                 {
                     {1, 0, 0, 0},
                     {0, 0, 0, 0},
                     {0, 0, 0, 0},
                     {0, 0, 0, 0}
                 },
-                QString(""),
+                QString("../../music/drums/ritmichnyiy-zvuk-barabana-39655.mp3"),
                 QColor(180, 180, 180)
                 );
             m_table_widget->setCellWidget(r, c, track);
@@ -168,18 +187,37 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
 
 }
 
-Project::~Project() {}
+Project::~Project() {
+    // Остановить таймер
+    if (m_timer) {
+        m_timer->stop();
+    }
 
+    // Остановить воспроизведение всех треков
+    for (int r = 0; r < m_row; ++r) {
+        for (int c = 0; c < m_column; ++c) {
+            Track* track = dynamic_cast<Track*>(m_table_widget->cellWidget(r, c));
+            if (track) {
+                track->stop();
+            }
+        }
+    }
+
+    // Отключить callback и закрыть аудиоустройство
+    m_device_manager.removeAudioCallback(&m_callback);
+    m_device_manager.closeAudioDevice();
+}
 
 
 
 void Project::openTrackSettings(Track* track){
 
     auto connections_size = m_current_connections.size();
-    for(int i = 0; i<connections_size; ++i){
+    for(int i = connections_size-1; i>-1; --i){
         disconnect(m_current_connections[i]);
-        m_current_connections.clear();
+        m_current_connections.pop_back();
     }
+
     m_settings_window->setVolume(track->getVolume()*100);
     //m_settings_window->setEffectVolume(track->getEffectVolume());
     m_settings_window->setEffectVolume(50);
@@ -190,7 +228,7 @@ void Project::openTrackSettings(Track* track){
     m_settings_window->setIsAudioSampleSelectedState((!track->getSoundPath().isEmpty())?true:false);
 
 
-    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedVolume, track, &Track::setVolume));
+    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedVolume, track, [track](int volume){track->setVolume(volume/100.f);}));
     m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedOuterBackgroundColor, track, &Track::setOuterBackgroundColor));
     m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedInnerActiveBackgroundColor, track, &Track::setInnerActiveBackgroundColor));
     m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedLoopState, track, &Track::setLoopState));

@@ -67,3 +67,5 @@ void MicroTimer::run() {
         QThread::usleep(1);  // Минимальная задержка для снижения нагрузки на CPU
     }
 }
+
+

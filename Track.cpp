@@ -2,19 +2,20 @@
 
 #define BORDER_RADIUS_COEF 10
 
-Track::Track(MicroTimer* timer, QWidget *parent, float volume, bool is_loop, std::vector<std::vector<bool>> beats_per_measure, QString sound_path, const QColor& outer_background_color, const QColor& inner_active_background_color)
+Track::Track(QWidget *parent, juce::AudioDeviceManager& deviceManager, juce::MixerAudioSource& mixer, MicroTimer* timer, float volume, bool is_loop, std::vector<std::vector<bool>> beats_per_measure, QString sound_path, const QColor& outer_background_color, const QColor& inner_active_background_color)
     : QPushButton(parent),
+    m_device_manager(deviceManager),
+    m_mixer_source(mixer),
+    m_transport_source(juce::AudioTransportSource()),
     m_is_loop(is_loop),
+    m_audio_sample_path(sound_path),
     m_is_active(false),
-    m_player (new QMediaPlayer(this)),
-    m_audio_output(new QAudioOutput(this)),
     m_style("background-color: %1; color: %2; border-radius: %3px; margin: 2px; "),
     m_outer_color(outer_background_color),
     m_inner_color(inner_active_background_color),
     m_timer(timer),
     m_beats_per_measure(beats_per_measure)
 {
-
     setStyleSheet(m_style.arg(m_outer_color.name()).arg("black").arg(width()/BORDER_RADIUS_COEF));
 
     if (m_beats_per_measure[0].size() < 4){
@@ -30,30 +31,46 @@ Track::Track(MicroTimer* timer, QWidget *parent, float volume, bool is_loop, std
         m_beats_per_measure[3].resize(4, false);
     }
 
+    m_format_manager.registerBasicFormats();
 
-    m_player->setSource(QUrl::fromLocalFile(sound_path));
-    m_player->setAudioOutput(m_audio_output);
-    m_audio_output->setVolume(volume);
+    if (!m_audio_sample_path.isEmpty()){
+        juce::File audioFile(m_audio_sample_path.toStdString());
+        if (!audioFile.existsAsFile() || !audioFile.hasReadAccess()) {
+            std::cerr << "Cannot access MP3 file: " << audioFile.getFullPathName().toStdString() << std::endl;
+            QMessageBox::information(this, "Error", "Немає доступу до MP3 файлу: " + m_audio_sample_path);
+            return;
+        }
+        auto reader = m_format_manager.createReaderFor(audioFile);
+        if (reader == nullptr) {
+            std::cerr << "Failed to create reader for MP3 file: " << audioFile.getFullPathName().toStdString() << std::endl;
+            QMessageBox::information(this, "Error", "Не вдалося створити ридер для MP3 файлу: " + m_audio_sample_path);
+            return;
+        }
+        m_reader_source = std::make_unique<juce::AudioFormatReaderSource>(reader, true);
+        m_transport_source.setSource(m_reader_source.get(), 0, nullptr, reader->sampleRate);
+        m_mixer_source.addInputSource(&m_transport_source, false);
+    }
+    if ((volume < 0.0f) || (volume > 1.0f)){
+        m_transport_source.setGain(1.0);
+    }
+    else{
+        m_transport_source.setGain(volume);
+    }
 }
 
 
 Track::~Track() {
-    if (m_player) {
-        m_player->stop();
-        delete m_player;
-        m_player = nullptr;
-    }
-    if (m_audio_output) {
-        delete m_audio_output;
-        m_audio_output = nullptr;
-    }
+    m_transport_source.stop();
+    m_transport_source.setSource(nullptr);
+    m_mixer_source.removeInputSource(&m_transport_source);
 }
 
+
+
+
 void Track::mousePressEvent(QMouseEvent *event){
-
     if(event->button() == Qt::LeftButton){
-
-        if (m_player->source().isEmpty()){
+        if (!m_reader_source){
             QMessageBox::information(this, "Error", "Треку не назначено звук для відтворювання");
             return;
         }
@@ -67,61 +84,64 @@ void Track::mousePressEvent(QMouseEvent *event){
             if (!m_is_active){
                 m_is_active = true;
                 update();
-                disconnect(m_timer, &MicroTimer::tick1, this, &Track::stop);
-
-                if (m_beats_per_measure[0][0])
-                    connect(m_timer, &MicroTimer::tick1, this, &Track::play);
-                if (m_beats_per_measure[0][1])
-                    connect(m_timer, &MicroTimer::tick2, this, &Track::play);
-                if (m_beats_per_measure[0][2])
-                    connect(m_timer, &MicroTimer::tick3, this, &Track::play);
-                if (m_beats_per_measure[0][3])
-                    connect(m_timer, &MicroTimer::tick4, this, &Track::play);
-                if (m_beats_per_measure[1][0])
-                    connect(m_timer, &MicroTimer::tick5, this, &Track::play);
-                if (m_beats_per_measure[1][1])
-                    connect(m_timer, &MicroTimer::tick6, this, &Track::play);
-                if (m_beats_per_measure[1][2])
-                    connect(m_timer, &MicroTimer::tick7, this, &Track::play);
-                if (m_beats_per_measure[1][3])
-                    connect(m_timer, &MicroTimer::tick8, this, &Track::play);
-                if (m_beats_per_measure[2][0])
-                    connect(m_timer, &MicroTimer::tick9, this, &Track::play);
-                if (m_beats_per_measure[2][1])
-                    connect(m_timer, &MicroTimer::tick10, this, &Track::play);
-                if (m_beats_per_measure[2][2])
-                    connect(m_timer, &MicroTimer::tick11, this, &Track::play);
-                if (m_beats_per_measure[2][3])
-                    connect(m_timer, &MicroTimer::tick12, this, &Track::play);
-                if (m_beats_per_measure[3][0])
-                    connect(m_timer, &MicroTimer::tick13, this, &Track::play);
-                if (m_beats_per_measure[3][1])
-                    connect(m_timer, &MicroTimer::tick14, this, &Track::play);
-                if (m_beats_per_measure[3][2])
-                    connect(m_timer, &MicroTimer::tick15, this, &Track::play);
-                if (m_beats_per_measure[3][3])
-                    connect(m_timer, &MicroTimer::tick16, this, &Track::play);
+                if (m_timer){
+                    disconnect(m_timer, &MicroTimer::tick1, this, &Track::stop);
+                    if (m_beats_per_measure[0][0])
+                        connect(m_timer, &MicroTimer::tick1, this, &Track::play);
+                    if (m_beats_per_measure[0][1])
+                        connect(m_timer, &MicroTimer::tick2, this, &Track::play);
+                    if (m_beats_per_measure[0][2])
+                        connect(m_timer, &MicroTimer::tick3, this, &Track::play);
+                    if (m_beats_per_measure[0][3])
+                        connect(m_timer, &MicroTimer::tick4, this, &Track::play);
+                    if (m_beats_per_measure[1][0])
+                        connect(m_timer, &MicroTimer::tick5, this, &Track::play);
+                    if (m_beats_per_measure[1][1])
+                        connect(m_timer, &MicroTimer::tick6, this, &Track::play);
+                    if (m_beats_per_measure[1][2])
+                        connect(m_timer, &MicroTimer::tick7, this, &Track::play);
+                    if (m_beats_per_measure[1][3])
+                        connect(m_timer, &MicroTimer::tick8, this, &Track::play);
+                    if (m_beats_per_measure[2][0])
+                        connect(m_timer, &MicroTimer::tick9, this, &Track::play);
+                    if (m_beats_per_measure[2][1])
+                        connect(m_timer, &MicroTimer::tick10, this, &Track::play);
+                    if (m_beats_per_measure[2][2])
+                        connect(m_timer, &MicroTimer::tick11, this, &Track::play);
+                    if (m_beats_per_measure[2][3])
+                        connect(m_timer, &MicroTimer::tick12, this, &Track::play);
+                    if (m_beats_per_measure[3][0])
+                        connect(m_timer, &MicroTimer::tick13, this, &Track::play);
+                    if (m_beats_per_measure[3][1])
+                        connect(m_timer, &MicroTimer::tick14, this, &Track::play);
+                    if (m_beats_per_measure[3][2])
+                        connect(m_timer, &MicroTimer::tick15, this, &Track::play);
+                    if (m_beats_per_measure[3][3])
+                        connect(m_timer, &MicroTimer::tick16, this, &Track::play);
+                }
             }
             else{
                 m_is_active = false;
-                connect(m_timer, &MicroTimer::tick1, this, &Track::stop);
+                if (m_timer){
+                    connect(m_timer, &MicroTimer::tick1, this, &Track::stop);
 
-                disconnect(m_timer, &MicroTimer::tick1, this, &Track::play);
-                disconnect(m_timer, &MicroTimer::tick2, this, &Track::play);
-                disconnect(m_timer, &MicroTimer::tick3, this, &Track::play);
-                disconnect(m_timer, &MicroTimer::tick4, this, &Track::play);
-                disconnect(m_timer, &MicroTimer::tick5, this, &Track::play);
-                disconnect(m_timer, &MicroTimer::tick6, this, &Track::play);
-                disconnect(m_timer, &MicroTimer::tick7, this, &Track::play);
-                disconnect(m_timer, &MicroTimer::tick8, this, &Track::play);
-                disconnect(m_timer, &MicroTimer::tick9, this, &Track::play);
-                disconnect(m_timer, &MicroTimer::tick10, this, &Track::play);
-                disconnect(m_timer, &MicroTimer::tick11, this, &Track::play);
-                disconnect(m_timer, &MicroTimer::tick12, this, &Track::play);
-                disconnect(m_timer, &MicroTimer::tick13, this, &Track::play);
-                disconnect(m_timer, &MicroTimer::tick14, this, &Track::play);
-                disconnect(m_timer, &MicroTimer::tick15, this, &Track::play);
-                disconnect(m_timer, &MicroTimer::tick16, this, &Track::play);
+                    disconnect(m_timer, &MicroTimer::tick1, this, &Track::play);
+                    disconnect(m_timer, &MicroTimer::tick2, this, &Track::play);
+                    disconnect(m_timer, &MicroTimer::tick3, this, &Track::play);
+                    disconnect(m_timer, &MicroTimer::tick4, this, &Track::play);
+                    disconnect(m_timer, &MicroTimer::tick5, this, &Track::play);
+                    disconnect(m_timer, &MicroTimer::tick6, this, &Track::play);
+                    disconnect(m_timer, &MicroTimer::tick7, this, &Track::play);
+                    disconnect(m_timer, &MicroTimer::tick8, this, &Track::play);
+                    disconnect(m_timer, &MicroTimer::tick9, this, &Track::play);
+                    disconnect(m_timer, &MicroTimer::tick10, this, &Track::play);
+                    disconnect(m_timer, &MicroTimer::tick11, this, &Track::play);
+                    disconnect(m_timer, &MicroTimer::tick12, this, &Track::play);
+                    disconnect(m_timer, &MicroTimer::tick13, this, &Track::play);
+                    disconnect(m_timer, &MicroTimer::tick14, this, &Track::play);
+                    disconnect(m_timer, &MicroTimer::tick15, this, &Track::play);
+                    disconnect(m_timer, &MicroTimer::tick16, this, &Track::play);
+                }
             }
         }
     }
@@ -177,37 +197,40 @@ void Track::paintEvent(QPaintEvent *event){
 }
 
 
+
+
 void Track::setLoopState(bool state){
     m_is_loop = state;
     if(m_is_active && !m_is_loop){
         m_is_active = false;
-        disconnect(m_timer, &MicroTimer::tick1, this, &Track::play);
-        disconnect(m_timer, &MicroTimer::tick2, this, &Track::play);
-        disconnect(m_timer, &MicroTimer::tick3, this, &Track::play);
-        disconnect(m_timer, &MicroTimer::tick4, this, &Track::play);
-        disconnect(m_timer, &MicroTimer::tick5, this, &Track::play);
-        disconnect(m_timer, &MicroTimer::tick6, this, &Track::play);
-        disconnect(m_timer, &MicroTimer::tick7, this, &Track::play);
-        disconnect(m_timer, &MicroTimer::tick8, this, &Track::play);
-        disconnect(m_timer, &MicroTimer::tick9, this, &Track::play);
-        disconnect(m_timer, &MicroTimer::tick10, this, &Track::play);
-        disconnect(m_timer, &MicroTimer::tick11, this, &Track::play);
-        disconnect(m_timer, &MicroTimer::tick12, this, &Track::play);
-        disconnect(m_timer, &MicroTimer::tick13, this, &Track::play);
-        disconnect(m_timer, &MicroTimer::tick14, this, &Track::play);
-        disconnect(m_timer, &MicroTimer::tick15, this, &Track::play);
-        disconnect(m_timer, &MicroTimer::tick16, this, &Track::play);
+        if (m_timer){
+            disconnect(m_timer, &MicroTimer::tick1, this, &Track::play);
+            disconnect(m_timer, &MicroTimer::tick2, this, &Track::play);
+            disconnect(m_timer, &MicroTimer::tick3, this, &Track::play);
+            disconnect(m_timer, &MicroTimer::tick4, this, &Track::play);
+            disconnect(m_timer, &MicroTimer::tick5, this, &Track::play);
+            disconnect(m_timer, &MicroTimer::tick6, this, &Track::play);
+            disconnect(m_timer, &MicroTimer::tick7, this, &Track::play);
+            disconnect(m_timer, &MicroTimer::tick8, this, &Track::play);
+            disconnect(m_timer, &MicroTimer::tick9, this, &Track::play);
+            disconnect(m_timer, &MicroTimer::tick10, this, &Track::play);
+            disconnect(m_timer, &MicroTimer::tick11, this, &Track::play);
+            disconnect(m_timer, &MicroTimer::tick12, this, &Track::play);
+            disconnect(m_timer, &MicroTimer::tick13, this, &Track::play);
+            disconnect(m_timer, &MicroTimer::tick14, this, &Track::play);
+            disconnect(m_timer, &MicroTimer::tick15, this, &Track::play);
+            disconnect(m_timer, &MicroTimer::tick16, this, &Track::play);
+        }
         stop();
     }
 }
 
 
-void Track::setVolume(int volume_percent){
-    if ((volume_percent < 0) || (volume_percent > 100)){
+void Track::setVolume(float volume){
+    if ((volume < 0.0f) || (volume > 1.0f)){
         return;
     }
-
-    m_audio_output->setVolume(static_cast<double>(volume_percent)/100.0);
+    m_transport_source.setGain(volume);
 }
 
 
@@ -222,17 +245,51 @@ void Track::setInnerActiveBackgroundColor(QColor color){
 }
 
 
-
-
 void Track::setAudioSamplePath(QString path){
-    if (path.isEmpty()){
-        m_audio_sample_path.clear();
+    m_audio_sample_path = path;
+    if (m_audio_sample_path.isEmpty()){
+        m_transport_source.stop();
+        m_mixer_source.removeInputSource(&m_transport_source);
+        m_transport_source.setSource(nullptr);
+        m_reader_source.reset();
+        m_is_active = false;
+        if (m_timer){
+            disconnect(m_timer, &MicroTimer::tick1, this, &Track::play);
+            disconnect(m_timer, &MicroTimer::tick2, this, &Track::play);
+            disconnect(m_timer, &MicroTimer::tick3, this, &Track::play);
+            disconnect(m_timer, &MicroTimer::tick4, this, &Track::play);
+            disconnect(m_timer, &MicroTimer::tick5, this, &Track::play);
+            disconnect(m_timer, &MicroTimer::tick6, this, &Track::play);
+            disconnect(m_timer, &MicroTimer::tick7, this, &Track::play);
+            disconnect(m_timer, &MicroTimer::tick8, this, &Track::play);
+            disconnect(m_timer, &MicroTimer::tick9, this, &Track::play);
+            disconnect(m_timer, &MicroTimer::tick10, this, &Track::play);
+            disconnect(m_timer, &MicroTimer::tick11, this, &Track::play);
+            disconnect(m_timer, &MicroTimer::tick12, this, &Track::play);
+            disconnect(m_timer, &MicroTimer::tick13, this, &Track::play);
+            disconnect(m_timer, &MicroTimer::tick14, this, &Track::play);
+            disconnect(m_timer, &MicroTimer::tick15, this, &Track::play);
+            disconnect(m_timer, &MicroTimer::tick16, this, &Track::play);
+        }
         return;
     }
-    m_audio_sample_path = path;
-    m_player->setSource(QUrl::fromLocalFile(m_audio_sample_path));
-}
 
+    juce::File audioFile(m_audio_sample_path.toStdString());
+    if (!audioFile.existsAsFile() || !audioFile.hasReadAccess()) {
+        std::cerr << "Cannot access MP3 file: " << audioFile.getFullPathName().toStdString() << std::endl;
+        QMessageBox::information(this, "Error", "Немає доступу до MP3 файлу: " + path);
+        return;
+    }
+    auto reader = m_format_manager.createReaderFor(audioFile);
+    if (reader == nullptr) {
+        std::cerr << "Failed to create reader for MP3 file: " << audioFile.getFullPathName().toStdString() << std::endl;
+        QMessageBox::information(this, "Error", "Не вдалося створити ридер для MP3 файлу: " + path);
+        return;
+    }
+    m_reader_source = std::make_unique<juce::AudioFormatReaderSource>(reader, true);
+    m_transport_source.setSource(m_reader_source.get(), 0, nullptr, reader->sampleRate);
+    m_mixer_source.addInputSource(&m_transport_source, false);
+}
 
 
 void Track::setBeat1(bool state){
@@ -364,36 +421,40 @@ void Track::setBeat16(bool state){
 
 
 void Track::play(){
-    m_player->stop();
-    m_player->play();
+    m_transport_source.setPosition(0); // Сброс позиции в начало
+    m_transport_source.start();
 }
 
 void Track::stop(){
-    m_player->stop();
+    m_transport_source.stop();
 }
-
 
 
 bool Track::getLoopState(){
     return m_is_loop;
 }
 
+
 float Track::getVolume(){
-    return m_audio_output->volume();
+    return m_transport_source.getGain();
 }
+
 
 QColor Track::getInnerActiveBackgroundColor(){
     return m_inner_color;
 }
+
+
 QColor Track::getOuterBackgroundColor(){
     return m_outer_color;
 }
+
+
 QString Track::getSoundPath(){
     return m_audio_sample_path;
 }
+
+
 std::vector<std::vector<bool>> Track::getBeats(){
     return m_beats_per_measure;
 }
-
-
-

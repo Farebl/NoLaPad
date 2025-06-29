@@ -45,6 +45,10 @@ private:
 
     std::vector<QMetaObject::Connection> m_current_connections;
 
+    juce::AudioDeviceManager m_device_manager;
+    juce::MixerAudioSource m_mixer_source;
+    TransportCallback m_callback;
+
     void toggleMaximize();
     void openTrackSettings(Track* track);
 
