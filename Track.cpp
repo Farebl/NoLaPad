@@ -2,12 +2,13 @@
 
 #define BORDER_RADIUS_COEF 10
 
-Track::Track(QWidget *parent, juce::AudioDeviceManager& deviceManager, juce::MixerAudioSource& mixer, MicroTimer* timer, float volume, bool is_loop, std::vector<std::vector<bool>> beats_per_measure, QString sound_path, const QColor& outer_background_color, const QColor& inner_active_background_color)
+Track::Track(QWidget *parent, juce::AudioDeviceManager& deviceManager, juce::MixerAudioSource& mixer, MicroTimer* timer, float volume, bool is_recording, bool is_loop, std::vector<std::vector<bool>> beats_per_measure, QString sound_path, const QColor& outer_background_color, const QColor& inner_active_background_color)
     : QPushButton(parent),
     m_device_manager(deviceManager),
     m_mixer_source(mixer),
     m_transport_source(juce::AudioTransportSource()),
     m_is_loop(is_loop),
+    m_is_recording(is_recording),
     m_audio_sample_path(sound_path),
     m_is_active(false),
     m_style("background-color: %1; color: %2; border-radius: %3px; margin: 2px; "),
@@ -197,6 +198,26 @@ void Track::paintEvent(QPaintEvent *event){
 }
 
 
+void Track::play(){
+    m_transport_source.setPosition(0); // Сброс позиции в начало
+    m_transport_source.start();
+}
+
+void Track::stop(){
+    m_transport_source.stop();
+    if (m_is_loop){
+        disconnect(m_timer, &MicroTimer::tick1, this, &Track::stop);
+    }
+}
+
+
+
+void Track::setVolume(float volume){
+    if ((volume < 0.0f) || (volume > 1.0f)){
+        return;
+    }
+    m_transport_source.setGain(volume);
+}
 
 
 void Track::setLoopState(bool state){
@@ -204,6 +225,7 @@ void Track::setLoopState(bool state){
     if(m_is_active && !m_is_loop){
         m_is_active = false;
         if (m_timer){
+            connect(m_timer, &MicroTimer::tick1, this, &Track::stop);
             disconnect(m_timer, &MicroTimer::tick1, this, &Track::play);
             disconnect(m_timer, &MicroTimer::tick2, this, &Track::play);
             disconnect(m_timer, &MicroTimer::tick3, this, &Track::play);
@@ -221,17 +243,21 @@ void Track::setLoopState(bool state){
             disconnect(m_timer, &MicroTimer::tick15, this, &Track::play);
             disconnect(m_timer, &MicroTimer::tick16, this, &Track::play);
         }
-        stop();
     }
 }
 
 
-void Track::setVolume(float volume){
-    if ((volume < 0.0f) || (volume > 1.0f)){
-        return;
+
+void Track::setRECState(bool state){
+    m_is_recording = state;
+    if (m_is_recording){
+        /*відправити на запис*/
     }
-    m_transport_source.setGain(volume);
+    else{
+        /* зняти з запису*/
+    }
 }
+
 
 
 void Track::setOuterBackgroundColor(QColor color){
@@ -420,13 +446,10 @@ void Track::setBeat16(bool state){
 }
 
 
-void Track::play(){
-    m_transport_source.setPosition(0); // Сброс позиции в начало
-    m_transport_source.start();
-}
 
-void Track::stop(){
-    m_transport_source.stop();
+
+float Track::getVolume(){
+    return m_transport_source.getGain();
 }
 
 
@@ -435,8 +458,8 @@ bool Track::getLoopState(){
 }
 
 
-float Track::getVolume(){
-    return m_transport_source.getGain();
+bool Track::getRECState(){
+    return m_is_recording;
 }
 
 

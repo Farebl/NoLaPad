@@ -1,12 +1,13 @@
 #include "TrackSettings.h"
 
 
-TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::vector<std::vector<bool>> beats_per_measure, const QColor& outer_background_color, const QColor& inner_background_color, QWidget* parent)
+TrackSettings::TrackSettings(QWidget* parent, uint8_t volume_percent, bool is_recording, bool is_loop, std::vector<std::vector<bool>> beats_per_measure, const QColor& outer_background_color, const QColor& inner_background_color)
     : QDialog(parent)
     , m_volume_display (new QSpinBox())
     , m_effect_volume_display(new QSpinBox())
     , m_volume_fader(new Fader(this, "..//..//images//fader_track.png", "..//..//images//fader_handle.png", "..//..//images//fader_measures.png"))
     , m_effect_volume_fader(new Fader(this, "..//..//images//fader_track.png", "..//..//images//fader_handle.png", "..//..//images//fader_measures.png"))
+    , m_rec_button(new TrackRECButton(this, false, 50, 30))
     , m_select_track_colors_button(new TrackColorButtons(this, 80, Qt::gray, Qt::darkGray))
     , m_loop_button(new LoopButton(this, false, 80))
     , m_effects_switch(new Potentiometer(this, 140))
@@ -16,7 +17,7 @@ TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::vector<s
 {
     setWindowTitle("Track settings");
     setWindowFlags(Qt::Dialog);
-    setFixedSize(410, 770);
+    setFixedSize(470, 810);
     setStyleSheet("background-color: #8e8e8e;");
 
     int font_id = QFontDatabase::addApplicationFont("..//..//fonts//dseg7-classic-latin-400-italic.ttf");
@@ -69,9 +70,30 @@ TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::vector<s
     effect_volume_display_layout->setAlignment(Qt::AlignHCenter);
     effect_volume_display_layout->setSpacing(5);
 
-    QHBoxLayout* l1 = new QHBoxLayout(); // lcd displays
-    l1->addLayout(volume_display_layout);
-    l1->addLayout(effect_volume_display_layout);
+    QHBoxLayout* l0 = new QHBoxLayout(); // lcd displays
+    l0->addSpacing(30);
+    l0->addLayout(volume_display_layout);
+    l0->addLayout(effect_volume_display_layout);
+    l0->setSpacing(30);
+
+
+    m_rec_button->setRECState(is_recording);
+
+    QLabel* rec_button_title = new QLabel("REC");
+    rec_button_title->setStyleSheet("color: #ebebeb;");
+
+    QVBoxLayout* rec_button_layout = new QVBoxLayout();
+    rec_button_layout->setAlignment(Qt::AlignCenter);
+    rec_button_layout->addWidget(rec_button_title);
+    rec_button_layout->addWidget(m_rec_button);
+
+    connect(m_rec_button, &TrackRECButton::changedState, this, &TrackSettings::changeRECState);
+
+    QHBoxLayout* l1 = new QHBoxLayout();
+    l1->setAlignment(Qt::AlignCenter);
+    l1->addSpacing(40);
+    l1->addLayout(rec_button_layout);
+
 
 
     m_volume_fader->setFixedSize(100, 640);
@@ -93,7 +115,9 @@ TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::vector<s
 
 
     QVBoxLayout* l3 = new QVBoxLayout(); // displays & faders
-    l3->addLayout(l1); // lcd displays
+    l3->setAlignment(Qt::AlignHCenter);
+    l3->addLayout(l0); // lcd displays
+    l3->addLayout(l1);
     l3->addLayout(l2); // faders
     l3->setSpacing(10);
 
@@ -305,7 +329,7 @@ TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::vector<s
     QVBoxLayout* beat16_layout = new QVBoxLayout();
     beat16_layout->addWidget(new QLabel(QString("16")));
     qobject_cast<QLabel*>(beat16_layout->itemAt(0)->widget())->setStyleSheet(beat_label_style);
-    beat16_layout->addWidget(new BeatCheckBox((m_beats_per_measure[3][1]) ? true : false));
+    beat16_layout->addWidget(new BeatCheckBox((m_beats_per_measure[3][3]) ? true : false));
     beat16_layout->setAlignment(Qt::AlignHCenter);
     beat16_layout->setSpacing(0);
 
@@ -463,12 +487,22 @@ void TrackSettings::setLoopState(bool state){
     m_loop_button->setLooptState(state);
 }
 
+
 void TrackSettings::setVolume(int volum_percent){
     m_volume_fader->setValue(volum_percent);
+    m_volume_display->setValue(volum_percent);
 }
+
+
 void TrackSettings::setEffectVolume(int volum_percent){
     m_effect_volume_fader->setValue(volum_percent);
+    m_effect_volume_display->setValue(volum_percent);
 }
+
+void TrackSettings::setRECState(bool state){
+    m_rec_button->setRECState(state);
+}
+
 
 void TrackSettings::setInnerActiveBackgroundColor(QColor color){
     m_select_track_colors_button->setInnerColor(color);
@@ -476,6 +510,7 @@ void TrackSettings::setInnerActiveBackgroundColor(QColor color){
 void TrackSettings::setOuterBackgroundColor(QColor color){
     m_select_track_colors_button->setOuterColor(color);
 }
+
 
 void TrackSettings::setBeats(std::vector<std::vector<bool>> beats_per_measure){
     m_beats_per_measure = beats_per_measure;
@@ -491,6 +526,7 @@ void TrackSettings::setBeats(std::vector<std::vector<bool>> beats_per_measure){
         }
     }
 }
+
 
 void TrackSettings::setIsAudioSampleSelectedState(bool state){
     m_audio_input_connector->setIsAudioSampleSelectedState(state);

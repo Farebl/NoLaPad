@@ -7,7 +7,7 @@
 class RECButton : public QPushButton {
     Q_OBJECT
 public:
-    RECButton(QWidget *parent = nullptr, uint square_size = 35);
+    RECButton(QWidget *parent = nullptr, uint diameter = 35);
 
 protected:
     void paintEvent(QPaintEvent *event) override;

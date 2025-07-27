@@ -17,6 +17,7 @@
 
 #include "MicroTimer.h"
 #include "Fader.h"
+#include "TrackRECButton.h"
 #include "BeatCheckBox.h"
 #include "TrackColorButtons.h"
 #include "LoopButton.h"
@@ -28,10 +29,11 @@ class TrackSettings: public QDialog
 {
     Q_OBJECT
 public:
-    explicit TrackSettings(uint8_t volume_percent = 100, bool is_loop = false, std::vector<std::vector<bool>> beats_per_measure = {{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}}, const QColor& outer_background_color = Qt::gray, const QColor& inner_background_color = Qt::darkGray, QWidget *parent = nullptr);
+    explicit TrackSettings(QWidget *parent = nullptr, uint8_t volume_percent = 100, bool is_recording = false, bool is_loop = false, std::vector<std::vector<bool>> beats_per_measure = {{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}}, const QColor& outer_background_color = Qt::gray, const QColor& inner_background_color = Qt::darkGray);
     void setLoopState(bool state);
     void setVolume(int volum_percent);
     void setEffectVolume(int volum_percent);
+    void setRECState(bool state);
     void setInnerActiveBackgroundColor(QColor color);
     void setOuterBackgroundColor(QColor color);
     void setBeats(std::vector<std::vector<bool>> beats_per_measure);
@@ -42,6 +44,7 @@ private:
     QSpinBox* m_effect_volume_display;
     Fader* m_volume_fader;
     Fader* m_effect_volume_fader;
+    TrackRECButton* m_rec_button;
     TrackColorButtons* m_select_track_colors_button;
     LoopButton* m_loop_button;
     Potentiometer* m_effects_switch;
@@ -56,6 +59,8 @@ protected:
 signals:
     void changedLoopState(bool state);
     void changedVolume(int volum_percent);
+    void changeEffectdVolume(int volum_percent);
+    void changeRECState(bool state);
     void changedInnerActiveBackgroundColor(QColor color);
     void changedOuterBackgroundColor(QColor color);
     void changedAudioSamplePath(QString path);

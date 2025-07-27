@@ -18,9 +18,14 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
     m_title_bar(new QWidget(this)),
     m_dragging(false),
     m_resizing(false),
+    m_rec(new REC(m_title_bar, 25, 25)),
+    m_timer_for_REC(new QTimer(this)),
+    m_elapsed_timer_for_REC(new QElapsedTimer()),
+    m_REC_button(new RECButton(this, 25)),
+    m_digital_clock_face(new QLabel()),
     m_timer(new MicroTimer(static_cast<quint32>(60.0/(bpm_value*4)*1'000'000), this)), // (bpm_value * 4) because the timer generates 16th parts
     m_bpm(new BPM(m_timer, bpm_value, this)),
-    m_settings_window(new TrackSettings(100, false, {{1, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}, Qt::gray, Qt::darkGray, this))
+    m_settings_window(new TrackSettings(this, 100, false, false, {{1, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}, Qt::gray, Qt::darkGray))
 {
 
     // Убираем системную рамку
@@ -62,6 +67,61 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
     minimize_button->setStyleSheet("background-color: #ffbd44; border-radius: 10px;");
     maximize_button->setStyleSheet("background-color: #00ca4e; border-radius: 10px;");
 
+
+
+    // REC (button & timer)
+
+    m_REC_button->setCheckable(true);
+    m_REC_button->setChecked(false);
+
+    m_digital_clock_face->setStyleSheet(QString("font-size: %1px; height: %1px").arg(25));
+    m_digital_clock_face->setText("00:00:00:0");
+    m_digital_clock_face->setAlignment(Qt::AlignCenter);
+
+    QHBoxLayout* rec_layout = new QHBoxLayout();
+    rec_layout->addWidget(m_REC_button);
+    rec_layout->addWidget(m_digital_clock_face);
+
+
+
+    connect(m_REC_button, &RECButton::clicked, this, [&]() {
+        if (m_timer_for_REC->isActive()) {
+            m_timer_for_REC->stop();
+            m_elapsed_timer_for_REC->invalidate();
+            m_digital_clock_face->setText("00:00:00:0");
+            m_REC_button->setChecked(false);
+            m_REC_button->update();
+            m_rec->stopRecording();
+        } else {
+            m_REC_button->setChecked(true);
+            m_REC_button->update();
+            m_timer_for_REC->start();
+            m_elapsed_timer_for_REC->start();
+            m_rec->startRecording();
+        }
+    });
+
+    connect(m_timer_for_REC, &QTimer::timeout, this, [&](){
+        QTime time(0, 0);
+        qint64 elapsed = m_elapsed_timer_for_REC->elapsed();
+        time = time.addMSecs(elapsed);
+        m_digital_clock_face->setText(time.toString("HH:mm:ss:%1").arg(time.msec() / 100));
+
+        if (elapsed >= 359999999) { // 99:59:59:999 у мілісекундах
+            m_timer->stop();
+            m_elapsed_timer_for_REC->invalidate();
+            m_digital_clock_face->setText("00:00:00:0");
+            m_REC_button->setChecked(false);
+            m_rec->stopRecording();
+        }
+    });
+
+    rec_layout->addWidget(m_REC_button);
+    rec_layout->addWidget(m_digital_clock_face);
+
+
+
+
     // bpm_lcd and metronome
 
     QVBoxLayout* bpm_buttons = new QVBoxLayout();
@@ -101,14 +161,6 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
 
 
 
-    // REC
-
-    REC* rec = new REC(m_title_bar, 25, 25);
-    QHBoxLayout* rec_layout = new QHBoxLayout();
-    rec_layout->addWidget(rec->getRecButton());
-    rec_layout->addWidget(rec->getDigitalClockFace());
-
-
     QHBoxLayout* title_layout = new QHBoxLayout(m_title_bar);
     title_layout->setContentsMargins(10, 0, 10, 0);
     title_layout->addLayout(rec_layout);
@@ -145,6 +197,7 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
                 m_device_manager, m_mixer_source,
                 m_timer,
                 0.01,
+                false,
                 true,
                 {
                     {1, 0, 0, 0},
@@ -221,6 +274,7 @@ void Project::openTrackSettings(Track* track){
     m_settings_window->setVolume(track->getVolume()*100);
     //m_settings_window->setEffectVolume(track->getEffectVolume());
     m_settings_window->setEffectVolume(50);
+    m_settings_window->setRECState(track->getRECState());
     m_settings_window->setOuterBackgroundColor(track->getOuterBackgroundColor());
     m_settings_window->setInnerActiveBackgroundColor(track->getInnerActiveBackgroundColor());
     m_settings_window->setLoopState(track->getLoopState());
@@ -229,6 +283,7 @@ void Project::openTrackSettings(Track* track){
 
 
     m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedVolume, track, [track](int volume){track->setVolume(volume/100.f);}));
+    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changeRECState, track, &Track::setRECState));
     m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedOuterBackgroundColor, track, &Track::setOuterBackgroundColor));
     m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedInnerActiveBackgroundColor, track, &Track::setInnerActiveBackgroundColor));
     m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedLoopState, track, &Track::setLoopState));

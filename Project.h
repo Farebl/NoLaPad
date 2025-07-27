@@ -39,6 +39,12 @@ private:
     QTableWidget *m_table_widget;
     MicroTimer* m_timer;
 
+    REC* m_rec;
+    QTimer* m_timer_for_REC;
+    QElapsedTimer* m_elapsed_timer_for_REC;
+    RECButton* m_REC_button;
+    QLabel* m_digital_clock_face;
+
     BPM* m_bpm;
     Metronome* m_metronome;
     TrackSettings* m_settings_window;

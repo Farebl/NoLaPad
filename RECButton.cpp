@@ -1,10 +1,10 @@
 #include "RECButton.h"
 
 
-RECButton::RECButton(QWidget *parent, uint square_size)
+RECButton::RECButton(QWidget *parent, uint diameter)
     : QPushButton(parent){
     setCheckable(true); // Делаем кнопку переключаемой
-    setFixedSize(square_size, square_size); // Устанавливаем размер кнопки для видимости
+    setFixedSize(diameter, diameter); // Устанавливаем размер кнопки для видимости
 }
 
 void RECButton::paintEvent(QPaintEvent *event) {
