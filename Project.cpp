@@ -9,43 +9,43 @@
 
 Project::Project(int row, int column, int bpm_value, QWidget *parent)
     : QMainWindow(parent),
-    m_device_manager(),
-    m_mixer_source(),
-    m_callback(m_mixer_source),
     m_row(row),
     m_column(column),
     m_central_widget(new QWidget(this)),
     m_title_bar(new QWidget(this)),
     m_dragging(false),
     m_resizing(false),
+    m_table_widget(new QTableWidget(row, column, this)),
+    m_timer(new MicroTimer(static_cast<quint32>(60.0/(bpm_value*4)*1'000'000), this)),
     m_rec(new REC(m_title_bar, 25, 25)),
     m_timer_for_REC(new QTimer(this)),
     m_elapsed_timer_for_REC(new QElapsedTimer()),
     m_REC_button(new RECButton(this, 25)),
     m_digital_clock_face(new QLabel()),
-    m_timer(new MicroTimer(static_cast<quint32>(60.0/(bpm_value*4)*1'000'000), this)), // (bpm_value * 4) because the timer generates 16th parts
     m_bpm(new BPM(m_timer, bpm_value, this)),
-    m_settings_window(new TrackSettings(this, 100, false, false, {{1, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}, Qt::gray, Qt::darkGray))
+    m_settings_window(new TrackSettings(100, false, {{1, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}, Qt::gray, Qt::darkGray, this)),
+    m_device_manager(),
+    m_mixer_source(),
+    m_tracks(),
+    m_callback(m_mixer_source, m_rec, m_tracks)
 {
-
-    // Убираем системную рамку
     setWindowFlags(Qt::FramelessWindowHint | Qt::Window);
     setAttribute(Qt::WA_TranslucentBackground);
-
-    // Начальный размер
     resize(800, 800);
     setMinimumSize(400, 300);
-
     m_current_connections.reserve(22);
 
-    m_timer->start();
+    // КРИТИЧНО: Ініціалізуємо AudioDeviceManager СПОЧАТКУ, але БЕЗ callback
+    auto result = m_device_manager.initialise(0, 2, nullptr, true);
+    if (result.isNotEmpty())
+    {
+        std::cerr << "Audio device initialization failed: " << result.toStdString() << std::endl;
+    }
 
-    // Главный layout для окна
     QVBoxLayout* main_layout = new QVBoxLayout;
     main_layout->setContentsMargins(0, 0, 0, 0);
     main_layout->setSpacing(0);
 
-    // Кастомная рамка (верхняя панель)
     m_title_bar->setFixedHeight(40);
     m_title_bar->setStyleSheet(
         "background-color: #e0e0e0;"
@@ -53,11 +53,10 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
         "border-top-right-radius: 10px;"
         );
 
-    // Кнопки управления
-
     QPushButton* close_button = new QPushButton("✖", m_title_bar);
     QPushButton* minimize_button = new QPushButton("—", m_title_bar);
     QPushButton* maximize_button = new QPushButton("⬜", m_title_bar);
+
 
     close_button->setFixedSize(20, 20);
     minimize_button->setFixedSize(20, 20);
@@ -67,9 +66,11 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
     minimize_button->setStyleSheet("background-color: #ffbd44; border-radius: 10px;");
     maximize_button->setStyleSheet("background-color: #00ca4e; border-radius: 10px;");
 
+    connect(close_button, &QPushButton::clicked, this, &QWidget::close);
+    connect(minimize_button, &QPushButton::clicked, this, &QWidget::showMinimized);
+    connect(maximize_button, &QPushButton::clicked, this, &Project::toggleMaximize);
 
 
-    // REC (button & timer)
 
     m_REC_button->setCheckable(true);
     m_REC_button->setChecked(false);
@@ -81,7 +82,6 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
     QHBoxLayout* rec_layout = new QHBoxLayout();
     rec_layout->addWidget(m_REC_button);
     rec_layout->addWidget(m_digital_clock_face);
-
 
 
     connect(m_REC_button, &RECButton::clicked, this, [&]() {
@@ -107,7 +107,7 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
         time = time.addMSecs(elapsed);
         m_digital_clock_face->setText(time.toString("HH:mm:ss:%1").arg(time.msec() / 100));
 
-        if (elapsed >= 359999999) { // 99:59:59:999 у мілісекундах
+        if (elapsed >= 359999999) {
             m_timer->stop();
             m_elapsed_timer_for_REC->invalidate();
             m_digital_clock_face->setText("00:00:00:0");
@@ -116,27 +116,12 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
         }
     });
 
-    rec_layout->addWidget(m_REC_button);
-    rec_layout->addWidget(m_digital_clock_face);
 
-
-
-
-    // bpm_lcd and metronome
 
     QVBoxLayout* bpm_buttons = new QVBoxLayout();
     bpm_buttons->addWidget(m_bpm->getUpButton());
     bpm_buttons->addWidget(m_bpm->getDownButton());
     bpm_buttons->setSpacing(1);
-
-    // metronome + JUCE
-
-    // Инициализация JUCE аудио
-    auto result = m_device_manager.initialise(0, 2, nullptr, true);
-    if (result.isNotEmpty())
-    {
-        std::cerr << "Audio device initialization failed: " << result.toStdString() << std::endl;
-    }
 
     m_device_manager.addAudioCallback(&m_callback);
 
@@ -189,29 +174,52 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
 
 
 
-    // Заполняем таблицу кнопками
+    // Ініціалізація треків
+    m_tracks.resize(row * column);
     for (int r = 0; r < m_row; ++r) {
         for (int c = 0; c < m_column; ++c) {
             Track* track = new Track(
-                m_central_widget,
-                m_device_manager, m_mixer_source,
+                m_table_widget,
+                m_device_manager,
+                m_mixer_source,
                 m_timer,
-                0.01,
+                0.80,
                 false,
-                true,
                 {
                     {1, 0, 0, 0},
                     {0, 0, 0, 0},
                     {0, 0, 0, 0},
                     {0, 0, 0, 0}
                 },
-                QString("../../music/drums/ritmichnyiy-zvuk-barabana-39655.mp3"),
+                QString("../../music/synthesizer/strings/E_minor_long.mp3"),
                 QColor(180, 180, 180)
                 );
+            m_tracks[r * m_column + c] = track;
             m_table_widget->setCellWidget(r, c, track);
             connect(track, &Track::rightClicked, this, &Project::openTrackSettings);
+
+            // Налаштування ефектів для тестування
+            if (r == 0 && c == 0) {
+                track->setEffectType(Track::EffectType::Delay);
+                track->setDelayTime(0.5f);
+                track->setDelayFeedback(0.6f);
+                track->setDelayWetLevel(0.7f);
+            } else if (r == 0 && c == 1) {
+                track->setEffectType(Track::EffectType::Reverb);
+                track->setReverbRoomSize(0.7f);
+                track->setReverbDamping(0.1f);
+                track->setReverbWetLevel(0.5f);
+                track->setReverbDryLevel(0.3f);
+            }
         }
     }
+
+    // Ініціалізація AudioDeviceManager (залишити тільки один раз)
+    m_device_manager.initialise(0, 2, nullptr, true);
+    m_device_manager.addAudioCallback(&m_callback);
+
+    m_timer->start();
+
 
     m_table_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     m_table_widget->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
@@ -233,60 +241,63 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
     // Прибираємо фокус з m_bpm_display
     m_bpm->getBpmDisplay()->clearFocus();
 
-    // Подключение кнопок
-    connect(close_button, &QPushButton::clicked, this, &Project::close);
-    connect(minimize_button, &QPushButton::clicked, this, &Project::showMinimized);
-    connect(maximize_button, &QPushButton::clicked, this, &Project::toggleMaximize);
-
+    QGraphicsDropShadowEffect* shadow = new QGraphicsDropShadowEffect(this);
+    shadow->setBlurRadius(20);
+    shadow->setOffset(0, 0);
+    shadow->setColor(QColor(0, 0, 0, 100));
+    m_central_widget->setGraphicsEffect(shadow);
 }
 
-Project::~Project() {
-    // Остановить таймер
-    if (m_timer) {
-        m_timer->stop();
-    }
-
-    // Остановить воспроизведение всех треков
-    for (int r = 0; r < m_row; ++r) {
-        for (int c = 0; c < m_column; ++c) {
-            Track* track = dynamic_cast<Track*>(m_table_widget->cellWidget(r, c));
-            if (track) {
-                track->stop();
-            }
-        }
-    }
-
-    // Отключить callback и закрыть аудиоустройство
+Project::~Project()
+{
+    // 1. СПОЧАТКУ зупиняємо аудіо
     m_device_manager.removeAudioCallback(&m_callback);
     m_device_manager.closeAudioDevice();
+
+    // 2. Чекаємо щоб переконатися що callback завершився
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+    // 3. ТЕПЕР безпечно видаляємо треки
+    for (Track* track : m_tracks) {
+        if (track != nullptr) {
+            delete track;
+        }
+    }
+    m_tracks.clear();
+
+    // 4. Решта cleanup
+    delete m_timer;
+    delete m_rec;
+    delete m_timer_for_REC;
+    delete m_elapsed_timer_for_REC;
+    delete m_REC_button;
+    delete m_digital_clock_face;
+    delete m_bpm;
+    //delete m_metronome;
+    delete m_settings_window;
 }
 
-
-
-void Project::openTrackSettings(Track* track){
-
-    auto connections_size = m_current_connections.size();
-    for(int i = connections_size-1; i>-1; --i){
-        disconnect(m_current_connections[i]);
-        m_current_connections.pop_back();
+void Project::openTrackSettings(Track* track)
+{
+    for (const auto& connection : m_current_connections) {
+        disconnect(connection);
     }
+    m_current_connections.clear();
 
-    m_settings_window->setVolume(track->getVolume()*100);
-    //m_settings_window->setEffectVolume(track->getEffectVolume());
-    m_settings_window->setEffectVolume(50);
-    m_settings_window->setRECState(track->getRECState());
-    m_settings_window->setOuterBackgroundColor(track->getOuterBackgroundColor());
-    m_settings_window->setInnerActiveBackgroundColor(track->getInnerActiveBackgroundColor());
+    m_settings_window->setVolume(track->getVolume());
     m_settings_window->setLoopState(track->getLoopState());
+    m_settings_window->setInnerActiveBackgroundColor(track->getInnerActiveBackgroundColor());
+    m_settings_window->setOuterBackgroundColor(track->getOuterBackgroundColor());
+    m_settings_window->setIsAudioSampleSelectedState((!track->getSoundPath().isEmpty()));
     m_settings_window->setBeats(track->getBeats());
-    m_settings_window->setIsAudioSampleSelectedState((!track->getSoundPath().isEmpty())?true:false);
 
+    // ДОДАТИ ЦЕЙ РЯДОК:
+    m_settings_window->setRecordingEnabled(track->isRecordingEnabled());
 
-    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedVolume, track, [track](int volume){track->setVolume(volume/100.f);}));
-    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changeRECState, track, &Track::setRECState));
-    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedOuterBackgroundColor, track, &Track::setOuterBackgroundColor));
-    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedInnerActiveBackgroundColor, track, &Track::setInnerActiveBackgroundColor));
+    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedVolume, track, &Track::setVolume));
     m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedLoopState, track, &Track::setLoopState));
+    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedInnerActiveBackgroundColor, track, &Track::setInnerActiveBackgroundColor));
+    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedOuterBackgroundColor, track, &Track::setOuterBackgroundColor));
 
     m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat1, track, &Track::setBeat1));
     m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat2, track, &Track::setBeat2));
@@ -307,13 +318,14 @@ void Project::openTrackSettings(Track* track){
 
     m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedAudioSamplePath, track, &Track::setAudioSamplePath));
 
+    // ДОДАТИ ЦЕЙ РЯДОК:
+    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedRecordingEnabled, track, &Track::setRecordingEnabled));
+
     m_settings_window->show();
 }
 
-
-
-
-void Project::toggleMaximize() {
+void Project::toggleMaximize()
+{
     if (isMaximized()) {
         showNormal();
     } else {
@@ -321,33 +333,29 @@ void Project::toggleMaximize() {
     }
 }
 
-void Project::mousePressEvent(QMouseEvent* event) {
-
+void Project::mousePressEvent(QMouseEvent* event)
+{
     if (event->button() == Qt::LeftButton) {
-        // Перевірка, чи натиснуто в межах title bar
         QPoint pos_in_title_bar = m_title_bar->mapFrom(this, event->pos());
-
         if (m_title_bar->rect().contains(pos_in_title_bar)) {
             m_dragging = true;
             m_drag_position = event->globalPosition().toPoint() - pos();
-
-            // Передаємо управління переміщенням віконному менеджеру
             if (windowHandle()) {
                 windowHandle()->startSystemMove();
             }
-        } else if (event->pos().y() > height() - 10 || event->pos().x() > width() - 10) {  // Изменение размера
+        } else if (event->pos().y() > height() - 10 || event->pos().x() > width() - 10) {
             m_resizing = true;
             m_resize_start = event->globalPosition().toPoint();
             m_resize_start_size = size();
-
         } else {
-            event->ignore(); // Дозволяє іншим віджетам обробити подію
+            event->ignore();
         }
         event->accept();
     }
 }
 
-void Project::mouseMoveEvent(QMouseEvent* event) {
+void Project::mouseMoveEvent(QMouseEvent* event)
+{
     if (m_dragging) {
         event->globalPosition().toPoint() - m_drag_position;
     } else if (m_resizing) {
@@ -357,9 +365,9 @@ void Project::mouseMoveEvent(QMouseEvent* event) {
     }
 }
 
-void Project::mouseReleaseEvent(QMouseEvent* event) {
+void Project::mouseReleaseEvent(QMouseEvent* event)
+{
     m_dragging = false;
     m_resizing = false;
-
     event->accept();
 }

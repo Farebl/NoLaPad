@@ -6,7 +6,6 @@
 #include <QSlider>
 #include <QSpinBox>
 
-
 #include <QMouseEvent>
 
 #include "MicroTimer.h"

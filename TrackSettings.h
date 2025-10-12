@@ -17,7 +17,6 @@
 
 #include "MicroTimer.h"
 #include "Fader.h"
-#include "TrackRECButton.h"
 #include "BeatCheckBox.h"
 #include "TrackColorButtons.h"
 #include "LoopButton.h"
@@ -29,22 +28,22 @@ class TrackSettings: public QDialog
 {
     Q_OBJECT
 public:
-    explicit TrackSettings(QWidget *parent = nullptr, uint8_t volume_percent = 100, bool is_recording = false, bool is_loop = false, std::vector<std::vector<bool>> beats_per_measure = {{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}}, const QColor& outer_background_color = Qt::gray, const QColor& inner_background_color = Qt::darkGray);
+    explicit TrackSettings(uint8_t volume_percent = 100, bool is_loop = false, std::vector<std::vector<bool>> beats_per_measure = {{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}}, const QColor& outer_background_color = Qt::gray, const QColor& inner_background_color = Qt::darkGray, QWidget *parent = nullptr);
     void setLoopState(bool state);
     void setVolume(int volum_percent);
     void setEffectVolume(int volum_percent);
-    void setRECState(bool state);
     void setInnerActiveBackgroundColor(QColor color);
     void setOuterBackgroundColor(QColor color);
     void setBeats(std::vector<std::vector<bool>> beats_per_measure);
     void setIsAudioSampleSelectedState(bool state);
+    void setRecordingEnabled(bool enabled);
+    bool getRecordingEnabled() const;
 
 private:
     QSpinBox* m_volume_display;
     QSpinBox* m_effect_volume_display;
     Fader* m_volume_fader;
     Fader* m_effect_volume_fader;
-    TrackRECButton* m_rec_button;
     TrackColorButtons* m_select_track_colors_button;
     LoopButton* m_loop_button;
     Potentiometer* m_effects_switch;
@@ -52,6 +51,7 @@ private:
     AudioSampleSelector* m_audio_input_connector;
     std::vector<std::vector<bool>> m_beats_per_measure;
     std::vector<QMetaObject::Connection> m_current_connections;
+    QCheckBox* m_recording_checkbox;
 
 protected:
     void closeEvent(QCloseEvent *event) override;
@@ -59,8 +59,6 @@ protected:
 signals:
     void changedLoopState(bool state);
     void changedVolume(int volum_percent);
-    void changeEffectdVolume(int volum_percent);
-    void changeRECState(bool state);
     void changedInnerActiveBackgroundColor(QColor color);
     void changedOuterBackgroundColor(QColor color);
     void changedAudioSamplePath(QString path);
@@ -80,6 +78,7 @@ signals:
     void changedBeat14(bool state);
     void changedBeat15(bool state);
     void changedBeat16(bool state);
+    void changedRecordingEnabled(bool enabled);
 };
 
 #endif // TrackSETTINGS_H

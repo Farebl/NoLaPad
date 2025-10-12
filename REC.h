@@ -12,23 +12,30 @@
 #include <QColor>
 #include <QProcess>
 
+#include <juce_audio_formats/juce_audio_formats.h>
+#include <juce_audio_basics/juce_audio_basics.h>
+
 #include "RECButton.h"
 
 class REC : public QWidget
 {
     Q_OBJECT
 public:
-    explicit REC(QWidget *parent = nullptr, uint width = 35, uint height = 35, QString recording_format = "WAV");
-    void setRecordingFormat(const QString& format);
+    explicit REC(QWidget *parent = nullptr, uint width = 35, uint height = 35);
+    ~REC();
+
     void startRecording();
     void stopRecording();
+    void writeAudioData(const juce::AudioBuffer<float>& buffer);
+
+    // Новий метод для перевірки статусу запису
+    bool isRecording() const { return m_writer != nullptr; }
 
 private:
-    QProcess* m_ffmpeg_process;
-    QString m_recording_format;
-    QString m_current_output_file; // Зберігаємо ім'я файлу для перевірки
-
-
+    QString m_current_output_file;
+    std::unique_ptr<juce::AudioFormatWriter> m_writer;
+    std::unique_ptr<juce::FileOutputStream> m_file_stream;
+    juce::AudioFormatManager m_format_manager;
 
 signals:
     void recordingStarted();

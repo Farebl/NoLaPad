@@ -1,4 +1,7 @@
+
+#include "TransportCallback.h"
 #include "Metronome.h"
+
 
 Metronome::Metronome(QWidget *parent, juce::AudioDeviceManager& deviceManager, juce::MixerAudioSource& mixer, MicroTimer* timer, float volume, QString strong_measure_sound_path, QString weak_measure_sound_path, const std::vector<bool>& strong_and_weak_measures)
     : QPushButton(parent),

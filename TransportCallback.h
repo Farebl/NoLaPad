@@ -5,11 +5,16 @@
 #include <juce_audio_formats/juce_audio_formats.h>
 #include <juce_audio_basics/juce_audio_basics.h>
 #include <juce_core/juce_core.h>
+#include "REC.h"
+#include <vector>
+
+// Forward declaration of Track to avoid cyclic dependency
+class Track;
 
 class TransportCallback : public juce::AudioIODeviceCallback
 {
 public:
-    TransportCallback(juce::MixerAudioSource& mixer);
+    TransportCallback(juce::MixerAudioSource& mixer, REC* rec, std::vector<Track*>& tracks);
 
     void audioDeviceIOCallbackWithContext(const float* const* input, int numInputChannels,
                                           float* const* output, int numOutputChannels, int numSamples,
@@ -20,7 +25,8 @@ public:
 
 private:
     juce::MixerAudioSource& mixerSource;
+    REC* m_rec;
+    std::vector<Track*>& m_tracks;
 };
-
 
 #endif // TRANSPORTCALLBACK_H
