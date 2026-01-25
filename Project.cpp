@@ -35,7 +35,7 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
     setMinimumSize(400, 300);
     m_current_connections.reserve(22);
 
-    // КРИТИЧНО: Ініціалізуємо AudioDeviceManager СПОЧАТКУ, але БЕЗ callback
+
     auto result = m_device_manager.initialise(0, 2, nullptr, true);
     if (result.isNotEmpty())
     {
@@ -191,7 +191,7 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
                     {0, 0, 0, 0},
                     {0, 0, 0, 0}
                 },
-                QString("../../music/synthesizer/strings/E_minor_long.mp3"),
+                QString("../../music/drums/jh-bolshoy-tom-2-f-15-sek.mp3"),
                 QColor(180, 180, 180)
                 );
             m_tracks[r * m_column + c] = track;
@@ -200,16 +200,32 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
 
             // Налаштування ефектів для тестування
             if (r == 0 && c == 0) {
-                track->setEffectType(Track::EffectType::Delay);
+                track->setEffectType(EffectType::Delay);
                 track->setDelayTime(0.5f);
                 track->setDelayFeedback(0.6f);
-                track->setDelayWetLevel(0.7f);
+                track->setDelayMixLevel(0.7f);
             } else if (r == 0 && c == 1) {
-                track->setEffectType(Track::EffectType::Reverb);
+                track->setEffectType(EffectType::Reverb);
                 track->setReverbRoomSize(0.7f);
                 track->setReverbDamping(0.1f);
                 track->setReverbWetLevel(0.5f);
                 track->setReverbDryLevel(0.3f);
+            }
+            if (r == 0 && c == 2) {
+
+                track->setEffectType(EffectType::Chorus);
+                track->setChorusRate(1.5f);          // Швидкість модуляції 1.5 Hz
+                track->setChorusDepth(0.3f);         // Помірна глибина
+                track->setChorusCenterDelay(10.0f);  // 10 мс центральна затримка
+                track->setChorusFeedback(0.2f);      // Легкий feedback
+                track->setChorusMix(0.5f);           // 50/50 mix
+
+
+            } else if (r == 0 && c == 3) {
+                track->setEffectType(EffectType::Distortion);
+                track->setDistortionDrive(15.0f);    // Помірне спотворення
+                track->setDistortionMix(0.7f);       // 70% distorted
+                track->setDistortionOutputVolume(0.6f); // Компенсація гучності
             }
         }
     }

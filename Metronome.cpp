@@ -1,5 +1,3 @@
-
-#include "TransportCallback.h"
 #include "Metronome.h"
 
 
@@ -30,15 +28,15 @@ Metronome::Metronome(QWidget *parent, juce::AudioDeviceManager& deviceManager, j
     setChecked(false);
     setStyleSheet(
         "QPushButton {"
-        "    background-color: #28963c;" // Зелений фон
-        "    color: #FFFFFF;" // Белый текст
-        "    border: none;" // Без рамки
-        "    border-radius: 3px;" // Скругление всех углов
-        "    font-size: 26px;" // Размер символа
+        "    background-color: #28963c;"
+        "    color: #FFFFFF;"
+        "    border: none;"
+        "    border-radius: 3px;"
+        "    font-size: 26px;"
         "    padding: 0px;"
         "}"
         "QPushButton:hover {"
-        "    background-color: #46be5a;" // Изменение цвета при наведении
+        "    background-color: #46be5a;"
         "}"
     );
 
@@ -126,11 +124,11 @@ void Metronome::mousePressEvent(QMouseEvent *event){
             setText("▶");
             setStyleSheet(
                 "QPushButton {"
-                "    background-color: #28963c;" // Зелений фон
-                "    color: #FFFFFF;" // Белый текст
-                "    border: none;" // Без рамки
-                "    border-radius: 3px;" // Скругление всех углов
-                "    font-size: 26px;" // Размер символа
+                "    background-color: #28963c;"
+                "    color: #FFFFFF;"
+                "    border: none;"
+                "    border-radius: 3px;"
+                "    font-size: 26px;"
                 "    padding: 0px;"
                 "}"
                 "QPushButton:hover {"
@@ -146,15 +144,15 @@ void Metronome::mousePressEvent(QMouseEvent *event){
             setChecked(true);
             setStyleSheet(
                 "QPushButton {"
-                "    background-color: #c82828;" // Червоний фон
-                "    color: #FFFFFF;" // Белый текст
-                "    border: none;" // Без рамки
-                "    border-radius: 3px;" // Скругление всех углов
-                "    font-size: 14px;" // Размер символа
+                "    background-color: #c82828;"
+                "    color: #FFFFFF;"
+                "    border: none;"
+                "    border-radius: 3px;"
+                "    font-size: 14px;"
                 "    padding: 0px;"
                 "}"
                 "QPushButton:hover {"
-                "    background-color: #dc3c3c;" // Изменение цвета при наведении
+                "    background-color: #dc3c3c;"
                 "}"
                 );
             setText("| |");
@@ -174,13 +172,13 @@ void Metronome::mousePressEvent(QMouseEvent *event){
 
 
 void Metronome::play_strong_measure(){
-    m_transport_source_strong_measure.setPosition(0); // Сброс позиции в начало
+    m_transport_source_strong_measure.setPosition(0);
     m_transport_source_strong_measure.start();
 
 }
 
 void Metronome::play_weak_measure(){
-    m_transport_source_weak_measure.setPosition(0); // Сброс позиции в начало
+    m_transport_source_weak_measure.setPosition(0);
     m_transport_source_weak_measure.start();
 }
 

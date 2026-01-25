@@ -19,28 +19,49 @@
 #include <atomic>
 
 
+enum class EffectType {
+    None,
+    Reverb,
+    Chorus,
+    Delay,
+    Distortion
+};
+
+
 class Track : public QPushButton, public juce::AudioSource
 {
     Q_OBJECT
 public:
-    enum class EffectType {
-        None,
-        Reverb,
-        Delay,
-    };
-
     struct ReverbSettings {
-        float roomSize = 0.5f;
-        float damping = 0.5f;
-        float wetLevel = 0.33f;
-        float dryLevel = 0.4f;
+        float roomSize = 0.5f;      // Розмір кімнати (характер звуку) [0.0 - 1.0]
+        float damping = 0.5f;       // Заглушення (характер звуку) [0.0 - 1.0]
+        float wetLevel = 0.33f;     // Скільки реверберації [0.0 - 1.0]
+        float dryLevel = 0.4f;      // Скільки оригіналу [0.0 - 1.0]
+        float outputVolume = 1.0f;  // Загальна гучність після ефекту [0.0 - 1.0]
     };
 
     struct DelaySettings {
-        float delayTime = 0.2f;
-        float feedback = 0.2f;
-        float wetLevel = 1.0f;
+        float delayTime = 0.2f;     // Час затримки в секундах (характер ефекту) [0.0 - 2.0]
+        float feedback = 0.2f;      // Кількість повторень (характер ефекту) [0.0 - 0.95]
+        float mix = 0.5f;           // Баланс dry/wet [0.0 - 1.0]
+        float outputVolume = 1.0f;  // Загальна гучність після ефекту [0.0 - 1.0]
     };
+
+    struct ChorusSettings {
+        float rate = 1.0f;          // Швидкість модуляції в Hz (характер звуку) [0.1 - 10.0]
+        float depth = 0.25f;        // Глибина модуляції (характер звуку) [0.0 - 1.0]
+        float centerDelay = 7.0f;   // Центральна затримка в мс (характер звуку) [1.0 - 100.0]
+        float feedback = 0.0f;      // Зворотний зв'язок (характер звуку) [0.0 - 0.9]
+        float mix = 0.5f;           // Баланс dry/wet [0.0 - 1.0]
+        float outputVolume = 1.0f;  // Загальна гучність після ефекту [0.0 - 1.0]
+    };
+
+    struct DistortionSettings {
+        float drive = 10.0f;        // Ступінь спотворення в dB (характер звуку) [0.0 - 40.0]
+        float mix = 0.5f;           // Баланс dry/wet [0.0 - 1.0]
+        float outputVolume = 0.5f;  // Загальна гучність після ефекту [0.0 - 1.0]
+    };
+
 
     explicit Track(QWidget *parent, juce::AudioDeviceManager& device_manager, juce::MixerAudioSource& mixer, MicroTimer* timer = nullptr, float volume = 1.0, bool is_loop = false, std::vector<std::vector<bool>> beats_per_measure = {{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}}, QString sound_path = "", const QColor& outer_background_color = Qt::gray, const QColor& inner_active_background_color = Qt::red);
 
@@ -98,14 +119,44 @@ public:
     float getReverbWetLevel();
     void setReverbDryLevel(float dry);
     float getReverbDryLevel();
+    void setReverbOutputVolume(float volume);
+    float getReverbOutputVolume();
+
 
     // Delay settings methods
     void setDelayTime(float time);
     float getDelayTime();
     void setDelayFeedback(float feedback);
     float getDelayFeedback();
-    void setDelayWetLevel(float wet);
-    float getDelayWetLevel();
+    void setDelayMixLevel(float mix);
+    float getDelayMixLevel();
+    void setDelayOutputVolume(float volume);
+    float getDelayOutputVolume();
+
+
+    // Chorus settings methods
+    void setChorusRate(float rate);
+    float getChorusRate();
+    void setChorusDepth(float depth);
+    float getChorusDepth();
+    void setChorusCenterDelay(float delay);
+    float getChorusCenterDelay();
+    void setChorusFeedback(float feedback);
+    float getChorusFeedback();
+    void setChorusMix(float mix);
+    float getChorusMix();
+    void setChorusOutputVolume(float volume);
+    float getChorusOutputVolume();
+
+    // Distortion settings methods
+    void setDistortionDrive(float drive);
+    float getDistortionDrive();
+    void setDistortionMix(float mix);
+    float getDistortionMix();
+    void setDistortionOutputVolume(float volume);
+    float getDistortionOutputVolume();
+
+
 
     void play();
     void stop();
@@ -122,7 +173,7 @@ public:
         juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear>,
         juce::dsp::LadderFilter<float>>& getEffectChain() { return m_effect_chain; }
 
-private:
+
 private:
     std::atomic<bool> m_is_ready{false};
     std::atomic<bool> m_is_being_destroyed{false};
@@ -154,6 +205,8 @@ private:
     EffectType m_current_effect;
     ReverbSettings m_reverb_settings;
     DelaySettings m_delay_settings;
+    ChorusSettings m_chorus_settings;
+    DistortionSettings m_distortion_settings;
 
     void mousePressEvent(QMouseEvent *event) override;
     void paintEvent(QPaintEvent *event) override;

@@ -97,6 +97,7 @@ float calculateBlockAmplitude(const juce::dsp::AudioBlock<float>& block, size_t 
     return maxAmplitude;
 }
 
+
 void Track::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
     if (!m_is_ready.load() || m_is_being_destroyed.load()) {
@@ -134,7 +135,6 @@ void Track::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
                                       samplesToCopy);
         }
 
-        // ПРАВИЛЬНО: створюємо блок, потім обмежуємо
         juce::dsp::AudioBlock<float> fullBlock(*m_effect_buffer);
         juce::dsp::AudioBlock<float> block = fullBlock.getSubBlock(0, samplesToCopy);
         juce::dsp::ProcessContextReplacing<float> context(block);
@@ -143,13 +143,38 @@ void Track::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
         case EffectType::Reverb:
             m_effect_chain.get<0>().process(context);
             break;
+
+        case EffectType::Chorus:
+        {
+            auto numSamples = block.getNumSamples();
+            auto numChannels = block.getNumChannels();
+
+            // Chorus effect using Phaser (position 1 in chain)
+            auto& phaser = m_effect_chain.get<1>();
+            phaser.process(context);
+
+            // Manual mix control
+            float wet = m_chorus_settings.mix;
+            float dry = 1.0f - wet;
+
+            for (size_t channel = 0; channel < numChannels; ++channel) {
+                auto* samples = block.getChannelPointer(channel);
+                const auto* originalSamples = bufferToFill.buffer->getReadPointer(channel, bufferToFill.startSample);
+
+                for (size_t i = 0; i < numSamples; ++i) {
+                    samples[i] = samples[i] * wet + originalSamples[i] * dry;
+                }
+            }
+        }
+        break;
+
         case EffectType::Delay:
         {
             auto& delay = m_effect_chain.get<2>();
             auto numSamples = block.getNumSamples();
             auto numChannels = block.getNumChannels();
             float feedback = m_delay_settings.feedback;
-            float wet = m_delay_settings.wetLevel;
+            float wet = m_delay_settings.mix;
             float dry = 1.0f - wet;
 
             for (size_t channel = 0; channel < numChannels; ++channel) {
@@ -164,6 +189,35 @@ void Track::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
             }
         }
         break;
+
+        case EffectType::Distortion:
+        {
+            auto numSamples = block.getNumSamples();
+            auto numChannels = block.getNumChannels();
+            float drive = m_distortion_settings.drive;
+            float mix = m_distortion_settings.mix;
+            float outputVolume = m_distortion_settings.outputVolume;
+
+            for (size_t channel = 0; channel < numChannels; ++channel) {
+                auto* samples = block.getChannelPointer(channel);
+                const auto* originalSamples = bufferToFill.buffer->getReadPointer(channel, bufferToFill.startSample);
+
+                for (size_t i = 0; i < numSamples; ++i) {
+                    float input = samples[i];
+
+                    // Soft clipping distortion algorithm
+                    float distorted = std::tanh(input * drive) / std::tanh(drive);
+
+                    // Mix wet/dry
+                    float mixed = distorted * mix + input * (1.0f - mix);
+
+                    // Apply output gain
+                    samples[i] = mixed * outputVolume;
+                }
+            }
+        }
+        break;
+
         default:
             break;
         }
@@ -175,6 +229,7 @@ void Track::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
         }
     }
 }
+
 
 void Track::mousePressEvent(QMouseEvent *event)
 {
@@ -557,10 +612,16 @@ void Track::setEffectType(EffectType type)
     updateEffectParameters();
 }
 
-Track::EffectType Track::getEffectType()
+EffectType Track::getEffectType()
 {
     return m_current_effect;
 }
+
+
+
+
+
+// Reverb methods
 
 void Track::setReverbRoomSize(float size)
 {
@@ -614,6 +675,24 @@ float Track::getReverbDryLevel()
     return m_reverb_settings.dryLevel;
 }
 
+
+
+void Track::setReverbOutputVolume(float volume)
+{
+    if (volume >= 0.0f && volume <= 1.0f) {
+        m_reverb_settings.outputVolume = volume;
+    }
+}
+
+float Track::getReverbOutputVolume()
+{
+    return m_reverb_settings.outputVolume;
+}
+
+
+
+
+// Delay methods
 void Track::setDelayTime(float time)
 {
     if (time >= 0.0f && time <= 1.0f) {
@@ -640,27 +719,197 @@ float Track::getDelayFeedback()
     return m_delay_settings.feedback;
 }
 
-void Track::setDelayWetLevel(float wet)
+void Track::setDelayMixLevel(float mix)
 {
-    if (wet >= 0.0f && wet <= 1.0f) {
-        m_delay_settings.wetLevel = wet;
+    if (mix >= 0.0f && mix <= 1.0f) {
+        m_delay_settings.mix = mix;
         updateEffectParameters();
     }
 }
 
-float Track::getDelayWetLevel()
+float Track::getDelayMixLevel()
 {
-    return m_delay_settings.wetLevel;
+    return m_delay_settings.mix;
 }
+
+
+void Track::setDelayOutputVolume(float volume)
+{
+    if (volume >= 0.0f && volume <= 1.0f) {
+        m_delay_settings.outputVolume = volume;
+    }
+}
+
+float Track::getDelayOutputVolume()
+{
+    return m_delay_settings.outputVolume;
+}
+
+
+
+
+
+// Chorus methods
+void Track::setChorusRate(float rate)
+{
+    if (rate >= 0.1f && rate <= 10.0f) {
+        m_chorus_settings.rate = rate;
+        updateEffectParameters();
+    }
+}
+
+float Track::getChorusRate()
+{
+    return m_chorus_settings.rate;
+}
+
+void Track::setChorusDepth(float depth)
+{
+    if (depth >= 0.0f && depth <= 1.0f) {
+        m_chorus_settings.depth = depth;
+        updateEffectParameters();
+    }
+}
+
+float Track::getChorusDepth()
+{
+    return m_chorus_settings.depth;
+}
+
+void Track::setChorusCenterDelay(float delay)
+{
+    if (delay >= 1.0f && delay <= 50.0f) {
+        m_chorus_settings.centerDelay = delay;
+        updateEffectParameters();
+    }
+}
+
+float Track::getChorusCenterDelay()
+{
+    return m_chorus_settings.centerDelay;
+}
+
+void Track::setChorusFeedback(float feedback)
+{
+    if (feedback >= 0.0f && feedback <= 0.5f) {
+        m_chorus_settings.feedback = feedback;
+        updateEffectParameters();
+    }
+}
+
+float Track::getChorusFeedback()
+{
+    return m_chorus_settings.feedback;
+}
+
+void Track::setChorusMix(float mix)
+{
+    if (mix >= 0.0f && mix <= 1.0f) {
+        m_chorus_settings.mix = mix;
+        updateEffectParameters();
+    }
+}
+
+float Track::getChorusMix()
+{
+    return m_chorus_settings.mix;
+}
+
+void Track::setChorusOutputVolume(float volume)
+{
+    if (volume >= 0.0f && volume <= 1.0f) {
+        m_chorus_settings.outputVolume = volume;
+    }
+}
+
+float Track::getChorusOutputVolume()
+{
+    return m_chorus_settings.outputVolume;
+}
+
+
+
+
+// Distortion methods
+void Track::setDistortionDrive(float drive)
+{
+    if (drive >= 1.0f && drive <= 100.0f) {
+        m_distortion_settings.drive = drive;
+        updateEffectParameters();
+    }
+}
+
+float Track::getDistortionDrive()
+{
+    return m_distortion_settings.drive;
+}
+
+void Track::setDistortionMix(float mix)
+{
+    if (mix >= 0.0f && mix <= 1.0f) {
+        m_distortion_settings.mix = mix;
+        updateEffectParameters();
+    }
+}
+
+float Track::getDistortionMix()
+{
+    return m_distortion_settings.mix;
+}
+
+
+void Track::setDistortionOutputVolume(float volume)
+{
+    if (volume >= 0.0f && volume <= 1.0f) {
+        m_distortion_settings.outputVolume = volume;
+    }
+}
+
+float Track::getDistortionOutputVolume()
+{
+    return m_distortion_settings.outputVolume;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void Track::updateEffectParameters()
 {
     auto& reverb = m_effect_chain.get<0>();
-    reverb.setParameters(juce::dsp::Reverb::Parameters{ m_reverb_settings.roomSize, m_reverb_settings.damping, m_reverb_settings.wetLevel, m_reverb_settings.dryLevel, 0.5f, 0.0f });
+    reverb.setParameters(juce::dsp::Reverb::Parameters{
+        m_reverb_settings.roomSize,
+        m_reverb_settings.damping,
+        m_reverb_settings.wetLevel,
+        m_reverb_settings.dryLevel,
+        0.5f,
+        0.0f
+    });
+
+    // Chorus (використовуємо Phaser як chorus)
+    auto& phaser = m_effect_chain.get<1>();
+    phaser.setRate(m_chorus_settings.rate);
+    phaser.setDepth(m_chorus_settings.depth);
+    phaser.setCentreFrequency(1000.0f);
+    phaser.setFeedback(m_chorus_settings.feedback);
+    phaser.setMix(m_chorus_settings.mix);
 
     auto& delay = m_effect_chain.get<2>();
     delay.setDelay(m_delay_settings.delayTime * m_sample_rate);
     delay.setMaximumDelayInSamples(static_cast<int>(m_sample_rate));
+
+    // Distortion не потребує окремих налаштувань процесора,
+    // оскільки реалізований вручну в getNextAudioBlock
 }
 
 void Track::play()

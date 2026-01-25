@@ -43,27 +43,6 @@ void Potentiometer::paintEvent(QPaintEvent *event)
 
     // Масив кутів для поділок: 90° (1 - зверху), 0° (2 - праворуч), 270° (3 - знизу), 180° (4 - ліворуч)
     qreal angles[] = {90.0, 0.0, 270.0, 180.0};
-    QString labels[] = {"1", "2", "3", "4"};
-
-    for (int i = 0; i < 4; ++i) {
-        qreal angleRad = qDegreesToRadians(angles[i]);
-        // Координати для початку і кінця поділки
-        qreal x1 = center_x + tick_radius * qCos(angleRad);
-        qreal y1 = center_y - tick_radius * qSin(angleRad);
-        qreal x2 = center_x + (tick_radius - tick_length) * qCos(angleRad);
-        qreal y2 = center_y - (tick_radius - tick_length) * qSin(angleRad);
-
-        // Малюємо поділку
-        painter.drawLine(QPointF(x1, y1), QPointF(x2, y2));
-
-        // Малюємо мітку (число)
-        qreal label_x = center_x + (tick_radius + label_offset) * qCos(angleRad);
-        qreal label_y = center_y - (tick_radius + label_offset) * qSin(angleRad);
-        QRectF label_rect(label_x - 10, label_y - 10, 20, 20); // Прямокутник для центрування тексту
-        painter.drawText(label_rect, Qt::AlignCenter, labels[i]);
-    }
-
-
 
 
     // Малюємо стрілку як прямокутник

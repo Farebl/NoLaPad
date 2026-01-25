@@ -34,10 +34,6 @@ private:
     std::unique_ptr<juce::AudioFormatReaderSource> m_reader_sources_strong_measure;
     std::unique_ptr<juce::AudioFormatReaderSource> m_reader_sources_weak_measure;
 
-    //QMediaPlayer* m_player_strong_measure;
-    //QMediaPlayer* m_player_weak_measure;
-    //QAudioOutput* m_strong_audio_output;
-    //QAudioOutput* m_weak_audio_output;
     MicroTimer* m_timer;
     MetronomeSettings* m_settings_window;
     std::array<void(Metronome::*)(), 4> m_strong_and_weak_measures_play_call_methods;
