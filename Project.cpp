@@ -7,6 +7,8 @@
 #include <QLCDNumber>
 #include <QFontDatabase>
 
+Project* Project::m_self_ptr = nullptr;
+
 Project::Project(int row, int column, int bpm_value, QWidget *parent)
     : QMainWindow(parent),
     m_row(row),
@@ -386,4 +388,14 @@ void Project::mouseReleaseEvent(QMouseEvent* event)
     m_dragging = false;
     m_resizing = false;
     event->accept();
+}
+
+
+
+
+Project* Project::getInstance(int row, int column, int bpm_value, QWidget *parent){
+	if (m_self_ptr == nullptr)
+		m_self_ptr = new Project(row, column, bpm_value, parent);
+		
+	return m_self_ptr;
 }

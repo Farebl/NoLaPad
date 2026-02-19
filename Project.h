@@ -18,11 +18,12 @@
 class Project : public QMainWindow {
     Q_OBJECT
 
-public:
-    explicit Project(int row = 8, int column = 8, int bpm_value = 60, QWidget *parent = nullptr);
-    ~Project();
-
 private:
+    explicit Project() = delete;
+	explicit Project(const Project&) = delete;
+	Project& operator=(const Project&) = delete;
+    explicit Project(int row = 8, int column = 8, int bpm_value = 60, QWidget *parent = nullptr);
+
     int m_row;
     int m_column;
     QWidget* m_central_widget;
@@ -50,11 +51,18 @@ private:
 
     void toggleMaximize();
     void openTrackSettings(Track* track);
+	
+	static Project* m_self_ptr;
 
 protected:
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
+	
+	
+public:
+	static Project* getInstance(int row = 8, int column = 8, int bpm_value = 60, QWidget *parent = nullptr);
+    ~Project();
 };
 
 #endif // PROJECT_H
