@@ -4,8 +4,19 @@
 
 #define BORDER_RADIUS_COEF 10
 
-Track::Track(QWidget *parent, juce::AudioDeviceManager& deviceManager, juce::MixerAudioSource& mixer, MicroTimer* timer, float volume, bool is_loop, std::vector<std::vector<bool>> beats_per_measure, QString sound_path, const QColor& outer_background_color, const QColor& inner_active_background_color)
-    : QPushButton(parent),
+Track::Track(
+    QWidget *parent,
+    juce::AudioDeviceManager& deviceManager,
+    juce::MixerAudioSource& mixer,
+    MicroTimer* timer,
+    float volume,
+    bool is_loop,
+    std::array<std::array<bool, 4>, 4> beats_per_measure,
+    QString sound_path,
+    const QColor& outer_background_color,
+    const QColor& inner_active_background_color
+    ):
+    QPushButton(parent),
     juce::AudioSource(),
     m_device_manager(deviceManager),
     m_mixer_source(mixer),
@@ -24,11 +35,6 @@ Track::Track(QWidget *parent, juce::AudioDeviceManager& deviceManager, juce::Mix
     m_sample_rate(44100.0)
 {
     setStyleSheet(m_style.arg(m_outer_color.name()).arg("black").arg(width()/BORDER_RADIUS_COEF));
-
-    if (m_beats_per_measure[0].size() < 4) m_beats_per_measure[0].resize(4, false);
-    if (m_beats_per_measure[1].size() < 4) m_beats_per_measure[1].resize(4, false);
-    if (m_beats_per_measure[2].size() < 4) m_beats_per_measure[2].resize(4, false);
-    if (m_beats_per_measure[3].size() < 4) m_beats_per_measure[3].resize(4, false);
 
     m_format_manager.registerBasicFormats();
 
@@ -249,59 +255,28 @@ void Track::mousePressEvent(QMouseEvent *event)
                 update();
                 if (m_timer) {
                     disconnect(m_timer, &MicroTimer::tick1, this, &Track::stop);
-                    if (m_beats_per_measure[0][0])
-                        connect(m_timer, &MicroTimer::tick1, this, &Track::play);
-                    if (m_beats_per_measure[0][1])
-                        connect(m_timer, &MicroTimer::tick2, this, &Track::play);
-                    if (m_beats_per_measure[0][2])
-                        connect(m_timer, &MicroTimer::tick3, this, &Track::play);
-                    if (m_beats_per_measure[0][3])
-                        connect(m_timer, &MicroTimer::tick4, this, &Track::play);
-                    if (m_beats_per_measure[1][0])
-                        connect(m_timer, &MicroTimer::tick5, this, &Track::play);
-                    if (m_beats_per_measure[1][1])
-                        connect(m_timer, &MicroTimer::tick6, this, &Track::play);
-                    if (m_beats_per_measure[1][2])
-                        connect(m_timer, &MicroTimer::tick7, this, &Track::play);
-                    if (m_beats_per_measure[1][3])
-                        connect(m_timer, &MicroTimer::tick8, this, &Track::play);
-                    if (m_beats_per_measure[2][0])
-                        connect(m_timer, &MicroTimer::tick9, this, &Track::play);
-                    if (m_beats_per_measure[2][1])
-                        connect(m_timer, &MicroTimer::tick10, this, &Track::play);
-                    if (m_beats_per_measure[2][2])
-                        connect(m_timer, &MicroTimer::tick11, this, &Track::play);
-                    if (m_beats_per_measure[2][3])
-                        connect(m_timer, &MicroTimer::tick12, this, &Track::play);
-                    if (m_beats_per_measure[3][0])
-                        connect(m_timer, &MicroTimer::tick13, this, &Track::play);
-                    if (m_beats_per_measure[3][1])
-                        connect(m_timer, &MicroTimer::tick14, this, &Track::play);
-                    if (m_beats_per_measure[3][2])
-                        connect(m_timer, &MicroTimer::tick15, this, &Track::play);
-                    if (m_beats_per_measure[3][3])
-                        connect(m_timer, &MicroTimer::tick16, this, &Track::play);
+
+                    const size_t rows = m_beats_per_measure.size();
+                    const size_t columns = m_beats_per_measure[0].size();
+                    for(size_t i  = 0; i < rows; ++i){
+                        for(size_t j  = 0; j < columns; ++j){
+                            if (m_beats_per_measure[i][j])
+                                connect(m_timer, m_timer->m_signals[i*rows + j], this, &Track::play);
+                        }
+                    }
                 }
             } else {
                 m_is_active = false;
                 if (m_timer) {
+                    const size_t rows = m_beats_per_measure.size();
+                    const size_t columns = m_beats_per_measure[0].size();
+
                     connect(m_timer, &MicroTimer::tick1, this, &Track::stop);
-                    disconnect(m_timer, &MicroTimer::tick1, this, &Track::play);
-                    disconnect(m_timer, &MicroTimer::tick2, this, &Track::play);
-                    disconnect(m_timer, &MicroTimer::tick3, this, &Track::play);
-                    disconnect(m_timer, &MicroTimer::tick4, this, &Track::play);
-                    disconnect(m_timer, &MicroTimer::tick5, this, &Track::play);
-                    disconnect(m_timer, &MicroTimer::tick6, this, &Track::play);
-                    disconnect(m_timer, &MicroTimer::tick7, this, &Track::play);
-                    disconnect(m_timer, &MicroTimer::tick8, this, &Track::play);
-                    disconnect(m_timer, &MicroTimer::tick9, this, &Track::play);
-                    disconnect(m_timer, &MicroTimer::tick10, this, &Track::play);
-                    disconnect(m_timer, &MicroTimer::tick11, this, &Track::play);
-                    disconnect(m_timer, &MicroTimer::tick12, this, &Track::play);
-                    disconnect(m_timer, &MicroTimer::tick13, this, &Track::play);
-                    disconnect(m_timer, &MicroTimer::tick14, this, &Track::play);
-                    disconnect(m_timer, &MicroTimer::tick15, this, &Track::play);
-                    disconnect(m_timer, &MicroTimer::tick16, this, &Track::play);
+                    for(size_t i  = 0; i < rows; ++i){
+                        for(size_t j  = 0; j < columns; ++j){
+                            disconnect(m_timer, m_timer->m_signals[i*rows + j], this, &Track::play);
+                        }
+                    }
                 }
             }
         }
@@ -361,22 +336,13 @@ void Track::setAudioSamplePath(QString path)
         m_reader_source.reset();
         m_is_active = false;
         if (m_timer) {
-            disconnect(m_timer, &MicroTimer::tick1, this, &Track::play);
-            disconnect(m_timer, &MicroTimer::tick2, this, &Track::play);
-            disconnect(m_timer, &MicroTimer::tick3, this, &Track::play);
-            disconnect(m_timer, &MicroTimer::tick4, this, &Track::play);
-            disconnect(m_timer, &MicroTimer::tick5, this, &Track::play);
-            disconnect(m_timer, &MicroTimer::tick6, this, &Track::play);
-            disconnect(m_timer, &MicroTimer::tick7, this, &Track::play);
-            disconnect(m_timer, &MicroTimer::tick8, this, &Track::play);
-            disconnect(m_timer, &MicroTimer::tick9, this, &Track::play);
-            disconnect(m_timer, &MicroTimer::tick10, this, &Track::play);
-            disconnect(m_timer, &MicroTimer::tick11, this, &Track::play);
-            disconnect(m_timer, &MicroTimer::tick12, this, &Track::play);
-            disconnect(m_timer, &MicroTimer::tick13, this, &Track::play);
-            disconnect(m_timer, &MicroTimer::tick14, this, &Track::play);
-            disconnect(m_timer, &MicroTimer::tick15, this, &Track::play);
-            disconnect(m_timer, &MicroTimer::tick16, this, &Track::play);
+            const size_t rows = m_beats_per_measure.size();
+            const size_t columns = m_beats_per_measure[0].size();
+            for(size_t i  = 0; i < rows; ++i){
+                for(size_t j  = 0; j < columns; ++j){
+                    disconnect(m_timer, m_timer->m_signals[i*rows + j], this, &Track::play);
+                }
+            }
         }
         return;
     }
@@ -437,154 +403,27 @@ QString Track::getSoundPath()
     return m_audio_sample_path;
 }
 
-std::vector<std::vector<bool>> Track::getBeats()
+std::array<std::array<bool, 4>, 4> Track::getBeatsStates()
 {
     return m_beats_per_measure;
 }
 
-void Track::setBeat1(bool state)
+void Track::setBeatState(quint8 index, bool state)
 {
-    m_beats_per_measure[0][0] = state;
-    if (m_beats_per_measure[0][0] && m_is_loop && m_is_active)
-        connect(m_timer, &MicroTimer::tick1, this, &Track::play);
+    size_t rows_count = m_beats_per_measure.size();
+    size_t columns_count = m_beats_per_measure[0].size();
+    m_beats_per_measure[index / rows_count][index % columns_count] = state;
+
+    if (m_beats_per_measure[index / rows_count][index % columns_count] && m_is_loop && m_is_active)
+        connect(
+            m_timer,
+            m_timer->m_signals[index],
+            this,
+            &Track::play);
     else
         disconnect(m_timer, &MicroTimer::tick1, this, &Track::play);
 }
 
-void Track::setBeat2(bool state)
-{
-    m_beats_per_measure[0][1] = state;
-    if (m_beats_per_measure[0][1] && m_is_loop && m_is_active)
-        connect(m_timer, &MicroTimer::tick2, this, &Track::play);
-    else
-        disconnect(m_timer, &MicroTimer::tick2, this, &Track::play);
-}
-
-void Track::setBeat3(bool state)
-{
-    m_beats_per_measure[0][2] = state;
-    if (m_beats_per_measure[0][2] && m_is_loop && m_is_active)
-        connect(m_timer, &MicroTimer::tick3, this, &Track::play);
-    else
-        disconnect(m_timer, &MicroTimer::tick3, this, &Track::play);
-}
-
-void Track::setBeat4(bool state)
-{
-    m_beats_per_measure[0][3] = state;
-    if (m_beats_per_measure[0][3] && m_is_loop && m_is_active)
-        connect(m_timer, &MicroTimer::tick4, this, &Track::play);
-    else
-        disconnect(m_timer, &MicroTimer::tick4, this, &Track::play);
-}
-
-void Track::setBeat5(bool state)
-{
-    m_beats_per_measure[1][0] = state;
-    if (m_beats_per_measure[1][0] && m_is_loop && m_is_active)
-        connect(m_timer, &MicroTimer::tick5, this, &Track::play);
-    else
-        disconnect(m_timer, &MicroTimer::tick5, this, &Track::play);
-}
-
-void Track::setBeat6(bool state)
-{
-    m_beats_per_measure[1][1] = state;
-    if (m_beats_per_measure[1][1] && m_is_loop && m_is_active)
-        connect(m_timer, &MicroTimer::tick6, this, &Track::play);
-    else
-        disconnect(m_timer, &MicroTimer::tick6, this, &Track::play);
-}
-
-void Track::setBeat7(bool state)
-{
-    m_beats_per_measure[1][2] = state;
-    if (m_beats_per_measure[1][2] && m_is_loop && m_is_active)
-        connect(m_timer, &MicroTimer::tick7, this, &Track::play);
-    else
-        disconnect(m_timer, &MicroTimer::tick7, this, &Track::play);
-}
-
-void Track::setBeat8(bool state)
-{
-    m_beats_per_measure[1][3] = state;
-    if (m_beats_per_measure[1][3] && m_is_loop && m_is_active)
-        connect(m_timer, &MicroTimer::tick8, this, &Track::play);
-    else
-        disconnect(m_timer, &MicroTimer::tick8, this, &Track::play);
-}
-
-void Track::setBeat9(bool state)
-{
-    m_beats_per_measure[2][0] = state;
-    if (m_beats_per_measure[2][0] && m_is_loop && m_is_active)
-        connect(m_timer, &MicroTimer::tick9, this, &Track::play);
-    else
-        disconnect(m_timer, &MicroTimer::tick9, this, &Track::play);
-}
-
-void Track::setBeat10(bool state)
-{
-    m_beats_per_measure[2][1] = state;
-    if (m_beats_per_measure[2][1] && m_is_loop && m_is_active)
-        connect(m_timer, &MicroTimer::tick10, this, &Track::play);
-    else
-        disconnect(m_timer, &MicroTimer::tick10, this, &Track::play);
-}
-
-void Track::setBeat11(bool state)
-{
-    m_beats_per_measure[2][2] = state;
-    if (m_beats_per_measure[2][2] && m_is_loop && m_is_active)
-        connect(m_timer, &MicroTimer::tick11, this, &Track::play);
-    else
-        disconnect(m_timer, &MicroTimer::tick11, this, &Track::play);
-}
-
-void Track::setBeat12(bool state)
-{
-    m_beats_per_measure[2][3] = state;
-    if (m_beats_per_measure[2][3] && m_is_loop && m_is_active)
-        connect(m_timer, &MicroTimer::tick12, this, &Track::play);
-    else
-        disconnect(m_timer, &MicroTimer::tick12, this, &Track::play);
-}
-
-void Track::setBeat13(bool state)
-{
-    m_beats_per_measure[3][0] = state;
-    if (m_beats_per_measure[3][0] && m_is_loop && m_is_active)
-        connect(m_timer, &MicroTimer::tick13, this, &Track::play);
-    else
-        disconnect(m_timer, &MicroTimer::tick13, this, &Track::play);
-}
-
-void Track::setBeat14(bool state)
-{
-    m_beats_per_measure[3][1] = state;
-    if (m_beats_per_measure[3][1] && m_is_loop && m_is_active)
-        connect(m_timer, &MicroTimer::tick14, this, &Track::play);
-    else
-        disconnect(m_timer, &MicroTimer::tick14, this, &Track::play);
-}
-
-void Track::setBeat15(bool state)
-{
-    m_beats_per_measure[3][2] = state;
-    if (m_beats_per_measure[3][2] && m_is_loop && m_is_active)
-        connect(m_timer, &MicroTimer::tick15, this, &Track::play);
-    else
-        disconnect(m_timer, &MicroTimer::tick15, this, &Track::play);
-}
-
-void Track::setBeat16(bool state)
-{
-    m_beats_per_measure[3][3] = state;
-    if (m_beats_per_measure[3][3] && m_is_loop && m_is_active)
-        connect(m_timer, &MicroTimer::tick16, this, &Track::play);
-    else
-        disconnect(m_timer, &MicroTimer::tick16, this, &Track::play);
-}
 
 float Track::getVolume()
 {

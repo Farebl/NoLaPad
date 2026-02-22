@@ -6,23 +6,23 @@ MicroTimer::MicroTimer(quint32 interval_in_nanosecond, QObject* parent)
     m_interval(interval_in_nanosecond),
     m_tick_order(0),
     m_running(false),
-    m_signas{
-        [this]() { emit tick1(); },
-        [this]() { emit tick2(); },
-        [this]() { emit tick3(); },
-        [this]() { emit tick4(); },
-        [this]() { emit tick5(); },
-        [this]() { emit tick6(); },
-        [this]() { emit tick7(); },
-        [this]() { emit tick8(); },
-        [this]() { emit tick9(); },
-        [this]() { emit tick10(); },
-        [this]() { emit tick11(); },
-        [this]() { emit tick12(); },
-        [this]() { emit tick13(); },
-        [this]() { emit tick14(); },
-        [this]() { emit tick15(); },
-        [this]() { emit tick16(); }
+    m_signals{
+        &MicroTimer::tick0,
+        &MicroTimer::tick1,
+        &MicroTimer::tick2,
+        &MicroTimer::tick3,
+        &MicroTimer::tick4,
+        &MicroTimer::tick5,
+        &MicroTimer::tick6,
+        &MicroTimer::tick7,
+        &MicroTimer::tick8,
+        &MicroTimer::tick9,
+        &MicroTimer::tick10,
+        &MicroTimer::tick11,
+        &MicroTimer::tick12,
+        &MicroTimer::tick13,
+        &MicroTimer::tick14,
+        &MicroTimer::tick15,
     }
 {
     // Устанавливаем интервал 1 сек. по умолчанию, если передан некорректный
@@ -57,7 +57,7 @@ void MicroTimer::run() {
 
     while (m_running) {
         if (timer.nsecsElapsed() >= m_interval*1'000) {
-            emit m_signas[m_tick_order]();
+            emit (this->*(m_signals[m_tick_order]))();
             ++m_tick_order;
             if (m_tick_order == 16){
                 m_tick_order = 0;

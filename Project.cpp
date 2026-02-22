@@ -25,7 +25,7 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
     m_REC_button(new RECButton(this, 25)),
     m_digital_clock_face(new QLabel()),
     m_bpm(new BPM(m_timer, bpm_value, this)),
-    m_settings_window(new TrackSettings(100, false, {{1, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}, Qt::gray, Qt::darkGray, this)),
+    m_settings_window(new TrackSettings(100, false, {{{1, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}}, Qt::gray, Qt::darkGray, this)),
     m_device_manager(),
     m_mixer_source(),
     m_tracks(),
@@ -187,12 +187,12 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
                 m_timer,
                 0.80,
                 false,
-                {
+                {{
                     {1, 0, 0, 0},
                     {0, 0, 0, 0},
                     {0, 0, 0, 0},
                     {0, 0, 0, 0}
-                },
+                }},
                 QString("../../music/drums/jh-bolshoy-tom-2-f-15-sek.mp3"),
                 QColor(180, 180, 180)
                 );
@@ -307,9 +307,9 @@ void Project::openTrackSettings(Track* track)
     m_settings_window->setInnerActiveBackgroundColor(track->getInnerActiveBackgroundColor());
     m_settings_window->setOuterBackgroundColor(track->getOuterBackgroundColor());
     m_settings_window->setIsAudioSampleSelectedState((!track->getSoundPath().isEmpty()));
-    m_settings_window->setBeats(track->getBeats());
+    m_settings_window->setBeats(track->getBeatsStates());
 
-    // ДОДАТИ ЦЕЙ РЯДОК:
+
     m_settings_window->setRecordingEnabled(track->isRecordingEnabled());
 
     m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedVolume, track, &Track::setVolume));
@@ -317,26 +317,11 @@ void Project::openTrackSettings(Track* track)
     m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedInnerActiveBackgroundColor, track, &Track::setInnerActiveBackgroundColor));
     m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedOuterBackgroundColor, track, &Track::setOuterBackgroundColor));
 
-    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat1, track, &Track::setBeat1));
-    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat2, track, &Track::setBeat2));
-    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat3, track, &Track::setBeat3));
-    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat4, track, &Track::setBeat4));
-    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat5, track, &Track::setBeat5));
-    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat6, track, &Track::setBeat6));
-    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat7, track, &Track::setBeat7));
-    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat8, track, &Track::setBeat8));
-    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat9, track, &Track::setBeat9));
-    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat10, track, &Track::setBeat10));
-    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat11, track, &Track::setBeat11));
-    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat12, track, &Track::setBeat12));
-    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat13, track, &Track::setBeat13));
-    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat14, track, &Track::setBeat14));
-    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat15, track, &Track::setBeat15));
-    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeat16, track, &Track::setBeat16));
+    m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedBeatState, track, &Track::setBeatState));
 
     m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedAudioSamplePath, track, &Track::setAudioSamplePath));
 
-    // ДОДАТИ ЦЕЙ РЯДОК:
+
     m_current_connections.push_back(connect(m_settings_window, &TrackSettings::changedRecordingEnabled, track, &Track::setRecordingEnabled));
 
     m_settings_window->show();

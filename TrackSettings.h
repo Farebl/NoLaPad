@@ -30,13 +30,13 @@ class TrackSettings: public QDialog
 {
     Q_OBJECT
 public:
-    explicit TrackSettings(uint8_t volume_percent = 100, bool is_loop = false, std::vector<std::vector<bool>> beats_per_measure = {{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}}, const QColor& outer_background_color = Qt::gray, const QColor& inner_background_color = Qt::darkGray, QWidget *parent = nullptr);
+    explicit TrackSettings(uint8_t volume_percent = 100, bool is_loop = false, std::array<std::array<bool, 4>, 4> beats_per_measure = {{{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}}}, const QColor& outer_background_color = Qt::gray, const QColor& inner_background_color = Qt::darkGray, QWidget *parent = nullptr);
     void setLoopState(bool state);
     void setVolume(int volum_percent);
     void setEffectVolume(int volum_percent);
     void setInnerActiveBackgroundColor(QColor color);
     void setOuterBackgroundColor(QColor color);
-    void setBeats(std::vector<std::vector<bool>> beats_per_measure);
+    void setBeats(std::array<std::array<bool, 4>, 4> beats_per_measure);
     void setIsAudioSampleSelectedState(bool state);
     void setRecordingEnabled(bool enabled);
     bool getRecordingEnabled() const;
@@ -89,7 +89,7 @@ private:
     Potentiometer* m_effects_switcher;
 
     AudioSampleSelector* m_audio_input_connector;
-    std::vector<std::vector<bool>> m_beats_per_measure;
+    std::array<std::array<bool, 4>, 4> m_beats_per_measure;
     std::vector<QMetaObject::Connection> m_current_connections;
 
     QCheckBox* m_recording_checkbox;
@@ -97,28 +97,17 @@ private:
 protected:
     void closeEvent(QCloseEvent *event) override;
 
+private slots:
+    void changedBeat();
+
 signals:
     void changedLoopState(bool state);
     void changedVolume(int volum_percent);
     void changedInnerActiveBackgroundColor(QColor color);
     void changedOuterBackgroundColor(QColor color);
     void changedAudioSamplePath(QString path);
-    void changedBeat1(bool state);
-    void changedBeat2(bool state);
-    void changedBeat3(bool state);
-    void changedBeat4(bool state);
-    void changedBeat5(bool state);
-    void changedBeat6(bool state);
-    void changedBeat7(bool state);
-    void changedBeat8(bool state);
-    void changedBeat9(bool state);
-    void changedBeat10(bool state);
-    void changedBeat11(bool state);
-    void changedBeat12(bool state);
-    void changedBeat13(bool state);
-    void changedBeat14(bool state);
-    void changedBeat15(bool state);
-    void changedBeat16(bool state);
+    void changedBeatState(int index, bool state);
+
     void changedRecordingEnabled(bool enabled);
 };
 

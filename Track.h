@@ -17,6 +17,7 @@
 
 #include <mutex>
 #include <atomic>
+#include <array>
 
 
 enum class EffectType {
@@ -63,7 +64,18 @@ public:
     };
 
 
-    explicit Track(QWidget *parent, juce::AudioDeviceManager& device_manager, juce::MixerAudioSource& mixer, MicroTimer* timer = nullptr, float volume = 1.0, bool is_loop = false, std::vector<std::vector<bool>> beats_per_measure = {{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}}, QString sound_path = "", const QColor& outer_background_color = Qt::gray, const QColor& inner_active_background_color = Qt::red);
+    explicit Track(
+        QWidget *parent,
+        juce::AudioDeviceManager& device_manager,
+        juce::MixerAudioSource& mixer,
+        MicroTimer* timer = nullptr,
+        float volume = 1.0,
+        bool is_loop = false,
+        std::array<std::array<bool, 4>, 4> beats_per_measure = {{{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}}},
+        QString sound_path = "",
+        const QColor& outer_background_color = Qt::gray,
+        const QColor& inner_active_background_color = Qt::red
+    );
 
     ~Track();
 
@@ -82,29 +94,14 @@ public:
     void setOuterBackgroundColor(QColor color);
     QColor getOuterBackgroundColor();
     QString getSoundPath();
-    std::vector<std::vector<bool>> getBeats();
+    std::array<std::array<bool, 4>, 4> getBeatsStates();
 
     // Recording flag methods
     void setRecordingEnabled(bool enabled);
     bool isRecordingEnabled() const;
 
     // Beat methods
-    void setBeat1(bool state);
-    void setBeat2(bool state);
-    void setBeat3(bool state);
-    void setBeat4(bool state);
-    void setBeat5(bool state);
-    void setBeat6(bool state);
-    void setBeat7(bool state);
-    void setBeat8(bool state);
-    void setBeat9(bool state);
-    void setBeat10(bool state);
-    void setBeat11(bool state);
-    void setBeat12(bool state);
-    void setBeat13(bool state);
-    void setBeat14(bool state);
-    void setBeat15(bool state);
-    void setBeat16(bool state);
+    void setBeatState(quint8 index, bool state);
 
     // Effect type methods
     void setEffectType(EffectType type);
@@ -157,11 +154,10 @@ public:
     float getDistortionOutputVolume();
 
 
-
     void play();
     void stop();
 
-    // AudioSource methods
+    // AudioSource methodsector
     void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override;
     void releaseResources() override;
     void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill) override;
@@ -201,7 +197,7 @@ private:
     QColor m_outer_color;
     QColor m_inner_color;
     MicroTimer* m_timer;
-    std::vector<std::vector<bool>> m_beats_per_measure;
+    std::array<std::array<bool, 4>, 4> m_beats_per_measure;
     EffectType m_current_effect;
     ReverbSettings m_reverb_settings;
     DelaySettings m_delay_settings;
@@ -211,6 +207,9 @@ private:
     void mousePressEvent(QMouseEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
     void updateEffectParameters();
+
+public:
+    inline static quint8 m_measure_value = 16; // --> 1/16 of takt
 
 signals:
     void rightClicked(Track* _this);
