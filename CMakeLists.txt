@@ -10,6 +10,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets Multimedia)
+find_package(Qt6 REQUIRED COMPONENTS Core)
 find_package(CURL REQUIRED)
 find_library(LAME_LIBRARY NAMES mp3lame lame REQUIRED)
 if(NOT LAME_LIBRARY)
@@ -52,6 +53,7 @@ set(PROJECT_SOURCES
 
 qt_add_executable(NoLaPad
     ${PROJECT_SOURCES}
+    LCDCounter.h LCDCounter.cpp
 )
 
 target_compile_options(NoLaPad PRIVATE -g -O0)  # Додано прапори для налагодження
@@ -70,6 +72,7 @@ target_link_libraries(NoLaPad PRIVATE
     CURL::libcurl
     ${LAME_LIBRARY}
 )
+target_link_libraries(NoLaPad PRIVATE Qt6::Core)
 
 target_include_directories(NoLaPad PRIVATE
     ${CMAKE_SOURCE_DIR}/JUCE/modules

@@ -2,7 +2,7 @@
 #include "BeatCheckBox.h"
 #include "ClickableLabel.h"
 #include <QStackedWidget>
-
+#include "LCDCounter.h"
 
 TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::array<std::array<bool, 4>, 4> beats_per_measure, const QColor& outer_background_color, const QColor& inner_background_color, QWidget* parent)
     : QDialog(parent)
@@ -15,10 +15,10 @@ TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::array<st
     , m_loop_button(new LoopButton(this, false, 80))
     , m_beats_matrix_layout(new QVBoxLayout())
 
-    , m_lag_whole_takts_display(new QSpinBox())
-    , m_lag_16th_takts_display(new QSpinBox())
-    , m_duration_whole_takts_display(new QSpinBox())
-    , m_duration_16th_takts_display(new QSpinBox())
+    , m_lag_whole_takts_setter(new LCDCounter("whole takts"))
+    , m_lag_16_th_setter(new LCDCounter("1/16 of takt"))
+    , m_duration_whole_takts_setter(new LCDCounter("whole takts"))
+    , m_duration_16_th_setter(new LCDCounter("1/16 of takt"))
 
     , m_effects_switcher(new Potentiometer(this, 140))
     , m_audio_input_connector(new AudioSampleSelector(this,  "..//..//images//audio_in_plugged.png", "..//..//images//audio_in_unplugged.png"))
@@ -528,240 +528,14 @@ TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::array<st
     // -------------------- Timers
 
 
-    // ---------- lag whoole takts
-
-
-    QLabel* lag_whole_takts_title = new QLabel("whole takts");
-    lag_whole_takts_title->setStyleSheet("color: #ebebeb");
-
-    //display
-    m_lag_whole_takts_display->setRange(0, 999);
-    m_lag_whole_takts_display->setValue(0);
-    m_lag_whole_takts_display->setFont(lcd_font);
-    m_lag_whole_takts_display->setFixedSize(100, 70);
-    m_lag_whole_takts_display->setButtonSymbols(QAbstractSpinBox::NoButtons);
-    m_lag_whole_takts_display->setStyleSheet(LCD_DisplayStyle);
-
-    // lag whoole takts buttons
-    const QString lag_and_duration_buttons_style =
-        "QPushButton {"
-        "    background-color: #E0E0E0;"
-        "    color: #505050;"
-        "    border: none;"
-        "    border-radius: 2px;"
-        "    font-size: 12px;"
-        "    padding: 0px;"
-        "}"
-        "QPushButton:hover {"
-        "    background-color: #FFFFFF;"
-        "}";
-
-    QPushButton* lag_whole_takts_down_button(new QPushButton("◀", this));
-    QPushButton* lag_whole_takts_up_button(new QPushButton("▶", this));
-
-
-    lag_whole_takts_up_button->setFixedSize(25, 16);
-    lag_whole_takts_down_button->setStyleSheet(lag_and_duration_buttons_style);
-
-    lag_whole_takts_down_button->setFixedSize(25, 16);
-    lag_whole_takts_down_button->setStyleSheet(lag_and_duration_buttons_style);
-
-
-
-    connect(lag_whole_takts_up_button, &QPushButton::clicked, this, [this]() {
-        m_lag_whole_takts_display->setValue(m_lag_whole_takts_display->value() + 1);
-
-    });
-    connect(lag_whole_takts_down_button, &QPushButton::clicked, this, [this]() {
-        if (m_lag_whole_takts_display->value() > 0) {
-            m_lag_whole_takts_display->setValue(m_lag_whole_takts_display->value() - 1);
-        }
-    });
-
-    QHBoxLayout* lag_whole_takts_buttons = new QHBoxLayout();
-    lag_whole_takts_buttons->addWidget(lag_whole_takts_down_button);
-    lag_whole_takts_buttons->addWidget(lag_whole_takts_up_button);
-
-
-    QVBoxLayout* lag_whole_takts_with_title_display_and_buttons = new QVBoxLayout();
-    lag_whole_takts_with_title_display_and_buttons->setObjectName("lag_whole_takts_with_title_display_and_buttons");
-    lag_whole_takts_with_title_display_and_buttons->addWidget(lag_whole_takts_title);
-    lag_whole_takts_with_title_display_and_buttons->addWidget(m_lag_whole_takts_display);
-    lag_whole_takts_with_title_display_and_buttons->addLayout(lag_whole_takts_buttons); // buttons
-    lag_whole_takts_with_title_display_and_buttons->setAlignment(Qt::AlignHCenter);
-    lag_whole_takts_with_title_display_and_buttons->setSpacing(5);
-
-
-
-
-
-    // ---------- lag 1/16 takts
-
-    QLabel* lag_16th_takts_title = new QLabel("16th takts");
-    lag_16th_takts_title->setStyleSheet("color: #ebebeb");
-
-    //display
-    m_lag_16th_takts_display->setRange(0, 999);
-    m_lag_16th_takts_display->setValue(0);
-    m_lag_16th_takts_display->setFont(lcd_font);
-    m_lag_16th_takts_display->setFixedSize(100, 70);
-    m_lag_16th_takts_display->setButtonSymbols(QAbstractSpinBox::NoButtons);
-    m_lag_16th_takts_display->setStyleSheet(LCD_DisplayStyle);
-
-    // lag whoole takts buttons
-    QPushButton* lag_16th_takts_down_button(new QPushButton("◀", this));
-    QPushButton* lag_16th_takts_up_button(new QPushButton("▶", this));
-
-
-    lag_16th_takts_up_button->setFixedSize(25, 16);
-    lag_16th_takts_down_button->setStyleSheet(lag_and_duration_buttons_style);
-
-    lag_16th_takts_down_button->setFixedSize(25, 16);
-    lag_16th_takts_down_button->setStyleSheet(lag_and_duration_buttons_style);
-
-
-
-    connect(lag_16th_takts_up_button, &QPushButton::clicked, this, [this]() {
-        m_lag_16th_takts_display->setValue(m_lag_16th_takts_display->value() + 1);
-
-    });
-    connect(lag_16th_takts_down_button, &QPushButton::clicked, this, [this]() {
-        if (m_lag_16th_takts_display->value() > 0) {
-            m_lag_16th_takts_display->setValue(m_lag_16th_takts_display->value() - 1);
-        }
-    });
-
-    QHBoxLayout* lag_16th_takts_buttons = new QHBoxLayout();
-    lag_16th_takts_buttons->addWidget(lag_16th_takts_down_button);
-    lag_16th_takts_buttons->addWidget(lag_16th_takts_up_button);
-
-
-    QVBoxLayout* lag_16th_takts_with_title_display_and_buttons = new QVBoxLayout();
-    lag_16th_takts_with_title_display_and_buttons->setObjectName("lag_16th_takts_with_title_display_and_buttons");
-    lag_16th_takts_with_title_display_and_buttons->addWidget(lag_16th_takts_title);
-    lag_16th_takts_with_title_display_and_buttons->addWidget(m_lag_16th_takts_display);
-    lag_16th_takts_with_title_display_and_buttons->addLayout(lag_16th_takts_buttons); // buttons
-    lag_16th_takts_with_title_display_and_buttons->setAlignment(Qt::AlignHCenter);
-    lag_16th_takts_with_title_display_and_buttons->setSpacing(5);
-
-
-
-
-
-    // ---------- duration whoole takts
-
-    QLabel* duration_whole_takts_title = new QLabel("whole takts");
-    duration_whole_takts_title->setStyleSheet("color: #ebebeb");
-
-    //display
-    m_duration_whole_takts_display->setRange(0, 999);
-    m_duration_whole_takts_display->setValue(0);
-    m_duration_whole_takts_display->setFont(lcd_font);
-    m_duration_whole_takts_display->setFixedSize(100, 70);
-    m_duration_whole_takts_display->setButtonSymbols(QAbstractSpinBox::NoButtons);
-    m_duration_whole_takts_display->setStyleSheet(LCD_DisplayStyle);
-
-
-    // lag whoole takts buttons
-
-    QPushButton* duration_whole_takts_down_button(new QPushButton("◀", this));
-    QPushButton* duration_whole_takts_up_button(new QPushButton("▶", this));
-
-
-    duration_whole_takts_up_button->setFixedSize(25, 16);
-    duration_whole_takts_down_button->setStyleSheet(lag_and_duration_buttons_style);
-
-    duration_whole_takts_down_button->setFixedSize(25, 16);
-    duration_whole_takts_down_button->setStyleSheet(lag_and_duration_buttons_style);
-
-
-
-    connect(duration_whole_takts_up_button, &QPushButton::clicked, this, [this]() {
-        m_duration_whole_takts_display->setValue(m_duration_whole_takts_display->value() + 1);
-
-    });
-    connect(duration_whole_takts_down_button, &QPushButton::clicked, this, [this]() {
-        if (m_duration_whole_takts_display->value() > 0) {
-            m_duration_whole_takts_display->setValue(m_duration_whole_takts_display->value() - 1);
-        }
-    });
-
-    QHBoxLayout* duration_whole_takts_buttons = new QHBoxLayout();
-    duration_whole_takts_buttons->addWidget(duration_whole_takts_down_button);
-    duration_whole_takts_buttons->addWidget(duration_whole_takts_up_button);
-
-
-    QVBoxLayout* duration_whole_takts_with_title_display_and_buttons = new QVBoxLayout();
-    duration_whole_takts_with_title_display_and_buttons->setObjectName("duration_whole_takts_with_title_display_and_buttons");
-    duration_whole_takts_with_title_display_and_buttons->addWidget(duration_whole_takts_title);
-    duration_whole_takts_with_title_display_and_buttons->addWidget(m_duration_whole_takts_display);
-    duration_whole_takts_with_title_display_and_buttons->addLayout(duration_whole_takts_buttons); // buttons
-    duration_whole_takts_with_title_display_and_buttons->setAlignment(Qt::AlignHCenter);
-    duration_whole_takts_with_title_display_and_buttons->setSpacing(5);
-
-
-
-
-
-    // ---------- duration 1/16 takts
-
-    QLabel* duration_16th_takts_title = new QLabel("16th takts");
-    duration_16th_takts_title->setStyleSheet("color: #ebebeb");
-
-    //display
-    m_duration_16th_takts_display->setValue(0);
-    m_duration_16th_takts_display->setFont(lcd_font);
-    m_duration_16th_takts_display->setFixedSize(100, 70);
-    m_duration_16th_takts_display->setButtonSymbols(QAbstractSpinBox::NoButtons);
-    m_duration_16th_takts_display->setStyleSheet(LCD_DisplayStyle);
-
-    // duration whoole takts buttons
-    QPushButton* duration_16th_takts_down_button(new QPushButton("◀", this));
-    QPushButton* duration_16th_takts_up_button(new QPushButton("▶", this));
-
-
-    duration_16th_takts_up_button->setFixedSize(25, 16);
-    duration_16th_takts_down_button->setStyleSheet(lag_and_duration_buttons_style);
-
-    duration_16th_takts_down_button->setFixedSize(25, 16);
-    duration_16th_takts_down_button->setStyleSheet(lag_and_duration_buttons_style);
-
-
-
-    connect(duration_16th_takts_up_button, &QPushButton::clicked, this, [this]() {
-        m_duration_16th_takts_display->setValue(m_duration_16th_takts_display->value() + 1);
-
-    });
-    connect(duration_16th_takts_down_button, &QPushButton::clicked, this, [this]() {
-        if (m_duration_16th_takts_display->value() > 0) {
-            m_duration_16th_takts_display->setValue(m_duration_16th_takts_display->value() - 1);
-        }
-    });
-
-    QHBoxLayout* duration_16th_takts_buttons = new QHBoxLayout();
-    duration_16th_takts_buttons->addWidget(duration_16th_takts_down_button);
-    duration_16th_takts_buttons->addWidget(duration_16th_takts_up_button);
-
-
-    QVBoxLayout* duration_16th_takts_with_title_display_and_buttons = new QVBoxLayout();
-    duration_16th_takts_with_title_display_and_buttons->setObjectName("duration_16th_takts_with_title_display_and_buttons");
-    duration_16th_takts_with_title_display_and_buttons->addWidget(duration_16th_takts_title);
-    duration_16th_takts_with_title_display_and_buttons->addWidget(m_duration_16th_takts_display);
-    duration_16th_takts_with_title_display_and_buttons->addLayout(duration_16th_takts_buttons); // buttons
-    duration_16th_takts_with_title_display_and_buttons->setAlignment(Qt::AlignHCenter);
-    duration_16th_takts_with_title_display_and_buttons->setSpacing(5);
-
-
-
     QHBoxLayout* lag_section_layout = new QHBoxLayout();
-    lag_section_layout->addLayout(lag_whole_takts_with_title_display_and_buttons);
-    lag_section_layout->addLayout(lag_16th_takts_with_title_display_and_buttons);
+    lag_section_layout->addWidget(m_lag_whole_takts_setter);
+    lag_section_layout->addWidget(m_lag_16_th_setter);
 
 
     QHBoxLayout* duration_section_layout = new QHBoxLayout();
-    duration_section_layout->addLayout(duration_whole_takts_with_title_display_and_buttons);
-    duration_section_layout->addLayout(duration_16th_takts_with_title_display_and_buttons);
-
+    duration_section_layout->addWidget(m_duration_whole_takts_setter);
+    duration_section_layout->addWidget(m_duration_16_th_setter);
 
 
 

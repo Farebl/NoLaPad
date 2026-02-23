@@ -24,6 +24,8 @@
 
 #include "AudioSampleSelector.h"
 
+class LCDCounter;
+
 enum class EffectType; // in Track.h
 
 class TrackSettings: public QDialog
@@ -85,6 +87,11 @@ private:
     QSpinBox* m_lag_16th_takts_display;
     QSpinBox* m_duration_whole_takts_display;
     QSpinBox* m_duration_16th_takts_display;
+
+    LCDCounter* m_lag_whole_takts_setter;
+    LCDCounter* m_lag_16_th_setter;
+    LCDCounter* m_duration_whole_takts_setter;
+    LCDCounter* m_duration_16_th_setter;
 
     Potentiometer* m_effects_switcher;
 
