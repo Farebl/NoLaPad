@@ -4,15 +4,26 @@
 #include <QStackedWidget>
 #include "LCDCounter.h"
 
-TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::array<std::array<bool, 4>, 4> beats_per_measure, const QColor& outer_background_color, const QColor& inner_background_color, QWidget* parent)
+TrackSettings* TrackSettings::m_instance = nullptr;
+
+TrackSettings* TrackSettings::getInstance(quint8 volume_percent, bool is_loop, std::array<std::array<bool, 4>, 4> beats_per_measure, const QColor& outer_background_color, const QColor& inner_background_color, QWidget* parent)
+{
+    if (m_instance == nullptr)
+        m_instance = new TrackSettings(volume_percent, is_loop, beats_per_measure, outer_background_color, inner_background_color, parent);
+
+    return m_instance;
+}
+
+
+TrackSettings::TrackSettings(quint8 volume_percent, bool is_loop, const std::array<std::array<bool, 4>, 4>& beats_per_measure, const QColor& outer_background_color, const QColor& inner_background_color, QWidget* parent)
     : QDialog(parent)
     , m_volume_display (new QSpinBox())
     , m_effect_volume_display(new QSpinBox())
-    , m_volume_fader(new Fader(this, "..//..//images//fader_track.png", "..//..//images//fader_handle.png", "..//..//images//fader_measures.png"))
-    , m_effect_volume_fader(new Fader(this, "..//..//images//fader_track.png", "..//..//images//fader_handle.png", "..//..//images//fader_measures.png"))
+    , m_volume_fader(new Fader("..//..//images//fader_track.png", "..//..//images//fader_handle.png", "..//..//images//fader_measures.png", this))
+    , m_effect_volume_fader(new Fader("..//..//images//fader_track.png", "..//..//images//fader_handle.png", "..//..//images//fader_measures.png", this))
 
-    , m_select_track_colors_button(new TrackColorButtons(this, 80, Qt::gray, Qt::darkGray))
-    , m_loop_button(new LoopButton(this, false, 80))
+    , m_select_track_colors_button(TrackColorButtons::getInstance(80, Qt::gray, Qt::darkGray, this))
+    , m_loop_button(new RedButton(false, 80, this))
     , m_beats_matrix_layout(new QVBoxLayout())
 
     , m_lag_whole_takts_setter(new LCDCounter("whole takts"))
@@ -20,8 +31,8 @@ TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::array<st
     , m_duration_whole_takts_setter(new LCDCounter("whole takts"))
     , m_duration_16_th_setter(new LCDCounter("1/16 of takt"))
 
-    , m_effects_switcher(new Potentiometer(this, 140))
-    , m_audio_input_connector(new AudioSampleSelector(this,  "..//..//images//audio_in_plugged.png", "..//..//images//audio_in_unplugged.png"))
+    , m_effects_switcher(EffectsSwitcher::getInstance(140, this))
+    , m_audio_input_connector(AudioSampleSelector::getInstance("..//..//images//audio_in_plugged.png", "..//..//images//audio_in_unplugged.png", this))
     , m_beats_per_measure(beats_per_measure)
 {
     setWindowTitle("Track settings");
@@ -163,7 +174,7 @@ TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::array<st
     select_track_colors_layout->setAlignment(Qt::AlignCenter);
     select_track_colors_layout->setSpacing(5);
 
-    connect(m_loop_button, &LoopButton::changedState, this, &TrackSettings::changedLoopState);
+    connect(m_loop_button, &RedButton::changedState, this, &TrackSettings::changedLoopState);
 
 
 
@@ -403,37 +414,37 @@ TrackSettings::TrackSettings(uint8_t volume_percent, bool is_loop, std::array<st
 
     m_effects_switcher->setValue(0);
 
-    ClickableLabel* effect_title_1 = new ClickableLabel(this, "1 Reverb ");
-    ClickableLabel* effect_title_2 = new ClickableLabel(this, "2 Chorus ");
-    ClickableLabel* effect_title_3 = new ClickableLabel(this, "3 Delay ");
-    ClickableLabel* effect_title_4 = new ClickableLabel(this, "4 Distortion");
+    ClickableLabel* effect_title_1 = new ClickableLabel("1 Reverb", this);
+    ClickableLabel* effect_title_2 = new ClickableLabel("2 Chorus", this);
+    ClickableLabel* effect_title_3 = new ClickableLabel("3 Delay", this);
+    ClickableLabel* effect_title_4 = new ClickableLabel("4 Distortion", this);
     effect_title_1->setStyleSheet("color: #ebebeb");
     effect_title_2->setStyleSheet("color: #ebebeb");
     effect_title_3->setStyleSheet("color: #ebebeb");
     effect_title_4->setStyleSheet("color: #ebebeb");
 
-    QWidget::connect(m_effects_switcher, &Potentiometer::settedFirstQuarter, this, [=](){
+    QWidget::connect(m_effects_switcher, &EffectsSwitcher::settedFirstQuarter, this, [=](){
         effect_title_1->setStyleSheet("color: #ffef40");
         effect_title_2->setStyleSheet("color: #ebebeb");
         effect_title_3->setStyleSheet("color: #ebebeb");
         effect_title_4->setStyleSheet("color: #ebebeb");
     });
 
-    QWidget::connect(m_effects_switcher, &Potentiometer::settedSecondQuarter, this, [=](){
+    QWidget::connect(m_effects_switcher, &EffectsSwitcher::settedSecondQuarter, this, [=](){
         effect_title_1->setStyleSheet("color: #ebebeb");
         effect_title_2->setStyleSheet("color: #ffef40");
         effect_title_3->setStyleSheet("color: #ebebeb");
         effect_title_4->setStyleSheet("color: #ebebeb");
     });
 
-    QWidget::connect(m_effects_switcher, &Potentiometer::settedThirdQuarter, this, [=](){
+    QWidget::connect(m_effects_switcher, &EffectsSwitcher::settedThirdQuarter, this, [=](){
         effect_title_1->setStyleSheet("color: #ebebeb");
         effect_title_2->setStyleSheet("color: #ebebeb");
         effect_title_3->setStyleSheet("color: #ffef40");
         effect_title_4->setStyleSheet("color: #ebebeb");
     });
 
-    QWidget::connect(m_effects_switcher, &Potentiometer::settedFourthQuarter, this, [=](){
+    QWidget::connect(m_effects_switcher, &EffectsSwitcher::settedFourthQuarter, this, [=](){
         effect_title_1->setStyleSheet("color: #ebebeb");
         effect_title_2->setStyleSheet("color: #ebebeb");
         effect_title_3->setStyleSheet("color: #ebebeb");
@@ -664,3 +675,6 @@ void TrackSettings::changedBeat(){
     auto state = qobject_cast<QCheckBox*>(sender())->isChecked();
     emit changedBeatState(index, state);
 }
+
+
+

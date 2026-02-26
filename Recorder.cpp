@@ -1,11 +1,22 @@
-#include "REC.h"
+#include "Recorder.h"
 #include <QDateTime>
 #include <QDebug>
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
 
-REC::REC(QWidget *parent, uint width, uint height)
+Recorder* Recorder::m_instance = nullptr;
+
+Recorder* Recorder::getInstance(uint width, uint height, QWidget *parent)
+{
+    if (m_instance == nullptr)
+        m_instance = new Recorder(width, height, parent);
+
+    return m_instance;
+}
+
+
+Recorder::Recorder(uint width, uint height, QWidget *parent)
     : QWidget(parent),
     m_current_output_file("")
 {
@@ -16,15 +27,16 @@ REC::REC(QWidget *parent, uint width, uint height)
     m_format_manager.registerBasicFormats();
 }
 
-REC::~REC()
+
+Recorder::~Recorder()
 {
     stopRecording();
 }
 
 
-void REC::startRecording()
+void Recorder::startRecording()
 {
-    m_current_output_file = QCoreApplication::applicationDirPath() + "/recording_" +
+    m_current_output_file = QCoreApplication::applicationDirPath() + "/Recorderording_" +
                             QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss") + ".wav";
 
     juce::File outputFile(m_current_output_file.toStdString());
@@ -57,21 +69,26 @@ void REC::startRecording()
     }
 
     m_file_stream.release(); // передаємо власність writer'у
-    emit recordingStarted();
+    emit RecordingStarted();
 }
 
-void REC::stopRecording()
+
+void Recorder::stopRecording()
 {
     if (m_writer) {
         m_writer.reset();
         m_current_output_file.clear();
-        emit recordingStopped();
+        emit RecordingStopped();
     }
 }
 
-void REC::writeAudioData(const juce::AudioBuffer<float>& buffer)
+
+void Recorder::writeAudioData(const juce::AudioBuffer<float>& buffer)
 {
     if (m_writer) {
         m_writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
     }
 }
+
+
+bool Recorder::isRecording() const { return m_writer != nullptr; }

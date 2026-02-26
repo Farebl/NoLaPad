@@ -36,19 +36,19 @@ set(PROJECT_SOURCES
     MicroTimer.h MicroTimer.cpp
     Metronome.h Metronome.cpp
     MetronomeSettings.h MetronomeSettings.cpp
-    REC.h REC.cpp
-    RECButton.h RECButton.cpp
-    BPM.h BPM.cpp
+    Recorder.h Recorder.cpp
+    RecorderButton.h RecorderButton.cpp
+    BPMCounter.h BPMCounter.cpp
     BeatCheckBox.h BeatCheckBox.cpp
     Fader.h Fader.cpp
-    Potentiometer.h Potentiometer.cpp
-    LoopButton.h LoopButton.cpp
+    EffectsSwitcher.h EffectsSwitcher.cpp
+    RedButton.h RedButton.cpp
     TrackColorButtons.h TrackColorButtons.cpp
     ClickableLabel.h ClickableLabel.cpp
     AudioSampleSelector.h AudioSampleSelector.cpp
     TransportCallback.h TransportCallback.cpp
     DigitalClockFace.h DigitalClockFace.cpp
-    TrackRECButton.h TrackRECButton.cpp
+
 )
 
 qt_add_executable(NoLaPad

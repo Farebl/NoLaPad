@@ -32,7 +32,8 @@ enum class EffectType {
 class Track : public QPushButton, public juce::AudioSource
 {
     Q_OBJECT
-public:
+
+private:
     struct ReverbSettings {
         float roomSize = 0.5f;      // Розмір кімнати (характер звуку) [0.0 - 1.0]
         float damping = 0.5f;       // Заглушення (характер звуку) [0.0 - 1.0]
@@ -63,9 +64,46 @@ public:
         float outputVolume = 0.5f;  // Загальна гучність після ефекту [0.0 - 1.0]
     };
 
+    std::atomic<bool> m_is_ready{false};
+    std::atomic<bool> m_is_being_destroyed{false};
+    std::mutex m_audio_mutex;  // Для захисту доступу до аудіо ресурсів
+
+    juce::AudioDeviceManager& m_device_manager;
+    juce::MixerAudioSource& m_mixer_source;
+    juce::AudioFormatManager m_format_manager;
+    juce::AudioTransportSource m_transport_source;
+    std::unique_ptr<juce::AudioFormatReaderSource> m_reader_source;
+    juce::dsp::ProcessorChain<
+        juce::dsp::Reverb,
+        juce::dsp::Phaser<float>,
+        juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear>,
+        juce::dsp::LadderFilter<float>> m_effect_chain;
+    std::unique_ptr<juce::AudioBuffer<float>> m_effect_buffer;
+
+    double m_sample_rate;
+
+    bool m_is_active;
+    bool m_is_loop;
+    bool m_is_recording_enabled;  // Новий флаг для запису
+    QString m_audio_sample_path;
+    QString m_style;
+    QColor m_outer_color;
+    QColor m_inner_color;
+    MicroTimer* m_timer;
+    std::array<std::array<bool, 4>, 4> m_beats_per_measure;
+    EffectType m_current_effect;
+    ReverbSettings m_reverb_settings;
+    DelaySettings m_delay_settings;
+    ChorusSettings m_chorus_settings;
+    DistortionSettings m_distortion_settings;
+
+    void mousePressEvent(QMouseEvent *event) override;
+    void paintEvent(QPaintEvent *event) override;
+    void updateEffectParameters();
+
+public:
 
     explicit Track(
-        QWidget *parent,
         juce::AudioDeviceManager& device_manager,
         juce::MixerAudioSource& mixer,
         MicroTimer* timer = nullptr,
@@ -74,7 +112,8 @@ public:
         std::array<std::array<bool, 4>, 4> beats_per_measure = {{{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}}},
         QString sound_path = "",
         const QColor& outer_background_color = Qt::gray,
-        const QColor& inner_active_background_color = Qt::red
+        const QColor& inner_active_background_color = Qt::red,
+        QWidget *parent = nullptr
     );
 
     ~Track();
@@ -167,48 +206,10 @@ public:
         juce::dsp::Reverb,
         juce::dsp::Phaser<float>,
         juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear>,
-        juce::dsp::LadderFilter<float>>& getEffectChain() { return m_effect_chain; }
+        juce::dsp::LadderFilter<float>
+    >& getEffectChain() { return m_effect_chain; }
 
 
-private:
-    std::atomic<bool> m_is_ready{false};
-    std::atomic<bool> m_is_being_destroyed{false};
-    std::mutex m_audio_mutex;  // Для захисту доступу до аудіо ресурсів
-
-    juce::AudioDeviceManager& m_device_manager;
-    juce::MixerAudioSource& m_mixer_source;
-    juce::AudioFormatManager m_format_manager;
-    juce::AudioTransportSource m_transport_source;
-    std::unique_ptr<juce::AudioFormatReaderSource> m_reader_source;
-    juce::dsp::ProcessorChain<
-        juce::dsp::Reverb,
-        juce::dsp::Phaser<float>,
-        juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear>,
-        juce::dsp::LadderFilter<float>> m_effect_chain;
-    std::unique_ptr<juce::AudioBuffer<float>> m_effect_buffer;
-
-    double m_sample_rate;
-
-    bool m_is_active;
-    bool m_is_loop;
-    bool m_is_recording_enabled;  // Новий флаг для запису
-    QString m_audio_sample_path;
-    QString m_style;
-    QColor m_outer_color;
-    QColor m_inner_color;
-    MicroTimer* m_timer;
-    std::array<std::array<bool, 4>, 4> m_beats_per_measure;
-    EffectType m_current_effect;
-    ReverbSettings m_reverb_settings;
-    DelaySettings m_delay_settings;
-    ChorusSettings m_chorus_settings;
-    DistortionSettings m_distortion_settings;
-
-    void mousePressEvent(QMouseEvent *event) override;
-    void paintEvent(QPaintEvent *event) override;
-    void updateEffectParameters();
-
-public:
     inline static quint8 m_measure_value = 16; // --> 1/16 of takt
 
 signals:

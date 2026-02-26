@@ -7,42 +7,54 @@
 #include <QLCDNumber>
 #include <QFontDatabase>
 
-Project* Project::m_self_ptr = nullptr;
+Project* Project::m_instance = nullptr;
+
+Project* Project::getInstance(int row, int column, int bpm_value, QWidget *parent){
+    if (m_instance == nullptr)
+        m_instance = new Project(row, column, bpm_value, parent);
+
+    return m_instance;
+}
+
 
 Project::Project(int row, int column, int bpm_value, QWidget *parent)
-    : QMainWindow(parent),
-    m_row(row),
-    m_column(column),
-    m_central_widget(new QWidget(this)),
-    m_title_bar(new QWidget(this)),
-    m_dragging(false),
-    m_resizing(false),
-    m_table_widget(new QTableWidget(row, column, this)),
-    m_timer(new MicroTimer(static_cast<quint32>(60.0/(bpm_value*4)*1'000'000), this)),
-    m_rec(new REC(m_title_bar, 25, 25)),
-    m_timer_for_REC(new QTimer(this)),
-    m_elapsed_timer_for_REC(new QElapsedTimer()),
-    m_REC_button(new RECButton(this, 25)),
-    m_digital_clock_face(new QLabel()),
-    m_bpm(new BPM(m_timer, bpm_value, this)),
-    m_settings_window(new TrackSettings(100, false, {{{1, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}}, Qt::gray, Qt::darkGray, this)),
-    m_device_manager(),
-    m_mixer_source(),
-    m_tracks(),
-    m_callback(m_mixer_source, m_rec, m_tracks)
+    : QMainWindow(parent)
+    , m_recorder(Recorder::getInstance(25, 25, this))
+    , m_device_manager()
+    , m_mixer_source()
+    , m_tracks()
+    , m_callback(TransportCallback::getInstance(m_mixer_source, m_recorder.get(), m_tracks))
+    , m_row(row)
+    , m_column(column)
+    , m_central_widget(new QWidget(this))
+    , m_title_bar(new QWidget(this))
+    , m_dragging(false)
+    , m_resizing(false)
+    , m_table_widget(new QTableWidget(row, column, this))
+    , m_timer(MicroTimer::getInstance(static_cast<quint32>(60.0/(bpm_value*4)*1'000'000)))
+    , m_timer_for_REC(new QTimer(this))
+    , m_elapsed_timer_for_REC(new QElapsedTimer())
+    , m_recording_button(new RedButton(false, 25, this))
+    , m_digital_clock_face(new QLabel())
+    , m_metronome(Metronome::getInstance(
+        m_device_manager, m_mixer_source,
+        m_timer.get(),
+        1.0,
+        "../../music/metronome/strong_measure.wav",
+        "../../music/metronome/weak_measure.wav",
+        {true, false, false, false},
+        this)
+    )
+    , m_bpm_counter(BPMCounter::getInstance(m_timer.get(), bpm_value, this))
+    , m_settings_window(TrackSettings::getInstance(100, false, {{{1, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}}, Qt::gray, Qt::darkGray, this))
 {
+
     setWindowFlags(Qt::FramelessWindowHint | Qt::Window);
     setAttribute(Qt::WA_TranslucentBackground);
     resize(800, 800);
     setMinimumSize(400, 300);
     m_current_connections.reserve(22);
 
-
-    auto result = m_device_manager.initialise(0, 2, nullptr, true);
-    if (result.isNotEmpty())
-    {
-        std::cerr << "Audio device initialization failed: " << result.toStdString() << std::endl;
-    }
 
     QVBoxLayout* main_layout = new QVBoxLayout;
     main_layout->setContentsMargins(0, 0, 0, 0);
@@ -74,32 +86,32 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
 
 
 
-    m_REC_button->setCheckable(true);
-    m_REC_button->setChecked(false);
+    m_recording_button->setCheckable(true);
+    m_recording_button->setChecked(false);
 
     m_digital_clock_face->setStyleSheet(QString("font-size: %1px; height: %1px").arg(25));
     m_digital_clock_face->setText("00:00:00:0");
     m_digital_clock_face->setAlignment(Qt::AlignCenter);
 
     QHBoxLayout* rec_layout = new QHBoxLayout();
-    rec_layout->addWidget(m_REC_button);
+    rec_layout->addWidget(m_recording_button);
     rec_layout->addWidget(m_digital_clock_face);
 
 
-    connect(m_REC_button, &RECButton::clicked, this, [&]() {
+    connect(m_recording_button, &RecorderButton::clicked, this, [&]() {
         if (m_timer_for_REC->isActive()) {
             m_timer_for_REC->stop();
             m_elapsed_timer_for_REC->invalidate();
             m_digital_clock_face->setText("00:00:00:0");
-            m_REC_button->setChecked(false);
-            m_REC_button->update();
-            m_rec->stopRecording();
+            m_recording_button->setChecked(false);
+            m_recording_button->update();
+            m_recorder->stopRecording();
         } else {
-            m_REC_button->setChecked(true);
-            m_REC_button->update();
+            m_recording_button->setChecked(true);
+            m_recording_button->update();
             m_timer_for_REC->start();
             m_elapsed_timer_for_REC->start();
-            m_rec->startRecording();
+            m_recorder->startRecording();
         }
     });
 
@@ -113,46 +125,24 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
             m_timer->stop();
             m_elapsed_timer_for_REC->invalidate();
             m_digital_clock_face->setText("00:00:00:0");
-            m_REC_button->setChecked(false);
-            m_rec->stopRecording();
+            m_recording_button->setChecked(false);
+            m_recorder->stopRecording();
         }
     });
 
 
 
-    QVBoxLayout* bpm_buttons = new QVBoxLayout();
-    bpm_buttons->addWidget(m_bpm->getUpButton());
-    bpm_buttons->addWidget(m_bpm->getDownButton());
-    bpm_buttons->setSpacing(1);
 
-    m_device_manager.addAudioCallback(&m_callback);
+    m_device_manager.addAudioCallback(m_callback);
 
-    Metronome* metronome = new Metronome(
-        m_title_bar,
-        m_device_manager, m_mixer_source,
-        m_timer,
-        1.0,
-        "../../music/metronome/strong_measure.wav",
-        "../../music/metronome/weak_measure.wav",
-        {true, false, false, false}
-        );
-    metronome->setFixedSize(30, 25);
-
-
-    QHBoxLayout* bpm_layout = new QHBoxLayout();
-    bpm_layout->addLayout(bpm_buttons);
-    bpm_layout->addWidget(m_bpm->getBpmDisplay());
-    bpm_layout->addWidget(metronome);
-    bpm_layout->setSpacing(5);
-    bpm_layout->setContentsMargins(0, 0, 0, 0);
-
+    m_metronome->setFixedSize(30, 25);
 
 
     QHBoxLayout* title_layout = new QHBoxLayout(m_title_bar);
     title_layout->setContentsMargins(10, 0, 10, 0);
     title_layout->addLayout(rec_layout);
     title_layout->addStretch();
-    title_layout->addLayout(bpm_layout);
+    title_layout->addWidget(m_bpm_counter);
     title_layout->addStretch();
     title_layout->addWidget(minimize_button);
     title_layout->addWidget(maximize_button);
@@ -181,10 +171,9 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
     for (int r = 0; r < m_row; ++r) {
         for (int c = 0; c < m_column; ++c) {
             Track* track = new Track(
-                m_table_widget,
                 m_device_manager,
                 m_mixer_source,
-                m_timer,
+                m_timer.get(),
                 0.80,
                 false,
                 {{
@@ -194,7 +183,9 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
                     {0, 0, 0, 0}
                 }},
                 QString("../../music/drums/jh-bolshoy-tom-2-f-15-sek.mp3"),
-                QColor(180, 180, 180)
+                Qt::gray,
+                Qt::red,
+                m_table_widget
                 );
             m_tracks[r * m_column + c] = track;
             m_table_widget->setCellWidget(r, c, track);
@@ -234,9 +225,13 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
 
     // Ініціалізація AudioDeviceManager (залишити тільки один раз)
     m_device_manager.initialise(0, 2, nullptr, true);
-    m_device_manager.addAudioCallback(&m_callback);
+    m_device_manager.addAudioCallback(m_callback);
 
-    m_timer->start();
+
+    QThread* timer_thread = new QThread(this);
+    m_timer->moveToThread(timer_thread);
+    connect(timer_thread, &QThread::started, m_timer.get(), &MicroTimer::start);
+    timer_thread->start();
 
 
     m_table_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
@@ -251,13 +246,13 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
     main_layout->addWidget(m_title_bar);
     main_layout->addWidget(m_central_widget);
 
-    // Контейнер для всего окна
+
     QWidget* container = new QWidget(this);
     container->setLayout(main_layout);
     setCentralWidget(container);
 
-    // Прибираємо фокус з m_bpm_display
-    m_bpm->getBpmDisplay()->clearFocus();
+    // Прибираємо фокус з m_bpm_counter_display
+    m_bpm_counter->clearFocus();
 
     QGraphicsDropShadowEffect* shadow = new QGraphicsDropShadowEffect(this);
     shadow->setBlurRadius(20);
@@ -268,31 +263,20 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
 
 Project::~Project()
 {
-    // 1. СПОЧАТКУ зупиняємо аудіо
-    m_device_manager.removeAudioCallback(&m_callback);
+    m_timer->stop();
+
+    m_device_manager.removeAudioCallback(m_callback);
     m_device_manager.closeAudioDevice();
 
-    // 2. Чекаємо щоб переконатися що callback завершився
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
-    // 3. ТЕПЕР безпечно видаляємо треки
     for (Track* track : m_tracks) {
         if (track != nullptr) {
             delete track;
         }
     }
     m_tracks.clear();
-
-    // 4. Решта cleanup
-    delete m_timer;
-    delete m_rec;
-    delete m_timer_for_REC;
-    delete m_elapsed_timer_for_REC;
-    delete m_REC_button;
-    delete m_digital_clock_face;
-    delete m_bpm;
-    //delete m_metronome;
-    delete m_settings_window;
+    delete m_callback;
 }
 
 void Project::openTrackSettings(Track* track)
@@ -378,9 +362,3 @@ void Project::mouseReleaseEvent(QMouseEvent* event)
 
 
 
-Project* Project::getInstance(int row, int column, int bpm_value, QWidget *parent){
-	if (m_self_ptr == nullptr)
-		m_self_ptr = new Project(row, column, bpm_value, parent);
-		
-	return m_self_ptr;
-}

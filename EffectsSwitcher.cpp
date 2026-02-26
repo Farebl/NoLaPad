@@ -1,7 +1,17 @@
-#include "Potentiometer.h"
+#include "EffectsSwitcher.h"
 #include <QtMath>
 
-Potentiometer::Potentiometer(QWidget *parent, uint radius)
+
+EffectsSwitcher* EffectsSwitcher::m_instance = nullptr;
+
+EffectsSwitcher* EffectsSwitcher::getInstance(uint radius, QWidget *parent){
+    if (m_instance == nullptr)
+        m_instance = new EffectsSwitcher(radius, parent);
+
+    return m_instance;
+}
+
+EffectsSwitcher::EffectsSwitcher(uint radius, QWidget *parent)
     : QDial(parent), m_dragging(false)
 {
     setRange(0, 100); // Діапазон від 0 до 100
@@ -10,7 +20,7 @@ Potentiometer::Potentiometer(QWidget *parent, uint radius)
     setFixedSize(radius,radius);
 }
 
-void Potentiometer::paintEvent(QPaintEvent *event)
+void EffectsSwitcher::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
@@ -70,7 +80,7 @@ void Potentiometer::paintEvent(QPaintEvent *event)
     painter.restore();
 }
 
-void Potentiometer::mousePressEvent(QMouseEvent *event)
+void EffectsSwitcher::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
         m_dragging = true;
@@ -108,7 +118,7 @@ void Potentiometer::mousePressEvent(QMouseEvent *event)
     QDial::mousePressEvent(event);
 }
 
-void Potentiometer::mouseMoveEvent(QMouseEvent *event)
+void EffectsSwitcher::mouseMoveEvent(QMouseEvent *event)
 {
     if (m_dragging) {
         // Обчислюємо кут до курсора
@@ -143,7 +153,7 @@ void Potentiometer::mouseMoveEvent(QMouseEvent *event)
     QDial::mouseMoveEvent(event);
 }
 
-void Potentiometer::mouseReleaseEvent(QMouseEvent *event)
+void EffectsSwitcher::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
         int new_value = value();
@@ -162,7 +172,7 @@ void Potentiometer::mouseReleaseEvent(QMouseEvent *event)
     event->accept();
 }
 
-bool Potentiometer::event(QEvent *event)
+bool EffectsSwitcher::event(QEvent *event)
 {
     if (event->type() == QEvent::HoverMove
         || event->type() == QEvent::HoverEnter

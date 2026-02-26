@@ -1,15 +1,27 @@
 #include "Metronome.h"
 
+Metronome* Metronome::m_instance = nullptr;
 
-Metronome::Metronome(QWidget *parent, juce::AudioDeviceManager& deviceManager, juce::MixerAudioSource& mixer, MicroTimer* timer, float volume, QString strong_measure_sound_path, QString weak_measure_sound_path, const std::vector<bool>& strong_and_weak_measures)
+Metronome* Metronome::getInstance(juce::AudioDeviceManager& deviceManager, juce::MixerAudioSource& mixer, MicroTimer* timer, float volume, QString strong_measure_sound_path, QString weak_measure_sound_path, const std::vector<bool>& strong_and_weak_measures, QWidget* parent)
+{
+    if (m_instance == nullptr)
+        m_instance = new Metronome(deviceManager, mixer, timer,  volume, strong_measure_sound_path, weak_measure_sound_path, strong_and_weak_measures, parent);
+
+    return m_instance;
+}
+
+
+Metronome::Metronome(juce::AudioDeviceManager& deviceManager, juce::MixerAudioSource& mixer, MicroTimer* timer, float volume, QString strong_measure_sound_path, QString weak_measure_sound_path, const std::vector<bool>& strong_and_weak_measures, QWidget *parent)
     : QPushButton(parent),
     m_device_manager(deviceManager),
     m_mixer_source(mixer),
     m_transport_source_strong_measure(juce::AudioTransportSource()),
     m_transport_source_weak_measure(juce::AudioTransportSource()),
     m_timer(timer),
-    m_settings_window(new MetronomeSettings(this))
+    m_settings_window(nullptr)
 {
+    m_settings_window = MetronomeSettings::getInstance(100, this);
+
     if (strong_and_weak_measures.size() != 4) {
         m_strong_and_weak_measures_play_call_methods[0] = &Metronome::play_strong_measure;
         m_strong_and_weak_measures_play_call_methods[1] = &Metronome::play_weak_measure;
@@ -191,5 +203,7 @@ void Metronome::setVolume(float volume){
     m_transport_source_strong_measure.setGain(volume);
     m_transport_source_weak_measure.setGain(volume);
 }
+
+
 
 

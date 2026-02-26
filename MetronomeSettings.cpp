@@ -1,6 +1,18 @@
 #include "MetronomeSettings.h"
 
-MetronomeSettings::MetronomeSettings(QWidget *parent, quint8 volume_percent)
+
+MetronomeSettings* MetronomeSettings::m_instance = nullptr;
+
+MetronomeSettings* MetronomeSettings::getInstance(quint8 volume_percent, QWidget *parent)
+{
+    if (m_instance == nullptr)
+        m_instance = new MetronomeSettings(volume_percent, parent);
+
+    return m_instance;
+}
+
+
+MetronomeSettings::MetronomeSettings(quint8 volume_percent, QWidget *parent)
     : QDialog(parent),
     m_volume_slider(new QSlider(this)),
     m_volume_display (new QSpinBox(this))

@@ -1,7 +1,19 @@
 #include "TransportCallback.h"
 #include "Track.h"
 
-TransportCallback::TransportCallback(juce::MixerAudioSource& mixer, REC* rec, std::vector<Track*>& tracks)
+
+TransportCallback* TransportCallback::m_instance = nullptr;
+
+TransportCallback* TransportCallback::getInstance(juce::MixerAudioSource& mixer, Recorder* rec, std::vector<Track*>& tracks){
+    if (m_instance == nullptr)
+        m_instance = new TransportCallback(mixer, rec, tracks);
+
+    return m_instance;
+}
+
+
+
+TransportCallback::TransportCallback(juce::MixerAudioSource& mixer, Recorder* rec, std::vector<Track*>& tracks)
     : mixerSource(mixer), m_rec(rec), m_tracks(tracks) {}
 
 void TransportCallback::audioDeviceIOCallbackWithContext(const float* const* input, int numInputChannels,
@@ -75,7 +87,7 @@ void TransportCallback::audioDeviceIOCallbackWithContext(const float* const* inp
         }
     }
 
-    // Записуємо буфер, якщо REC активний
+    // Записуємо буфер, якщо Recorder активний
     if (m_rec && m_rec->isRecording())
     {
         try

@@ -1,6 +1,6 @@
 #include "ClickableLabel.h"
 
-ClickableLabel::ClickableLabel(QWidget *parent, QString text)
+ClickableLabel::ClickableLabel(QString text, QWidget *parent)
     : QLabel(parent)
 {
     setText(text);

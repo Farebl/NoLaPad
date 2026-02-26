@@ -5,7 +5,6 @@
 #define BORDER_RADIUS_COEF 10
 
 Track::Track(
-    QWidget *parent,
     juce::AudioDeviceManager& deviceManager,
     juce::MixerAudioSource& mixer,
     MicroTimer* timer,
@@ -14,25 +13,26 @@ Track::Track(
     std::array<std::array<bool, 4>, 4> beats_per_measure,
     QString sound_path,
     const QColor& outer_background_color,
-    const QColor& inner_active_background_color
+    const QColor& inner_active_background_color,
+    QWidget *parent
     ):
-    QPushButton(parent),
-    juce::AudioSource(),
-    m_device_manager(deviceManager),
-    m_mixer_source(mixer),
-    m_transport_source(),
-    m_is_loop(is_loop),
-    m_audio_sample_path(sound_path),
-    m_is_active(false),
-    m_is_recording_enabled(false),  // Ініціалізація флагу запису
-    m_style("background-color: %1; color: %2; border-radius: %3px; margin: 2px;"),
-    m_outer_color(outer_background_color),
-    m_inner_color(inner_active_background_color),
-    m_timer(timer),
-    m_beats_per_measure(beats_per_measure),
-    m_current_effect(EffectType::None),
-    m_delay_settings({0.3f, 0.5f, 0.5f}),
-    m_sample_rate(44100.0)
+      QPushButton(parent)
+    , juce::AudioSource()
+    , m_device_manager(deviceManager)
+    , m_mixer_source(mixer)
+    , m_transport_source()
+    , m_is_loop(is_loop)
+    , m_audio_sample_path(sound_path)
+    , m_is_active(false)
+    , m_is_recording_enabled(false)
+    , m_style("background-color: %1; color: %2; border-radius: %3px; margin: 2px;")
+    , m_outer_color(outer_background_color)
+    , m_inner_color(inner_active_background_color)
+    , m_timer(timer)
+    , m_beats_per_measure(beats_per_measure)
+    , m_current_effect(EffectType::None)
+    , m_delay_settings({0.3f, 0.5f, 0.5f})
+    , m_sample_rate(44100.0)
 {
     setStyleSheet(m_style.arg(m_outer_color.name()).arg("black").arg(width()/BORDER_RADIUS_COEF));
 

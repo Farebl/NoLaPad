@@ -1,15 +1,19 @@
-#ifndef POTENTIOMETER_H
-#define POTENTIOMETER_H
+#ifndef EFFECTSSWITCHER_H
+#define EFFECTSSWITCHER_H
 
 #include <QDial>
 #include <QPainter>
 #include <QMouseEvent>
 
-class Potentiometer : public QDial
+class EffectsSwitcher : public QDial
 {
     Q_OBJECT
-public:
-    explicit Potentiometer(QWidget *parent = nullptr, uint radius = 60);
+
+private:
+    bool m_dragging; // Відстежуємо, чи утримується кнопка миші
+
+    static EffectsSwitcher* m_instance;
+    explicit EffectsSwitcher(uint radius, QWidget *parent);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -18,9 +22,8 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
     bool event(QEvent *event)override;
 
-
-private:
-    bool m_dragging; // Відстежуємо, чи утримується кнопка миші
+public:
+    static EffectsSwitcher* getInstance(uint radius = 60, QWidget *parent = nullptr);
 
 signals:
     void settedFirstQuarter();
@@ -29,4 +32,4 @@ signals:
     void settedFourthQuarter();
 };
 
-#endif // POTENTIOMETER_H
+#endif // EFFECTSSWITCHER_H

@@ -3,7 +3,17 @@
 #include <QtMath>
 #include <QApplication>
 
-TrackColorButtons::TrackColorButtons(QWidget *parent, uint size, const QColor& outer_background_color, const QColor& inner_background_color)
+TrackColorButtons* TrackColorButtons::m_instance = nullptr;
+
+TrackColorButtons* TrackColorButtons::getInstance(uint size, const QColor& outer_background_color, const QColor& inner_background_color, QWidget *parent){
+    if (m_instance == nullptr)
+        m_instance = new TrackColorButtons(size, outer_background_color, inner_background_color, parent);
+
+    return m_instance;
+}
+
+
+TrackColorButtons::TrackColorButtons(uint size, const QColor& outer_background_color, const QColor& inner_background_color, QWidget *parent)
     : QWidget(parent)
     , m_outer_color(outer_background_color)
     , m_inner_color(inner_background_color)

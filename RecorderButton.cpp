@@ -1,13 +1,24 @@
-#include "RECButton.h"
+#include "RecorderButton.h"
 
 
-RECButton::RECButton(QWidget *parent, uint diameter)
+RecorderButton* RecorderButton::m_instance = nullptr;
+
+RecorderButton* RecorderButton::getInstance(uint diameter, QWidget *parent)
+{
+    if (m_instance == nullptr)
+        m_instance = new RecorderButton(diameter, parent);
+
+    return m_instance;
+}
+
+
+RecorderButton::RecorderButton(uint diameter, QWidget *parent)
     : QPushButton(parent){
     setCheckable(true); // Делаем кнопку переключаемой
     setFixedSize(diameter, diameter); // Устанавливаем размер кнопки для видимости
 }
 
-void RECButton::paintEvent(QPaintEvent *event) {
+void RecorderButton::paintEvent(QPaintEvent *event) {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing); // Включаем сглаживание
 

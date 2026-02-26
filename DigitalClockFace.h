@@ -8,21 +8,22 @@
 
 class DigitalClockFace : public QLabel
 {
-public:
-    DigitalClockFace(QWidget *parent = nullptr, uint height = 35);
-    void updateDigitalClockFace();
-    QLabel* getDigitalClockFace();
-
-public slots:
-    void start();
-    void stop();
-
+    Q_OBJECT
 
 private:
     QLabel* m_digital_clock_face;
     QTimer* m_timer;
     QElapsedTimer* m_elapsed_timer;
     bool m_is_active;
+
+public:
+    explicit DigitalClockFace(uint height = 35, QWidget *parent = nullptr);
+    void updateDigitalClockFace();
+    QLabel* getDigitalClockFace();
+
+public slots:
+    void start();
+    void stop();
 };
 
 #endif // DIGITALCLOCKFACE_H

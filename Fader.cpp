@@ -1,6 +1,6 @@
 #include "Fader.h"
 
-Fader::Fader(QWidget *parent, QString track_image_path, QString handle_image_path, QString measures_image_path)
+Fader::Fader(QString track_image_path, QString handle_image_path, QString measures_image_path, QWidget *parent)
     : QSlider(Qt::Vertical, parent)
     , m_handle_width(20)
     , m_handle_height(20)

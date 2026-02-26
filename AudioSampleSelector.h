@@ -11,19 +11,21 @@
 class AudioSampleSelector : public QWidget
 {
     Q_OBJECT
-public:
-    explicit AudioSampleSelector(QWidget *parent = nullptr, QString active_state_image_path = "..//..//images//audio_in_plugged.png", QString inactive_state_image_path  = "..//..//images//audio_in_unplugged.png");
-    void setIsAudioSampleSelectedState(bool state);
+private:
+    QPixmap m_active_state_image;
+    QPixmap m_inactive_state_image;
+    bool m_is_active; // Ініціалізуємо як false
 
+    static AudioSampleSelector* m_instance;
+    explicit AudioSampleSelector(QString active_state_image_path, QString inactive_state_image_path, QWidget *parent);
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
 
-private:
-    QPixmap m_active_state_image;
-    QPixmap m_inactive_state_image;
-    bool m_is_active; // Ініціалізуємо як false
+public:
+    static AudioSampleSelector* getInstance(QString active_state_image_path = "..//..//images//audio_in_plugged.png", QString inactive_state_image_path  = "..//..//images//audio_in_unplugged.png", QWidget *parent = nullptr);
+    void setIsAudioSampleSelectedState(bool state);
 
 signals:
     void selectedAudioSample(const QString &audioSamplePath);

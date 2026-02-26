@@ -1,6 +1,6 @@
-#include "LoopButton.h"
+#include "RedButton.h"
 
-LoopButton::LoopButton(QWidget* parent, bool is_pressed, uint size):
+RedButton::RedButton(bool is_pressed, quint16 size, QWidget* parent):
     QPushButton(parent)
     , m_is_pressed(is_pressed)
 {
@@ -8,7 +8,7 @@ LoopButton::LoopButton(QWidget* parent, bool is_pressed, uint size):
     setStyleSheet("background-color: #cdcdcd; border-radius: 3px;");
 }
 
-void LoopButton::setLooptState(bool state){
+void RedButton::setLooptState(bool state){
     m_is_pressed = state;
     if (m_is_pressed){
         setStyleSheet("background-color: #ff5050; border-radius: 3px;");
@@ -20,7 +20,7 @@ void LoopButton::setLooptState(bool state){
 
 
 
-void LoopButton::mousePressEvent(QMouseEvent *event){
+void RedButton::mousePressEvent(QMouseEvent *event){
     if(event->button() == Qt::LeftButton){
         if (!m_is_pressed){
             emit(changedState(true));
@@ -37,7 +37,7 @@ void LoopButton::mousePressEvent(QMouseEvent *event){
     }
 }
 
-void LoopButton::mouseReleaseEvent(QMouseEvent *event){
+void RedButton::mouseReleaseEvent(QMouseEvent *event){
     if(event->button() == Qt::LeftButton){
         if (!m_is_pressed){
             emit(changedState(false));

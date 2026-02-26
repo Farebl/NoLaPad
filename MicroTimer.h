@@ -5,15 +5,26 @@
 #include <QElapsedTimer>
 
 
-class MicroTimer : public QThread {
+class MicroTimer : public QObject
+{
     Q_OBJECT
 
-public:
-    explicit MicroTimer(quint32 interval_in_nanoseconds = 1'000'000'000, QObject* parent = nullptr);
-    ~MicroTimer() override;
+private:
+    QThread* m_thread;
+    quint32 m_interval;
+    quint8 m_tick_order;
+    volatile bool m_running;
 
-    void stop();              // Остановка таймера
-    void setInterval(quint32 microsec);  // Устанавливаем интервал (используем qint64)
+    static MicroTimer* m_instance;
+    explicit MicroTimer(quint32 interval_in_nanoseconds, QObject* parent);
+
+public:
+    static MicroTimer* getInstance(quint32 interval_in_nanoseconds = 1'000'000'000, QObject* parent = nullptr);
+    ~MicroTimer();
+
+    void start();
+    void stop();
+    void setInterval(quint32 microsec);
     std::array<void (MicroTimer::*)(), 16> m_signals;
 
 signals:
@@ -33,17 +44,6 @@ signals:
     void tick13();
     void tick14();
     void tick15();
-
-
-
-protected:
-    void run() override;      // Реализация потока
-
-private:
-    quint32 m_interval;      // Интервал в микросекундах
-    quint8 m_tick_order;
-    volatile bool m_running;  // Флаг выполнения
-
 };
 
 #endif // MICROTIMER_H

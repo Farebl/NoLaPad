@@ -1,12 +1,20 @@
 #include "MicroTimer.h"
 #include <QDebug>
 
+MicroTimer* MicroTimer::m_instance = nullptr;
+MicroTimer* MicroTimer::getInstance(quint32 interval_in_nanoseconds, QObject* parent){
+    if (m_instance == nullptr)
+        m_instance = new MicroTimer(interval_in_nanoseconds, parent);
+
+    return m_instance;
+}
+
 MicroTimer::MicroTimer(quint32 interval_in_nanosecond, QObject* parent)
-    : QThread(parent),
-    m_interval(interval_in_nanosecond),
-    m_tick_order(0),
-    m_running(false),
-    m_signals{
+    :  QObject(parent)
+    , m_interval(interval_in_nanosecond)
+    , m_tick_order(0)
+    , m_running(false)
+    , m_signals{
         &MicroTimer::tick0,
         &MicroTimer::tick1,
         &MicroTimer::tick2,
@@ -33,7 +41,6 @@ MicroTimer::MicroTimer(quint32 interval_in_nanosecond, QObject* parent)
 
 MicroTimer::~MicroTimer() {
     stop();
-    wait();
 }
 
 void MicroTimer::stop() {
@@ -50,7 +57,7 @@ void MicroTimer::setInterval(quint32 nanosec) {
     }
 }
 
-void MicroTimer::run() {
+void MicroTimer::start() {
     QElapsedTimer timer;
     timer.start();
     m_running = true;
@@ -64,7 +71,6 @@ void MicroTimer::run() {
             }
             timer.restart();  // Сбрасываем таймер для следующего интервала
         }
-        QThread::usleep(1);  // Минимальная задержка для снижения нагрузки на CPU
     }
 }
 

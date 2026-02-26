@@ -7,13 +7,15 @@
 #include <QPainter>
 #include <QStyleOptionButton>
 
-class BeatCheckBox : public QCheckBox {
+class BeatCheckBox : public QCheckBox
+{
     Q_OBJECT
-public:
-    explicit BeatCheckBox(bool is_checked = false, QWidget* parent = nullptr);
 
 protected:
     void paintEvent(QPaintEvent* event) override;
+
+public:
+    explicit BeatCheckBox(bool is_checked = false, QWidget* parent = nullptr);
 };
 
 

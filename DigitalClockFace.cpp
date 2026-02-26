@@ -1,6 +1,6 @@
 #include "DigitalClockFace.h"
 
-DigitalClockFace::DigitalClockFace(QWidget *parent, uint height)
+DigitalClockFace::DigitalClockFace(uint height, QWidget *parent)
     : QLabel(parent)
     , m_digital_clock_face(new QLabel(this))
     , m_timer(new QTimer(this))

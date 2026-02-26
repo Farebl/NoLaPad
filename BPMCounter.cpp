@@ -1,9 +1,16 @@
-#include "BPM.h"
+#include "BPMCounter.h"
 
-BPM::BPM(MicroTimer *timer, uint16_t bpm_value, QWidget *parent)
+BPMCounter* BPMCounter::m_instance = nullptr;
+BPMCounter* BPMCounter::getInstance(MicroTimer *timer, quint16 bpm_value, QWidget *parent){
+    if (m_instance == nullptr)
+        m_instance = new BPMCounter(timer, bpm_value, parent);
+
+    return m_instance;
+}
+
+BPMCounter::BPMCounter(MicroTimer *timer, quint16 bpm_value, QWidget *parent)
     : QWidget{parent},
-    m_bpm(bpm_value),
-    m_bpm_display(new QSpinBox(this)),
+    m_display(new QSpinBox(this)),
     m_up_button(new QPushButton("▲", this)),
     m_down_button(new QPushButton("▼", this)),
     m_timer(timer)
@@ -22,13 +29,13 @@ BPM::BPM(MicroTimer *timer, uint16_t bpm_value, QWidget *parent)
         QString font_family = QFontDatabase::applicationFontFamilies(font_id).at(0);
         lcd_font = QFont(font_family, 12);
     }
-    m_bpm_display->setRange(1, 500);
-    m_bpm_display->setValue(m_bpm);
-    m_bpm_display->setFont(lcd_font);
-    m_bpm_display->setFixedSize(55, 35);
-    m_bpm_display->setAlignment(Qt::AlignCenter);
-    m_bpm_display->setButtonSymbols(QAbstractSpinBox::NoButtons);
-    m_bpm_display->setStyleSheet(
+    m_display->setRange(1, 500);
+    m_display->setValue(bpm_value);
+    m_display->setFont(lcd_font);
+    m_display->setFixedSize(55, 35);
+    m_display->setAlignment(Qt::AlignCenter);
+    m_display->setButtonSymbols(QAbstractSpinBox::NoButtons);
+    m_display->setStyleSheet(
         "QSpinBox {"
         "    background-color: #000000;"
         "    color: #FFFFFF;"
@@ -73,25 +80,25 @@ BPM::BPM(MicroTimer *timer, uint16_t bpm_value, QWidget *parent)
 
 
     connect(m_up_button, &QPushButton::clicked, this, [this]() {
-        if (m_bpm < 500) {
-            m_bpm_display->setValue(m_bpm_display->value() + 1);
+        if (m_display->value() < 500) {
+            m_display->setValue(m_display->value() + 1);
         }
     });
     connect(m_down_button, &QPushButton::clicked, this, [this]() {
-        if (m_bpm > 1) {
-            m_bpm_display->setValue(m_bpm_display->value() - 1);
+        if (m_display->value() > 1) {
+            m_display->setValue(m_display->value() - 1);
         }
     });
 
     // Обновление таймера при изменении значения
-    connect(m_bpm_display, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int newBpm) {
-        m_bpm = newBpm;
-        m_timer->setInterval(static_cast<quint32>(60.0 / (m_bpm * 4) * 1'000'000)); // (m_bpm * 4) because the timer generates 16th parts
+    connect(m_display, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int new_bpm_value) {
+        m_display->setValue(new_bpm_value);
+        m_timer->setInterval(static_cast<quint32>(60.0 / (m_display->value() * 4) * 1'000'000)); // (m_display->value() * 4) because the timer generates 16th parts
     });
 }
 
 
 
-QSpinBox* BPM::getBpmDisplay(){return m_bpm_display;}
-QPushButton* BPM::getUpButton(){return m_up_button;}
-QPushButton* BPM::getDownButton(){return m_down_button;}
+QSpinBox* BPMCounter::getBPMCounterDisplay(){return m_display;}
+QPushButton* BPMCounter::getUpButton(){return m_up_button;}
+QPushButton* BPMCounter::getDownButton(){return m_down_button;}
