@@ -15,6 +15,13 @@
 #include "BPMCounter.h"
 #include "TransportCallback.h"
 
+struct ProjectSaveParameters {
+    QString name;
+    QString save_project_path;
+    int m_row;
+    int m_column;
+};
+
 class Project : public QMainWindow
 {
     Q_OBJECT
@@ -25,7 +32,7 @@ private:
     explicit Project() = delete;
 	explicit Project(const Project&) = delete;
 	Project& operator=(const Project&) = delete;
-    explicit Project(int row, int column, int bpm_value, QWidget *parent);
+    explicit Project(QString name, QString save_project_path, int row, int column, int bpm_value, QWidget *parent);
 
     std::unique_ptr<Recorder> m_recorder;
 
@@ -34,8 +41,7 @@ private:
     std::vector<Track*> m_tracks;
     TransportCallback* m_callback; // not RAII because performanse is important
 
-    int m_row;
-    int m_column;
+    ProjectSaveParameters m_save_params;
     QWidget* m_central_widget;
     QWidget* m_title_bar;
     bool m_dragging;
@@ -64,7 +70,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent* event) override;
 	
 public:
-	static Project* getInstance(int row = 8, int column = 8, int bpm_value = 60, QWidget *parent = nullptr);
+    static Project* getInstance(QString name = "", QString save_project_path = "", int row = 8, int column = 8, int bpm_value = 60, QWidget *parent = nullptr);
     ~Project();
 };
 

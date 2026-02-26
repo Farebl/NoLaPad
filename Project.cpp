@@ -9,23 +9,22 @@
 
 Project* Project::m_instance = nullptr;
 
-Project* Project::getInstance(int row, int column, int bpm_value, QWidget *parent){
+Project* Project::getInstance(QString name, QString save_project_path, int row, int column, int bpm_value, QWidget *parent){
     if (m_instance == nullptr)
-        m_instance = new Project(row, column, bpm_value, parent);
+        m_instance = new Project(name, save_project_path, row, column, bpm_value, parent);
 
     return m_instance;
 }
 
 
-Project::Project(int row, int column, int bpm_value, QWidget *parent)
+Project::Project(QString name, QString save_project_path, int row, int column, int bpm_value, QWidget *parent)
     : QMainWindow(parent)
+    , m_save_params{name, save_project_path, row, column}
     , m_recorder(Recorder::getInstance(25, 25, this))
     , m_device_manager()
     , m_mixer_source()
     , m_tracks()
     , m_callback(TransportCallback::getInstance(m_mixer_source, m_recorder.get(), m_tracks))
-    , m_row(row)
-    , m_column(column)
     , m_central_widget(new QWidget(this))
     , m_title_bar(new QWidget(this))
     , m_dragging(false)
@@ -158,7 +157,7 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
 
     // Создаем таблицу для кнопок
 
-    m_table_widget = new QTableWidget(m_row, m_column, m_central_widget);
+    m_table_widget = new QTableWidget(m_save_params.m_row, m_save_params.m_column, m_central_widget);
     m_table_widget->setShowGrid(false);
     m_table_widget->horizontalHeader()->setVisible(false);
     m_table_widget->verticalHeader()->setVisible(false);
@@ -168,8 +167,8 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
 
     // Ініціалізація треків
     m_tracks.resize(row * column);
-    for (int r = 0; r < m_row; ++r) {
-        for (int c = 0; c < m_column; ++c) {
+    for (int r = 0; r < m_save_params.m_row; ++r) {
+        for (int c = 0; c < m_save_params.m_column; ++c) {
             Track* track = new Track(
                 m_device_manager,
                 m_mixer_source,
@@ -187,7 +186,7 @@ Project::Project(int row, int column, int bpm_value, QWidget *parent)
                 Qt::red,
                 m_table_widget
                 );
-            m_tracks[r * m_column + c] = track;
+            m_tracks[r * m_save_params.m_column + c] = track;
             m_table_widget->setCellWidget(r, c, track);
             connect(track, &Track::rightClicked, this, &Project::openTrackSettings);
 
