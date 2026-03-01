@@ -10,7 +10,7 @@ Track::Track(
     MicroTimer* timer,
     float volume,
     bool is_loop,
-    std::array<std::array<bool, 4>, 4> beats_per_measure,
+    std::array<bool, 16> beats_per_measure,
     QString sound_path,
     const QColor& outer_background_color,
     const QColor& inner_active_background_color,
@@ -249,33 +249,29 @@ void Track::mousePressEvent(QMouseEvent *event)
             m_is_active = true;
             update();
             play();
-        } else {
+        }
+        else {
             if (!m_is_active) {
                 m_is_active = true;
                 update();
                 if (m_timer) {
                     disconnect(m_timer, &MicroTimer::tick1, this, &Track::stop);
-
-                    const size_t rows = m_beats_per_measure.size();
-                    const size_t columns = m_beats_per_measure[0].size();
-                    for(size_t i  = 0; i < rows; ++i){
-                        for(size_t j  = 0; j < columns; ++j){
-                            if (m_beats_per_measure[i][j])
-                                connect(m_timer, m_timer->m_signals[i*rows + j], this, &Track::play);
-                        }
+                    auto measures_count = m_beats_per_measure.size();
+                    for(size_t i = 0; i < measures_count; ++i){
+                        if (m_beats_per_measure[i])
+                            connect(m_timer, m_timer->m_signals[i], this, &Track::play);
                     }
                 }
-            } else {
+            }
+            else {
                 m_is_active = false;
                 if (m_timer) {
-                    const size_t rows = m_beats_per_measure.size();
-                    const size_t columns = m_beats_per_measure[0].size();
-
                     connect(m_timer, &MicroTimer::tick1, this, &Track::stop);
-                    for(size_t i  = 0; i < rows; ++i){
-                        for(size_t j  = 0; j < columns; ++j){
-                            disconnect(m_timer, m_timer->m_signals[i*rows + j], this, &Track::play);
-                        }
+
+                    auto measures_count = m_beats_per_measure.size();
+                    for(size_t i = 0; i < measures_count; ++i){
+                        if (m_beats_per_measure[i])
+                            disconnect(m_timer, m_timer->m_signals[i], this, &Track::play);
                     }
                 }
             }
@@ -336,12 +332,10 @@ void Track::setAudioSamplePath(QString path)
         m_reader_source.reset();
         m_is_active = false;
         if (m_timer) {
-            const size_t rows = m_beats_per_measure.size();
-            const size_t columns = m_beats_per_measure[0].size();
-            for(size_t i  = 0; i < rows; ++i){
-                for(size_t j  = 0; j < columns; ++j){
-                    disconnect(m_timer, m_timer->m_signals[i*rows + j], this, &Track::play);
-                }
+            auto measures_count = m_beats_per_measure.size();
+            for(size_t i = 0; i < measures_count; ++i){
+                if (m_beats_per_measure[i])
+                    disconnect(m_timer, m_timer->m_signals[i], this, &Track::play);
             }
         }
         return;
@@ -403,18 +397,16 @@ QString Track::getSoundPath()
     return m_audio_sample_path;
 }
 
-std::array<std::array<bool, 4>, 4> Track::getBeatsStates()
+std::array<bool, 16> Track::getBeatsStates()
 {
     return m_beats_per_measure;
 }
 
 void Track::setBeatState(quint8 index, bool state)
 {
-    size_t rows_count = m_beats_per_measure.size();
-    size_t columns_count = m_beats_per_measure[0].size();
-    m_beats_per_measure[index / rows_count][index % columns_count] = state;
+    m_beats_per_measure[index] = state;
 
-    if (m_beats_per_measure[index / rows_count][index % columns_count] && m_is_loop && m_is_active)
+    if (m_beats_per_measure[index] && m_is_active)
         connect(
             m_timer,
             m_timer->m_signals[index],

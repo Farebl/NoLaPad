@@ -4,7 +4,9 @@
 #include <QObject>
 #include <QSpinBox>
 
+class LCDDisplay;
 class QLabel;
+class QPushButton;
 
 class LCDCounter : public QSpinBox
 {
@@ -12,6 +14,9 @@ class LCDCounter : public QSpinBox
 
 private:
     QLabel* m_title;
+    LCDDisplay* m_lcd_display;
+    QPushButton* m_down_button;
+    QPushButton* m_up_button;
 
 public:
     explicit LCDCounter(QString text = "", QWidget* parent = nullptr);

@@ -29,41 +29,42 @@ enum class EffectType {
 };
 
 
+struct ReverbSettings {
+    float roomSize = 0.5f;      // Розмір кімнати (характер звуку) [0.0 - 1.0]
+    float damping = 0.5f;       // Заглушення (характер звуку) [0.0 - 1.0]
+    float wetLevel = 0.33f;     // Скільки реверберації [0.0 - 1.0]
+    float dryLevel = 0.4f;      // Скільки оригіналу [0.0 - 1.0]
+    float outputVolume = 1.0f;  // Загальна гучність після ефекту [0.0 - 1.0]
+};
+
+struct DelaySettings {
+    float delayTime = 0.2f;     // Час затримки в секундах (характер ефекту) [0.0 - 2.0]
+    float feedback = 0.2f;      // Кількість повторень (характер ефекту) [0.0 - 0.95]
+    float mix = 0.5f;           // Баланс dry/wet [0.0 - 1.0]
+    float outputVolume = 1.0f;  // Загальна гучність після ефекту [0.0 - 1.0]
+};
+
+struct ChorusSettings {
+    float rate = 1.0f;          // Швидкість модуляції в Hz (характер звуку) [0.1 - 10.0]
+    float depth = 0.25f;        // Глибина модуляції (характер звуку) [0.0 - 1.0]
+    float centerDelay = 7.0f;   // Центральна затримка в мс (характер звуку) [1.0 - 100.0]
+    float feedback = 0.0f;      // Зворотний зв'язок (характер звуку) [0.0 - 0.9]
+    float mix = 0.5f;           // Баланс dry/wet [0.0 - 1.0]
+    float outputVolume = 1.0f;  // Загальна гучність після ефекту [0.0 - 1.0]
+};
+
+struct DistortionSettings {
+    float drive = 10.0f;        // Ступінь спотворення в dB (характер звуку) [0.0 - 40.0]
+    float mix = 0.5f;           // Баланс dry/wet [0.0 - 1.0]
+    float outputVolume = 0.5f;  // Загальна гучність після ефекту [0.0 - 1.0]
+};
+
+
 class Track : public QPushButton, public juce::AudioSource
 {
     Q_OBJECT
 
 private:
-    struct ReverbSettings {
-        float roomSize = 0.5f;      // Розмір кімнати (характер звуку) [0.0 - 1.0]
-        float damping = 0.5f;       // Заглушення (характер звуку) [0.0 - 1.0]
-        float wetLevel = 0.33f;     // Скільки реверберації [0.0 - 1.0]
-        float dryLevel = 0.4f;      // Скільки оригіналу [0.0 - 1.0]
-        float outputVolume = 1.0f;  // Загальна гучність після ефекту [0.0 - 1.0]
-    };
-
-    struct DelaySettings {
-        float delayTime = 0.2f;     // Час затримки в секундах (характер ефекту) [0.0 - 2.0]
-        float feedback = 0.2f;      // Кількість повторень (характер ефекту) [0.0 - 0.95]
-        float mix = 0.5f;           // Баланс dry/wet [0.0 - 1.0]
-        float outputVolume = 1.0f;  // Загальна гучність після ефекту [0.0 - 1.0]
-    };
-
-    struct ChorusSettings {
-        float rate = 1.0f;          // Швидкість модуляції в Hz (характер звуку) [0.1 - 10.0]
-        float depth = 0.25f;        // Глибина модуляції (характер звуку) [0.0 - 1.0]
-        float centerDelay = 7.0f;   // Центральна затримка в мс (характер звуку) [1.0 - 100.0]
-        float feedback = 0.0f;      // Зворотний зв'язок (характер звуку) [0.0 - 0.9]
-        float mix = 0.5f;           // Баланс dry/wet [0.0 - 1.0]
-        float outputVolume = 1.0f;  // Загальна гучність після ефекту [0.0 - 1.0]
-    };
-
-    struct DistortionSettings {
-        float drive = 10.0f;        // Ступінь спотворення в dB (характер звуку) [0.0 - 40.0]
-        float mix = 0.5f;           // Баланс dry/wet [0.0 - 1.0]
-        float outputVolume = 0.5f;  // Загальна гучність після ефекту [0.0 - 1.0]
-    };
-
     std::atomic<bool> m_is_ready{false};
     std::atomic<bool> m_is_being_destroyed{false};
     std::mutex m_audio_mutex;  // Для захисту доступу до аудіо ресурсів
@@ -77,7 +78,8 @@ private:
         juce::dsp::Reverb,
         juce::dsp::Phaser<float>,
         juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear>,
-        juce::dsp::LadderFilter<float>> m_effect_chain;
+        juce::dsp::LadderFilter<float>
+    > m_effect_chain;
     std::unique_ptr<juce::AudioBuffer<float>> m_effect_buffer;
 
     double m_sample_rate;
@@ -90,7 +92,7 @@ private:
     QColor m_outer_color;
     QColor m_inner_color;
     MicroTimer* m_timer;
-    std::array<std::array<bool, 4>, 4> m_beats_per_measure;
+    std::array<bool, 16> m_beats_per_measure;
     EffectType m_current_effect;
     ReverbSettings m_reverb_settings;
     DelaySettings m_delay_settings;
@@ -109,7 +111,7 @@ public:
         MicroTimer* timer = nullptr,
         float volume = 1.0,
         bool is_loop = false,
-        std::array<std::array<bool, 4>, 4> beats_per_measure = {{{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}}},
+        std::array<bool, 16> beats_per_measure = {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
         QString sound_path = "",
         const QColor& outer_background_color = Qt::gray,
         const QColor& inner_active_background_color = Qt::red,
@@ -133,7 +135,7 @@ public:
     void setOuterBackgroundColor(QColor color);
     QColor getOuterBackgroundColor();
     QString getSoundPath();
-    std::array<std::array<bool, 4>, 4> getBeatsStates();
+    std::array<bool, 16> getBeatsStates();
 
     // Recording flag methods
     void setRecordingEnabled(bool enabled);
@@ -208,9 +210,6 @@ public:
         juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear>,
         juce::dsp::LadderFilter<float>
     >& getEffectChain() { return m_effect_chain; }
-
-
-    inline static quint8 m_measure_value = 16; // --> 1/16 of takt
 
 signals:
     void rightClicked(Track* _this);

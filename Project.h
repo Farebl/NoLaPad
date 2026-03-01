@@ -50,8 +50,8 @@ private:
     QPoint m_resize_start;
     QSize m_resize_start_size;
     QTableWidget *m_table_widget;
-    std::unique_ptr<MicroTimer> m_timer;
 
+    std::unique_ptr<MicroTimer> m_timer;
     QTimer* m_timer_for_REC;
     std::unique_ptr<QElapsedTimer> m_elapsed_timer_for_REC; // can't having a parent (not a QObject)
     RedButton* m_recording_button;
