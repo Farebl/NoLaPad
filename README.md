@@ -1,1 +1,2 @@
-[Звіт_Клименко_Д.В_АС-223.docx](https://github.com/user-attachments/files/26516788/_._._.-223.docx)
+Description of project
+https://drive.google.com/drive/folders/1ALe7lATSK0jbszHz4nxtZL4LdBEU26EE?usp=sharing
