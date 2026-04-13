@@ -1,13 +1,14 @@
 
-#include "Project.h"
+#include "ProjectManager.h"
 #include <QApplication>
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
-    Project* project = Project::getInstance("", "", 8, 8, 60, nullptr);
-    project->show();
+
+    ProjectManager* project_manager = ProjectManager::getInstance();
+
     int result = a.exec();
-    delete project;
+    delete project_manager;
     return result;
 }
 
