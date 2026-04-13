@@ -2,6 +2,7 @@
 #define TrackSETTINGS_H
 
 #include <QWidget>
+#include <QTableWidget>
 #include <QDialog>
 #include <QVBoxLayout>
 #include <QFormLayout>
@@ -16,6 +17,7 @@
 #include <QFontDatabase>
 
 
+#include "LCDDisplay.h"
 #include "Fader.h"
 
 #include "TrackColorButtons.h"
@@ -41,14 +43,12 @@ class TrackSettings: public QDialog
 private:
     explicit TrackSettings(quint8 volume_percent, bool is_loop, const std::array<bool, 16>& beats_per_measure, const QColor& outer_background_color, const QColor& inner_background_color, QWidget *parent);
 
-    QSpinBox* m_volume_display;
-    QSpinBox* m_effect_volume_display;
+    LCDDisplay* m_volume_display;
     Fader* m_volume_fader;
-    Fader* m_effect_volume_fader;
 
     TrackColorButtons* m_select_track_colors_button;
     RedButton* m_loop_button;
-    QVBoxLayout* m_beats_matrix_layout;
+    QTableWidget* m_16th_matrix;
 
     LCDCounter* m_lag_whole_takts_setter;
     LCDCounter* m_lag_16_th_setter;
