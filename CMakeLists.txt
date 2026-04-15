@@ -58,6 +58,11 @@ qt_add_executable(NoLaPad
     LCDCounter.h LCDCounter.cpp
     LCDDisplay.h LCDDisplay.cpp
     ProjectManager.h ProjectManager.cpp
+    IAudioEngine.h
+    IPlayer.h
+    IRecorder.h
+    IStorage.h
+    ProjectSaveParametersAndProjectView.h
 )
 
 target_compile_options(NoLaPad PRIVATE -g -O0)  # Додано прапори для налагодження
