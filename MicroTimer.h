@@ -15,11 +15,8 @@ private:
     quint8 m_tick_order;
     volatile bool m_running;
 
-    static MicroTimer* m_instance;
-    explicit MicroTimer(quint32 interval_in_nanoseconds, QObject* parent);
-
 public:
-    static MicroTimer* getInstance(quint32 interval_in_nanoseconds = 1'000'000'000, QObject* parent = nullptr);
+    explicit MicroTimer(quint32 interval_in_nanoseconds = 1'000'000'000, QObject* parent = nullptr);
     ~MicroTimer();
 
     void start();

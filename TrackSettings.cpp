@@ -5,15 +5,6 @@
 #include "LCDCounter.h"
 #include <QHeaderView>
 
-TrackSettings* TrackSettings::m_instance = nullptr;
-
-TrackSettings* TrackSettings::getInstance(quint8 volume_percent, bool is_loop, std::array<bool, 16> beats_per_measure, const QColor& outer_background_color, const QColor& inner_background_color, QWidget* parent)
-{
-    if (m_instance == nullptr)
-        m_instance = new TrackSettings(volume_percent, is_loop, beats_per_measure, outer_background_color, inner_background_color, parent);
-
-    return m_instance;
-}
 
 
 TrackSettings::TrackSettings(quint8 volume_percent, bool is_loop, const std::array<bool, 16>& beats_per_measure, const QColor& outer_background_color, const QColor& inner_background_color, QWidget* parent)
@@ -21,7 +12,7 @@ TrackSettings::TrackSettings(quint8 volume_percent, bool is_loop, const std::arr
     , m_volume_display (new LCDDisplay())
     , m_volume_fader(new Fader("..//..//images//fader_track.png", "..//..//images//fader_handle.png", "..//..//images//fader_measures.png", this))
 
-    , m_select_track_colors_button(TrackColorButtons::getInstance(80, Qt::gray, Qt::darkGray, this))
+    , m_select_track_colors_button(new TrackColorButtons(80, Qt::gray, Qt::darkGray, this))
     , m_loop_button(new RedButton(false, 80, this))
     , m_16th_matrix(new QTableWidget(4, 4, this))
 
@@ -31,19 +22,13 @@ TrackSettings::TrackSettings(quint8 volume_percent, bool is_loop, const std::arr
     , m_duration_16_th_setter(new LCDCounter("1/16 of takt"))
 
     , m_effects_switcher(EffectsSwitcher::getInstance(140, this))
-    , m_audio_input_connector(AudioSampleSelector::getInstance("..//..//images//audio_in_plugged.png", "..//..//images//audio_in_unplugged.png", this))
+    , m_audio_input_connector(new AudioSampleSelector("..//..//images//audio_in_plugged.png", "..//..//images//audio_in_unplugged.png", this))
     , m_beats_per_measure(beats_per_measure)
 {
     setWindowTitle("Track settings");
     setWindowFlags(Qt::Dialog);
     setFixedSize(600, 770);
     setStyleSheet("background-color: #8e8e8e;");
-
-
-
-
-
-
 
 
 

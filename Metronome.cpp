@@ -1,44 +1,24 @@
 #include "Metronome.h"
+#include "BPMCounter.h"
+#include "JUCEMetronomePlayer.h"
+#include "MicroTimer.h"
+#include "MetronomeSettings.h"
 
-Metronome* Metronome::m_instance = nullptr;
-
-Metronome* Metronome::getInstance(juce::AudioDeviceManager& deviceManager, juce::MixerAudioSource& mixer, MicroTimer* timer, float volume, QString strong_measure_sound_path, QString weak_measure_sound_path, const std::vector<bool>& strong_and_weak_measures, QWidget* parent)
+Metronome::Metronome(MicroTimer* timer, const std::array<std::string, 4>& measures_sounds_path, float volume, quint16 bpm_value, QWidget *parent)
+    : QWidget(parent)
+    , m_player(new JUCEMetronomePlayer(measures_sounds_path, volume))
+    , m_timer(timer)
+    , m_settings_window(nullptr)
+    , m_bpm_counter(new BPMCounter(m_timer, bpm_value, this))
+    , m_play_button(new QPushButton(this))
 {
-    if (m_instance == nullptr)
-        m_instance = new Metronome(deviceManager, mixer, timer,  volume, strong_measure_sound_path, weak_measure_sound_path, strong_and_weak_measures, parent);
+    m_settings_window = new MetronomeSettings(100, this);
 
-    return m_instance;
-}
-
-
-Metronome::Metronome(juce::AudioDeviceManager& deviceManager, juce::MixerAudioSource& mixer, MicroTimer* timer, float volume, QString strong_measure_sound_path, QString weak_measure_sound_path, const std::vector<bool>& strong_and_weak_measures, QWidget *parent)
-    : QPushButton(parent),
-    m_device_manager(deviceManager),
-    m_mixer_source(mixer),
-    m_transport_source_strong_measure(juce::AudioTransportSource()),
-    m_transport_source_weak_measure(juce::AudioTransportSource()),
-    m_timer(timer),
-    m_settings_window(nullptr)
-{
-    m_settings_window = MetronomeSettings::getInstance(100, this);
-
-    if (strong_and_weak_measures.size() != 4) {
-        m_strong_and_weak_measures_play_call_methods[0] = &Metronome::play_strong_measure;
-        m_strong_and_weak_measures_play_call_methods[1] = &Metronome::play_weak_measure;
-        m_strong_and_weak_measures_play_call_methods[2] = &Metronome::play_weak_measure;
-        m_strong_and_weak_measures_play_call_methods[3] = &Metronome::play_weak_measure;
-    }
-    else{
-        m_strong_and_weak_measures_play_call_methods[0] = (strong_and_weak_measures[0]) ? &Metronome::play_strong_measure : &Metronome::play_weak_measure;
-        m_strong_and_weak_measures_play_call_methods[1] = (strong_and_weak_measures[1]) ? &Metronome::play_strong_measure : &Metronome::play_weak_measure;
-        m_strong_and_weak_measures_play_call_methods[2] = (strong_and_weak_measures[2]) ? &Metronome::play_strong_measure : &Metronome::play_weak_measure;
-        m_strong_and_weak_measures_play_call_methods[3] = (strong_and_weak_measures[3]) ? &Metronome::play_strong_measure : &Metronome::play_weak_measure;
-    }
-
-    setText("▶");
-    setCheckable(true);
-    setChecked(false);
-    setStyleSheet(
+    m_play_button->setFixedSize(30, 25);
+    m_play_button->setText("▶");
+    m_play_button->setCheckable(true);
+    m_play_button->setChecked(false);
+    m_play_button->setStyleSheet(
         "QPushButton {"
         "    background-color: #28963c;"
         "    color: #FFFFFF;"
@@ -52,109 +32,29 @@ Metronome::Metronome(juce::AudioDeviceManager& deviceManager, juce::MixerAudioSo
         "}"
     );
 
-    m_format_manager.registerBasicFormats();
-
-    juce::File strong_measure_audio_file(strong_measure_sound_path.toStdString());
-    if (!strong_measure_audio_file.existsAsFile() || !strong_measure_audio_file.hasReadAccess()) {
-        std::cerr << "Cannot access MP3 file: " << strong_measure_audio_file.getFullPathName().toStdString() << std::endl;
-        QMessageBox::information(this, "Error", "Немає доступу до MP3 файлу: " + strong_measure_sound_path);
-        return;
-    }
-
-    auto strong_measure_audio_reader = m_format_manager.createReaderFor(strong_measure_audio_file);
-    if (strong_measure_audio_reader == nullptr) {
-        std::cerr << "Failed to create strong_measure_audio_reader for MP3 file: " << strong_measure_audio_file.getFullPathName().toStdString() << std::endl;
-        QMessageBox::information(this, "Error", "Не вдалося створити ридер для MP3 файлу: " + strong_measure_sound_path);
-        return;
-    }
-
-    m_reader_sources_strong_measure = std::make_unique<juce::AudioFormatReaderSource>(strong_measure_audio_reader, true);
-    m_transport_source_strong_measure.setSource(m_reader_sources_strong_measure.get(), 0, nullptr, strong_measure_audio_reader->sampleRate);
-    m_mixer_source.addInputSource(&m_transport_source_strong_measure, false);
-
-
-    juce::File weak_measure_audio_file(weak_measure_sound_path.toStdString());
-    if (!weak_measure_audio_file.existsAsFile() || !weak_measure_audio_file.hasReadAccess()) {
-        std::cerr << "Cannot access MP3 file: " << weak_measure_audio_file.getFullPathName().toStdString() << std::endl;
-        QMessageBox::information(this, "Error", "Немає доступу до MP3 файлу: " + weak_measure_sound_path);
-        return;
-    }
-
-    auto weak_measure_audio_reader = m_format_manager.createReaderFor(weak_measure_audio_file);
-    if (weak_measure_audio_reader == nullptr) {
-        std::cerr << "Failed to create weak_measure_audio_reader for MP3 file: " << weak_measure_audio_file.getFullPathName().toStdString() << std::endl;
-        QMessageBox::information(this, "Error", "Не вдалося створити ридер для MP3 файлу: " + weak_measure_sound_path);
-        return;
-    }
-
-    m_reader_sources_weak_measure = std::make_unique<juce::AudioFormatReaderSource>(weak_measure_audio_reader, true);
-    m_transport_source_weak_measure.setSource(m_reader_sources_weak_measure.get(), 0, nullptr, weak_measure_audio_reader->sampleRate);
-    m_mixer_source.addInputSource(&m_transport_source_weak_measure, false);
+    QHBoxLayout* layout = new QHBoxLayout(this);
+    m_bpm_counter->setFixedHeight(35);
+    layout->setSpacing(4);
+    layout->setAlignment(Qt::AlignVCenter);
+    layout->addWidget(m_play_button, 0, Qt::AlignVCenter);
+    layout->addWidget(m_bpm_counter, 0, Qt::AlignVCenter);
+    layout->setContentsMargins(0,0,0,0);
 
 
 
-    m_transport_source_strong_measure.setGain(volume);
-    m_transport_source_weak_measure.setGain(volume);
 
     connect(m_settings_window, &MetronomeSettings::changedVolume, this, [this](int value){
         setVolume(value/100.0f);
     });
-}
 
-
-Metronome::~Metronome() {
-    m_transport_source_strong_measure.stop();
-    m_transport_source_weak_measure.stop();
-    m_mixer_source.removeInputSource(&m_transport_source_strong_measure);
-    m_mixer_source.removeInputSource(&m_transport_source_weak_measure);
-    m_transport_source_strong_measure.setSource(nullptr);
-    m_transport_source_weak_measure.setSource(nullptr);
-}
-
-
-
-
-void Metronome::mousePressEvent(QMouseEvent *event){
-    if(event->button() == Qt::LeftButton){
-
-        if (!m_reader_sources_strong_measure){
-            QMessageBox::information(this, "Error", "Метроному не назначено звук для відтворювання сильної долі");
-            return;
-        }
-
-        if (!m_reader_sources_weak_measure){
-            QMessageBox::information(this, "Error", "Метроному не назначено звук для відтворювання слабкої долі");
-            return;
-        }
-
-        if (isChecked()){
-            disconnect(m_timer, &MicroTimer::tick1, this, m_strong_and_weak_measures_play_call_methods[0]);
-            disconnect(m_timer, &MicroTimer::tick5, this, m_strong_and_weak_measures_play_call_methods[1]);
-            disconnect(m_timer, &MicroTimer::tick9, this, m_strong_and_weak_measures_play_call_methods[2]);
-            disconnect(m_timer, &MicroTimer::tick13, this, m_strong_and_weak_measures_play_call_methods[3]);
-            setChecked(false);
-            setText("▶");
-            setStyleSheet(
-                "QPushButton {"
-                "    background-color: #28963c;"
-                "    color: #FFFFFF;"
-                "    border: none;"
-                "    border-radius: 3px;"
-                "    font-size: 26px;"
-                "    padding: 0px;"
-                "}"
-                "QPushButton:hover {"
-                "    background-color: #46be5a;" // Изменение цвета при наведении
-                "}"
-                );
-        }
-        else{
-            connect(m_timer, &MicroTimer::tick1, this, m_strong_and_weak_measures_play_call_methods[0]);
-            connect(m_timer, &MicroTimer::tick5, this, m_strong_and_weak_measures_play_call_methods[1]);
-            connect(m_timer, &MicroTimer::tick9, this, m_strong_and_weak_measures_play_call_methods[2]);
-            connect(m_timer, &MicroTimer::tick13, this, m_strong_and_weak_measures_play_call_methods[3]);
-            setChecked(true);
-            setStyleSheet(
+    connect(m_play_button, &QPushButton::toggled, this, [this](bool checked){
+        if (checked){
+            connect(m_timer, &MicroTimer::tick1, this, &Metronome::play);
+            connect(m_timer, &MicroTimer::tick5, this, &Metronome::play);
+            connect(m_timer, &MicroTimer::tick9, this, &Metronome::play);
+            connect(m_timer, &MicroTimer::tick13, this, &Metronome::play);
+            m_play_button->setChecked(true);
+            m_play_button->setStyleSheet(
                 "QPushButton {"
                 "    background-color: #c82828;"
                 "    color: #FFFFFF;"
@@ -166,32 +66,51 @@ void Metronome::mousePressEvent(QMouseEvent *event){
                 "QPushButton:hover {"
                 "    background-color: #dc3c3c;"
                 "}"
-                );
-            setText("| |");
+            );
+            m_play_button->setText("| |");
         }
-    }
+        else{
+            disconnect(m_timer, &MicroTimer::tick1, this, &Metronome::play);
+            disconnect(m_timer, &MicroTimer::tick5, this, &Metronome::play);
+            disconnect(m_timer, &MicroTimer::tick9, this, &Metronome::play);
+            disconnect(m_timer, &MicroTimer::tick13, this, &Metronome::play);
+            m_play_button->setChecked(false);
+            m_play_button->setText("▶");
+            m_play_button->setStyleSheet(
+                "QPushButton {"
+                "    background-color: #28963c;"
+                "    color: #FFFFFF;"
+                "    border: none;"
+                "    border-radius: 3px;"
+                "    font-size: 26px;"
+                "    padding: 0px;"
+                "}"
+                "QPushButton:hover {"
+                "    background-color: #46be5a;" // Изменение цвета при наведении
+                "}"
+            );
+        }
+    });
+}
 
+
+Metronome::~Metronome() {}
+
+
+
+void Metronome::mousePressEvent(QMouseEvent *event){
     if(event->button() == Qt::RightButton){
         m_settings_window->exec();
     }
 
     if (event->button() != Qt::LeftButton && event->button() != Qt::RightButton) {
-        QPushButton::mousePressEvent(event);
+        event->ignore();
     }
 }
 
 
-
-
-void Metronome::play_strong_measure(){
-    m_transport_source_strong_measure.setPosition(0);
-    m_transport_source_strong_measure.start();
-
-}
-
-void Metronome::play_weak_measure(){
-    m_transport_source_weak_measure.setPosition(0);
-    m_transport_source_weak_measure.start();
+void Metronome::play(){
+    m_player->play();
 }
 
 
@@ -199,11 +118,9 @@ void Metronome::setVolume(float volume){
     if ((volume < 0.0f) || (volume > 1.0f)){
         return;
     }
-
-    m_transport_source_strong_measure.setGain(volume);
-    m_transport_source_weak_measure.setGain(volume);
+    m_player->setVolume(volume);
 }
 
-
-
-
+IMetronomePlayer* Metronome::getPlayer(){
+    return m_player.get();
+}

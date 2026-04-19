@@ -3,11 +3,12 @@
 
 #include <QString>
 
+
 struct AudioBlockInfo;
 
-class IAudioRecorder {
+class IRecorder {
 public:
-    virtual ~IAudioRecorder() = default;
+    virtual ~IRecorder() = default;
     virtual void startRecording(const QString& path) = 0;
     virtual void stopRecording() = 0;
     virtual void writeChunk(AudioBlockInfo* block) = 0;

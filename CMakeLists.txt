@@ -38,7 +38,7 @@ set(PROJECT_SOURCES
     MicroTimer.h MicroTimer.cpp
     Metronome.h Metronome.cpp
     MetronomeSettings.h MetronomeSettings.cpp
-    Recorder.h Recorder.cpp
+
     RecorderButton.h RecorderButton.cpp
     BPMCounter.h BPMCounter.cpp
     BeatCheckBox.h BeatCheckBox.cpp
@@ -48,7 +48,7 @@ set(PROJECT_SOURCES
     TrackColorButtons.h TrackColorButtons.cpp
     ClickableLabel.h ClickableLabel.cpp
     AudioSampleSelector.h AudioSampleSelector.cpp
-    TransportCallback.h TransportCallback.cpp
+
     DigitalClockFace.h DigitalClockFace.cpp
 
 )
@@ -63,6 +63,14 @@ qt_add_executable(NoLaPad
     IRecorder.h
     IStorage.h
     ProjectSaveParametersAndProjectView.h
+    JUCETrackPlayer.h JUCETrackPlayer.cpp
+    JUCEAudioEngine.h JUCEAudioEngine.cpp
+    JUCERecorder.h JUCERecorder.cpp
+    AudioBlockInfo.h
+    JUCEMetronomePlayer.h JUCEMetronomePlayer.cpp
+    ITrackPlayer.h
+    IMetronomePlayer.h
+
 )
 
 target_compile_options(NoLaPad PRIVATE -g -O0)  # Додано прапори для налагодження

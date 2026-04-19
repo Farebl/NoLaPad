@@ -1,12 +1,5 @@
 #include "BPMCounter.h"
 
-BPMCounter* BPMCounter::m_instance = nullptr;
-BPMCounter* BPMCounter::getInstance(MicroTimer *timer, quint16 bpm_value, QWidget *parent){
-    if (m_instance == nullptr)
-        m_instance = new BPMCounter(timer, bpm_value, parent);
-
-    return m_instance;
-}
 
 BPMCounter::BPMCounter(MicroTimer *timer, quint16 bpm_value, QWidget *parent)
     : QWidget{parent},
@@ -77,6 +70,20 @@ BPMCounter::BPMCounter(MicroTimer *timer, quint16 bpm_value, QWidget *parent)
         "    background-color: #555555;"
         "}"
         );
+
+
+
+    QVBoxLayout* buttons_layout = new QVBoxLayout();
+    buttons_layout->setAlignment(Qt::AlignVCenter);
+    buttons_layout->addWidget(m_up_button);
+    buttons_layout->addWidget(m_down_button);
+    buttons_layout->setContentsMargins(0,0,0,0);
+
+    QHBoxLayout* main_layout = new QHBoxLayout(this);
+    main_layout->setAlignment(Qt::AlignVCenter);
+    main_layout->addWidget( m_display);
+    main_layout->addLayout(buttons_layout);
+    main_layout->setContentsMargins(0,0,0,0);
 
 
     connect(m_up_button, &QPushButton::clicked, this, [this]() {

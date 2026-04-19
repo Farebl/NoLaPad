@@ -20,69 +20,15 @@
 #include <array>
 
 
-enum class EffectType {
-    None,
-    Reverb,
-    Chorus,
-    Delay,
-    Distortion
-};
+#include "ITrackPlayer.h"
 
-
-struct ReverbSettings {
-    float roomSize = 0.5f;      // Розмір кімнати (характер звуку) [0.0 - 1.0]
-    float damping = 0.5f;       // Заглушення (характер звуку) [0.0 - 1.0]
-    float wetLevel = 0.33f;     // Скільки реверберації [0.0 - 1.0]
-    float dryLevel = 0.4f;      // Скільки оригіналу [0.0 - 1.0]
-    float outputVolume = 1.0f;  // Загальна гучність після ефекту [0.0 - 1.0]
-};
-
-struct DelaySettings {
-    float delayTime = 0.2f;     // Час затримки в секундах (характер ефекту) [0.0 - 2.0]
-    float feedback = 0.2f;      // Кількість повторень (характер ефекту) [0.0 - 0.95]
-    float mix = 0.5f;           // Баланс dry/wet [0.0 - 1.0]
-    float outputVolume = 1.0f;  // Загальна гучність після ефекту [0.0 - 1.0]
-};
-
-struct ChorusSettings {
-    float rate = 1.0f;          // Швидкість модуляції в Hz (характер звуку) [0.1 - 10.0]
-    float depth = 0.25f;        // Глибина модуляції (характер звуку) [0.0 - 1.0]
-    float centerDelay = 7.0f;   // Центральна затримка в мс (характер звуку) [1.0 - 100.0]
-    float feedback = 0.0f;      // Зворотний зв'язок (характер звуку) [0.0 - 0.9]
-    float mix = 0.5f;           // Баланс dry/wet [0.0 - 1.0]
-    float outputVolume = 1.0f;  // Загальна гучність після ефекту [0.0 - 1.0]
-};
-
-struct DistortionSettings {
-    float drive = 10.0f;        // Ступінь спотворення в dB (характер звуку) [0.0 - 40.0]
-    float mix = 0.5f;           // Баланс dry/wet [0.0 - 1.0]
-    float outputVolume = 0.5f;  // Загальна гучність після ефекту [0.0 - 1.0]
-};
-
-
-class Track : public QPushButton, public juce::AudioSource
+class Track : public QPushButton//, public juce::AudioSource
 {
     Q_OBJECT
 
 private:
-    std::atomic<bool> m_is_ready{false};
-    std::atomic<bool> m_is_being_destroyed{false};
-    std::mutex m_audio_mutex;  // Для захисту доступу до аудіо ресурсів
 
-    juce::AudioDeviceManager& m_device_manager;
-    juce::MixerAudioSource& m_mixer_source;
-    juce::AudioFormatManager m_format_manager;
-    juce::AudioTransportSource m_transport_source;
-    std::unique_ptr<juce::AudioFormatReaderSource> m_reader_source;
-    juce::dsp::ProcessorChain<
-        juce::dsp::Reverb,
-        juce::dsp::Phaser<float>,
-        juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear>,
-        juce::dsp::LadderFilter<float>
-    > m_effect_chain;
-    std::unique_ptr<juce::AudioBuffer<float>> m_effect_buffer;
-
-    double m_sample_rate;
+    std::unique_ptr<ITrackPlayer> m_player;
 
     bool m_is_active;
     bool m_is_loop;
@@ -93,21 +39,17 @@ private:
     QColor m_inner_color;
     MicroTimer* m_timer;
     std::array<bool, 16> m_beats_per_measure;
-    EffectType m_current_effect;
-    ReverbSettings m_reverb_settings;
-    DelaySettings m_delay_settings;
-    ChorusSettings m_chorus_settings;
-    DistortionSettings m_distortion_settings;
+
 
     void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
     void updateEffectParameters();
 
 public:
 
     explicit Track(
-        juce::AudioDeviceManager& device_manager,
-        juce::MixerAudioSource& mixer,
+
         MicroTimer* timer = nullptr,
         float volume = 1.0,
         bool is_loop = false,
@@ -198,18 +140,7 @@ public:
     void play();
     void stop();
 
-    // AudioSource methodsector
-    void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override;
-    void releaseResources() override;
-    void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill) override;
-
-    // Getter for effect chain
-    juce::dsp::ProcessorChain<
-        juce::dsp::Reverb,
-        juce::dsp::Phaser<float>,
-        juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear>,
-        juce::dsp::LadderFilter<float>
-    >& getEffectChain() { return m_effect_chain; }
+    ITrackPlayer* getPlayer();
 
 signals:
     void rightClicked(Track* _this);

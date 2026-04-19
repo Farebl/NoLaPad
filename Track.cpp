@@ -1,12 +1,12 @@
-#include "Track.h"
+
 #include <QTime>
 #include <QDebug>
+#include "Track.h"
+#include "JUCETrackPlayer.h"
 
 #define BORDER_RADIUS_COEF 10
 
 Track::Track(
-    juce::AudioDeviceManager& deviceManager,
-    juce::MixerAudioSource& mixer,
     MicroTimer* timer,
     float volume,
     bool is_loop,
@@ -17,10 +17,7 @@ Track::Track(
     QWidget *parent
     ):
       QPushButton(parent)
-    , juce::AudioSource()
-    , m_device_manager(deviceManager)
-    , m_mixer_source(mixer)
-    , m_transport_source()
+    , m_player(new JUCETrackPlayer())
     , m_is_loop(is_loop)
     , m_audio_sample_path(sound_path)
     , m_is_active(false)
@@ -30,217 +27,20 @@ Track::Track(
     , m_inner_color(inner_active_background_color)
     , m_timer(timer)
     , m_beats_per_measure(beats_per_measure)
-    , m_current_effect(EffectType::None)
-    , m_delay_settings({0.3f, 0.5f, 0.5f})
-    , m_sample_rate(44100.0)
+
 {
     setStyleSheet(m_style.arg(m_outer_color.name()).arg("black").arg(width()/BORDER_RADIUS_COEF));
-
-    m_format_manager.registerBasicFormats();
-
-    auto& reverb = m_effect_chain.get<0>();
-    reverb.setParameters(juce::dsp::Reverb::Parameters{ m_reverb_settings.roomSize, m_reverb_settings.damping, m_reverb_settings.wetLevel, m_reverb_settings.dryLevel, 0.5f, 0.0f });
-
-    auto& delay = m_effect_chain.get<2>();
-    delay.setDelay(m_delay_settings.delayTime * m_sample_rate);
-    delay.setMaximumDelayInSamples(static_cast<int>(m_sample_rate * 2.0));
-
-    if (!m_audio_sample_path.isEmpty()) {
-        setAudioSamplePath(m_audio_sample_path);
-    }
-    if (volume >= 0.0f && volume <= 1.0f) {
-        m_transport_source.setGain(volume);
-    } else {
-        m_transport_source.setGain(1.0);
-    }
-    m_is_ready.store(true);
+    setAudioSamplePath(sound_path);
+    setVolume(volume);
 }
 
 Track::~Track() {
-    m_is_being_destroyed.store(true);
-    m_is_ready.store(false);
-
-    // Даємо час аудіо callback'у завершити роботу
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
-    m_transport_source.stop();
-    m_transport_source.setSource(nullptr);
 }
-
-void Track::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
-{
-    m_sample_rate = sampleRate;
-
-    juce::dsp::ProcessSpec spec;
-    spec.sampleRate = sampleRate;
-    spec.maximumBlockSize = samplesPerBlockExpected;
-    spec.numChannels = 2;
-
-    m_effect_chain.prepare(spec);
-    m_transport_source.prepareToPlay(samplesPerBlockExpected, sampleRate);
-
-    // ВАЖЛИВО: Створюємо буфер з ДОСТАТНІМ розміром
-    m_effect_buffer = std::make_unique<juce::AudioBuffer<float>>(2, samplesPerBlockExpected * 2); // x2 для запасу
-    m_effect_buffer->clear();
-
-    updateEffectParameters();
-}
-
-void Track::releaseResources()
-{
-    m_transport_source.releaseResources();
-    m_effect_chain.reset();
-}
-
-float calculateBlockAmplitude(const juce::dsp::AudioBlock<float>& block, size_t channel)
-{
-    float maxAmplitude = 0.0f;
-    const float* samples = block.getChannelPointer(channel);
-    for (size_t i = 0; i < block.getNumSamples(); ++i)
-    {
-        maxAmplitude = juce::jmax(maxAmplitude, std::abs(samples[i]));
-    }
-    return maxAmplitude;
-}
-
-
-void Track::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
-{
-    if (!m_is_ready.load() || m_is_being_destroyed.load()) {
-        bufferToFill.clearActiveBufferRegion();
-        return;
-    }
-
-    if (m_reader_source == nullptr) {
-        bufferToFill.clearActiveBufferRegion();
-        return;
-    }
-
-    if (bufferToFill.buffer == nullptr ||
-        bufferToFill.numSamples <= 0 ||
-        bufferToFill.buffer->getNumChannels() < 2) {
-        bufferToFill.clearActiveBufferRegion();
-        return;
-    }
-
-    if (m_effect_buffer == nullptr ||
-        m_effect_buffer->getNumSamples() < bufferToFill.numSamples) {
-        m_transport_source.getNextAudioBlock(bufferToFill);
-        return;
-    }
-
-    m_transport_source.getNextAudioBlock(bufferToFill);
-
-    if (m_current_effect != EffectType::None) {
-        int channelsToCopy = juce::jmin(2, bufferToFill.buffer->getNumChannels());
-        int samplesToCopy = juce::jmin(bufferToFill.numSamples, m_effect_buffer->getNumSamples());
-
-        for (int ch = 0; ch < channelsToCopy; ++ch) {
-            m_effect_buffer->copyFrom(ch, 0,
-                                      bufferToFill.buffer->getReadPointer(ch, bufferToFill.startSample),
-                                      samplesToCopy);
-        }
-
-        juce::dsp::AudioBlock<float> fullBlock(*m_effect_buffer);
-        juce::dsp::AudioBlock<float> block = fullBlock.getSubBlock(0, samplesToCopy);
-        juce::dsp::ProcessContextReplacing<float> context(block);
-
-        switch (m_current_effect) {
-        case EffectType::Reverb:
-            m_effect_chain.get<0>().process(context);
-            break;
-
-        case EffectType::Chorus:
-        {
-            auto numSamples = block.getNumSamples();
-            auto numChannels = block.getNumChannels();
-
-            // Chorus effect using Phaser (position 1 in chain)
-            auto& phaser = m_effect_chain.get<1>();
-            phaser.process(context);
-
-            // Manual mix control
-            float wet = m_chorus_settings.mix;
-            float dry = 1.0f - wet;
-
-            for (size_t channel = 0; channel < numChannels; ++channel) {
-                auto* samples = block.getChannelPointer(channel);
-                const auto* originalSamples = bufferToFill.buffer->getReadPointer(channel, bufferToFill.startSample);
-
-                for (size_t i = 0; i < numSamples; ++i) {
-                    samples[i] = samples[i] * wet + originalSamples[i] * dry;
-                }
-            }
-        }
-        break;
-
-        case EffectType::Delay:
-        {
-            auto& delay = m_effect_chain.get<2>();
-            auto numSamples = block.getNumSamples();
-            auto numChannels = block.getNumChannels();
-            float feedback = m_delay_settings.feedback;
-            float wet = m_delay_settings.mix;
-            float dry = 1.0f - wet;
-
-            for (size_t channel = 0; channel < numChannels; ++channel) {
-                auto* samples = block.getChannelPointer(channel);
-                for (size_t i = 0; i < numSamples; ++i) {
-                    float delayedSample = delay.popSample(static_cast<int>(channel),
-                                                          static_cast<int>(m_delay_settings.delayTime * m_sample_rate));
-                    float inputWithFeedback = samples[i] + delayedSample * feedback;
-                    delay.pushSample(static_cast<int>(channel), inputWithFeedback);
-                    samples[i] = delayedSample * wet + samples[i] * dry;
-                }
-            }
-        }
-        break;
-
-        case EffectType::Distortion:
-        {
-            auto numSamples = block.getNumSamples();
-            auto numChannels = block.getNumChannels();
-            float drive = m_distortion_settings.drive;
-            float mix = m_distortion_settings.mix;
-            float outputVolume = m_distortion_settings.outputVolume;
-
-            for (size_t channel = 0; channel < numChannels; ++channel) {
-                auto* samples = block.getChannelPointer(channel);
-                const auto* originalSamples = bufferToFill.buffer->getReadPointer(channel, bufferToFill.startSample);
-
-                for (size_t i = 0; i < numSamples; ++i) {
-                    float input = samples[i];
-
-                    // Soft clipping distortion algorithm
-                    float distorted = std::tanh(input * drive) / std::tanh(drive);
-
-                    // Mix wet/dry
-                    float mixed = distorted * mix + input * (1.0f - mix);
-
-                    // Apply output gain
-                    samples[i] = mixed * outputVolume;
-                }
-            }
-        }
-        break;
-
-        default:
-            break;
-        }
-
-        for (int channel = 0; channel < channelsToCopy; ++channel) {
-            bufferToFill.buffer->copyFrom(channel, bufferToFill.startSample,
-                                          m_effect_buffer->getReadPointer(channel),
-                                          samplesToCopy);
-        }
-    }
-}
-
 
 void Track::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
-        if (!m_reader_source) {
+        if (!m_player->hasFileLoaded()){
             QMessageBox::information(this, "Error", "Треку не назначено звук для відтворювання");
             return;
         }
@@ -287,6 +87,25 @@ void Track::mousePressEvent(QMouseEvent *event)
     }
 }
 
+void Track::mouseReleaseEvent(QMouseEvent *event){
+
+    if (event->button() == Qt::LeftButton) {
+        if (!m_is_loop && m_is_active) {
+            m_is_active = false;
+            update();
+        }
+    }
+
+    if (event->button() == Qt::RightButton) {
+        event->accept();
+    }
+
+    if (event->button() != Qt::LeftButton && event->button() != Qt::RightButton) {
+        QPushButton::mousePressEvent(event);
+    }
+}
+
+
 void Track::paintEvent(QPaintEvent *event){
     setStyleSheet(m_style.arg(m_outer_color.name()).arg("black").arg(width()/BORDER_RADIUS_COEF));
 
@@ -316,20 +135,23 @@ void Track::paintEvent(QPaintEvent *event){
     painter.drawEllipse(QPoint(center_x, center_y), radius, radius);
 }
 
+
 void Track::setVolume(float volume)
 {
-    if (volume >= 0.0f && volume <= 1.0f) {
-        m_transport_source.setGain(volume);
+    if ((volume < 0.0f) || (volume > 1.0f)) {
+        return;
     }
+    m_player->setVolume(volume);
+
 }
+
 
 void Track::setAudioSamplePath(QString path)
 {
     m_audio_sample_path = path;
-    if (m_audio_sample_path.isEmpty()) {
-        m_transport_source.stop();
-        m_transport_source.setSource(nullptr);
-        m_reader_source.reset();
+    if (!m_audio_sample_path.isEmpty()) {
+        m_player->loadAudioFileForPlaying(path);
+
         m_is_active = false;
         if (m_timer) {
             auto measures_count = m_beats_per_measure.size();
@@ -340,21 +162,6 @@ void Track::setAudioSamplePath(QString path)
         }
         return;
     }
-
-    juce::File audioFile(m_audio_sample_path.toStdString());
-    if (!audioFile.existsAsFile() || !audioFile.hasReadAccess()) {
-        qDebug() << "Cannot access audio file:" << m_audio_sample_path;
-        QMessageBox::information(this, "Error", "Немає доступу до аудіофайлу: " + m_audio_sample_path);
-        return;
-    }
-    auto reader = m_format_manager.createReaderFor(audioFile);
-    if (reader == nullptr) {
-        qDebug() << "Failed to create reader for audio file:" << m_audio_sample_path;
-        QMessageBox::information(this, "Error", "Не вдалося створити ридер для аудіофайлу: " + m_audio_sample_path);
-        return;
-    }
-    m_reader_source = std::make_unique<juce::AudioFormatReaderSource>(reader, true);
-    m_transport_source.setSource(m_reader_source.get(), 0, nullptr, reader->sampleRate);
 }
 
 QString Track::getAudioSamplePath()
@@ -365,14 +172,12 @@ QString Track::getAudioSamplePath()
 void Track::setLoopState(bool state)
 {
     m_is_loop = state;
-    if (m_reader_source) {
-        m_reader_source->setLooping(state);
-    }
 }
 
-void Track::setRecordingEnabled(bool enabled)
+void Track::setRecordingEnabled(bool state)
 {
-    m_is_recording_enabled = enabled;
+    m_is_recording_enabled = state;
+    m_player->setRecordingEnabled(state);
 }
 
 bool Track::isRecordingEnabled() const
@@ -419,7 +224,7 @@ void Track::setBeatState(quint8 index, bool state)
 
 float Track::getVolume()
 {
-    return m_transport_source.getGain();
+    return m_player->getVolume();
 }
 
 bool Track::getLoopState()
@@ -439,13 +244,13 @@ QColor Track::getOuterBackgroundColor()
 
 void Track::setEffectType(EffectType type)
 {
-    m_current_effect = type;
-    updateEffectParameters();
+
+    m_player->setEffectType(type);
 }
 
 EffectType Track::getEffectType()
 {
-    return m_current_effect;
+    return m_player->getCurrentEffectType();
 }
 
 
@@ -457,53 +262,54 @@ EffectType Track::getEffectType()
 void Track::setReverbRoomSize(float size)
 {
     if (size >= 0.0f && size <= 1.0f) {
-        m_reverb_settings.roomSize = size;
-        updateEffectParameters();
+        m_player->setReverbRoomSize(size);
     }
 }
 
 float Track::getReverbRoomSize()
 {
-    return m_reverb_settings.roomSize;
+    return m_player->getReverbRoomSize();
 }
 
 void Track::setReverbDamping(float damping)
 {
     if (damping >= 0.0f && damping <= 1.0f) {
-        m_reverb_settings.damping = damping;
-        updateEffectParameters();
+        m_player->setReverbDamping(damping);
     }
+
 }
 
 float Track::getReverbDamping()
 {
-    return m_reverb_settings.damping;
+    return m_player->getReverbDamping();
 }
+
 
 void Track::setReverbWetLevel(float wet)
 {
     if (wet >= 0.0f && wet <= 1.0f) {
-        m_reverb_settings.wetLevel = wet;
-        updateEffectParameters();
+        m_player->setReverbWetLevel(wet);
     }
+
 }
 
 float Track::getReverbWetLevel()
 {
-    return m_reverb_settings.wetLevel;
+
+    return m_player->getReverbWetLevel();
 }
 
 void Track::setReverbDryLevel(float dry)
 {
     if (dry >= 0.0f && dry <= 1.0f) {
-        m_reverb_settings.dryLevel = dry;
-        updateEffectParameters();
+        m_player->setReverbDryLevel(dry);
     }
+
 }
 
 float Track::getReverbDryLevel()
 {
-    return m_reverb_settings.dryLevel;
+    return m_player->getReverbDryLevel();
 }
 
 
@@ -511,13 +317,13 @@ float Track::getReverbDryLevel()
 void Track::setReverbOutputVolume(float volume)
 {
     if (volume >= 0.0f && volume <= 1.0f) {
-        m_reverb_settings.outputVolume = volume;
+        m_player->setReverbOutputVolume(volume);
     }
 }
 
 float Track::getReverbOutputVolume()
 {
-    return m_reverb_settings.outputVolume;
+    return m_player->getReverbOutputVolume();
 }
 
 
@@ -527,53 +333,51 @@ float Track::getReverbOutputVolume()
 void Track::setDelayTime(float time)
 {
     if (time >= 0.0f && time <= 1.0f) {
-        m_delay_settings.delayTime = time;
-        updateEffectParameters();
+        m_player->setDelayTime(time);
     }
+
 }
 
 float Track::getDelayTime()
 {
-    return m_delay_settings.delayTime;
+    return m_player->getDelayTime();
 }
 
 void Track::setDelayFeedback(float feedback)
 {
     if (feedback >= 0.0f && feedback <= 0.9f) {
-        m_delay_settings.feedback = feedback;
-        updateEffectParameters();
+        m_player->setDelayFeedback(feedback);
     }
 }
 
 float Track::getDelayFeedback()
 {
-    return m_delay_settings.feedback;
+    return m_player->getDelayFeedback();
 }
 
 void Track::setDelayMixLevel(float mix)
 {
     if (mix >= 0.0f && mix <= 1.0f) {
-        m_delay_settings.mix = mix;
-        updateEffectParameters();
+        m_player->setDelayMixLevel(mix);
     }
 }
 
 float Track::getDelayMixLevel()
 {
-    return m_delay_settings.mix;
+    return m_player->getDelayFeedback();
 }
 
 
 void Track::setDelayOutputVolume(float volume)
 {
     if (volume >= 0.0f && volume <= 1.0f) {
-        m_delay_settings.outputVolume = volume;
+        m_player->setDelayOutputVolume(volume);
     }
 }
 
 float Track::getDelayOutputVolume()
 {
-    return m_delay_settings.outputVolume;
+    return m_player->getDelayOutputVolume();
 }
 
 
@@ -584,78 +388,74 @@ float Track::getDelayOutputVolume()
 void Track::setChorusRate(float rate)
 {
     if (rate >= 0.1f && rate <= 10.0f) {
-        m_chorus_settings.rate = rate;
-        updateEffectParameters();
+        m_player->setChorusRate(rate);
     }
 }
 
 float Track::getChorusRate()
 {
-    return m_chorus_settings.rate;
+    return m_player->getChorusRate();
 }
 
 void Track::setChorusDepth(float depth)
 {
     if (depth >= 0.0f && depth <= 1.0f) {
-        m_chorus_settings.depth = depth;
-        updateEffectParameters();
+        m_player->setChorusDepth(depth);
     }
 }
 
 float Track::getChorusDepth()
 {
-    return m_chorus_settings.depth;
+    return m_player->getChorusDepth();
 }
 
 void Track::setChorusCenterDelay(float delay)
 {
     if (delay >= 1.0f && delay <= 50.0f) {
-        m_chorus_settings.centerDelay = delay;
-        updateEffectParameters();
+        m_player->setChorusCenterDelay(delay);
     }
 }
 
 float Track::getChorusCenterDelay()
 {
-    return m_chorus_settings.centerDelay;
+    return m_player->getChorusCenterDelay();
 }
 
 void Track::setChorusFeedback(float feedback)
 {
     if (feedback >= 0.0f && feedback <= 0.5f) {
-        m_chorus_settings.feedback = feedback;
-        updateEffectParameters();
+        m_player->setChorusFeedback(feedback);
     }
 }
 
 float Track::getChorusFeedback()
 {
-    return m_chorus_settings.feedback;
+    return m_player->getChorusFeedback();
 }
 
 void Track::setChorusMix(float mix)
 {
     if (mix >= 0.0f && mix <= 1.0f) {
-        m_chorus_settings.mix = mix;
-        updateEffectParameters();
+        m_player->setChorusMix(mix);
     }
+
 }
 
 float Track::getChorusMix()
 {
-    return m_chorus_settings.mix;
+    return m_player->getChorusMix();
 }
 
 void Track::setChorusOutputVolume(float volume)
 {
     if (volume >= 0.0f && volume <= 1.0f) {
-        m_chorus_settings.outputVolume = volume;
+        m_player->setChorusOutputVolume(volume);
     }
 }
 
 float Track::getChorusOutputVolume()
 {
-    return m_chorus_settings.outputVolume;
+    return m_player->getChorusOutputVolume();
 }
 
 
@@ -665,95 +465,56 @@ float Track::getChorusOutputVolume()
 void Track::setDistortionDrive(float drive)
 {
     if (drive >= 1.0f && drive <= 100.0f) {
-        m_distortion_settings.drive = drive;
-        updateEffectParameters();
+        m_player->setDistortionDrive(drive);
     }
 }
 
 float Track::getDistortionDrive()
 {
-    return m_distortion_settings.drive;
+    return m_player->getDistortionDrive();
 }
 
 void Track::setDistortionMix(float mix)
 {
     if (mix >= 0.0f && mix <= 1.0f) {
-        m_distortion_settings.mix = mix;
-        updateEffectParameters();
+        m_player->setDistortionMix(mix);
     }
 }
 
 float Track::getDistortionMix()
 {
-    return m_distortion_settings.mix;
+    return m_player->getDistortionMix();
 }
 
 
 void Track::setDistortionOutputVolume(float volume)
 {
     if (volume >= 0.0f && volume <= 1.0f) {
-        m_distortion_settings.outputVolume = volume;
+        m_player->setDistortionOutputVolume(volume);
     }
 }
 
 float Track::getDistortionOutputVolume()
 {
-    return m_distortion_settings.outputVolume;
+    return m_player->getDistortionOutputVolume();
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-void Track::updateEffectParameters()
-{
-    auto& reverb = m_effect_chain.get<0>();
-    reverb.setParameters(juce::dsp::Reverb::Parameters{
-        m_reverb_settings.roomSize,
-        m_reverb_settings.damping,
-        m_reverb_settings.wetLevel,
-        m_reverb_settings.dryLevel,
-        0.5f,
-        0.0f
-    });
-
-    // Chorus (використовуємо Phaser як chorus)
-    auto& phaser = m_effect_chain.get<1>();
-    phaser.setRate(m_chorus_settings.rate);
-    phaser.setDepth(m_chorus_settings.depth);
-    phaser.setCentreFrequency(1000.0f);
-    phaser.setFeedback(m_chorus_settings.feedback);
-    phaser.setMix(m_chorus_settings.mix);
-
-    auto& delay = m_effect_chain.get<2>();
-    delay.setDelay(m_delay_settings.delayTime * m_sample_rate);
-    delay.setMaximumDelayInSamples(static_cast<int>(m_sample_rate));
-
-    // Distortion не потребує окремих налаштувань процесора,
-    // оскільки реалізований вручну в getNextAudioBlock
-}
 
 void Track::play()
 {
-    if (m_reader_source) {
-        m_transport_source.setPosition(0);
-        m_transport_source.start();
-    }
+    m_player->play();
 }
 
 void Track::stop()
 {
-    m_transport_source.stop();
-    auto& delay = m_effect_chain.get<2>();
-    delay.reset();
+    m_player->stop();
 }
+
+
+ITrackPlayer* Track::getPlayer(){
+    return m_player.get();
+}
+
+
+

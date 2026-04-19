@@ -2,18 +2,6 @@
 #include <QFileDialog>
 
 
-AudioSampleSelector* AudioSampleSelector::m_instance = nullptr;
-
-AudioSampleSelector* AudioSampleSelector::getInstance(QString active_state_image_path, QString inactive_state_image_path, QWidget *parent)
-{
-    if (m_instance == nullptr)
-        m_instance = new AudioSampleSelector(active_state_image_path, inactive_state_image_path, parent);
-
-    return m_instance;
-}
-
-
-
 AudioSampleSelector::AudioSampleSelector(QString active_state_image_path, QString inactive_state_image_path, QWidget *parent)
     : QWidget(parent), m_is_active(false)
 {

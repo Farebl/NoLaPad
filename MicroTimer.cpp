@@ -1,14 +1,6 @@
 #include "MicroTimer.h"
 #include <QDebug>
 
-MicroTimer* MicroTimer::m_instance = nullptr;
-MicroTimer* MicroTimer::getInstance(quint32 interval_in_nanoseconds, QObject* parent){
-    if (m_instance == nullptr)
-        m_instance = new MicroTimer(interval_in_nanoseconds, parent);
-
-    return m_instance;
-}
-
 MicroTimer::MicroTimer(quint32 interval_in_nanosecond, QObject* parent)
     :  QObject(parent)
     , m_interval(interval_in_nanosecond)

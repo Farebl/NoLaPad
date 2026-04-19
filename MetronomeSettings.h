@@ -19,14 +19,11 @@ private:
     QSlider* m_volume_slider;
     QSpinBox* m_volume_display;
 
-    static MetronomeSettings* m_instance;
-    explicit MetronomeSettings(quint8 volume_percent, QWidget *parent);
-
 protected:
     void closeEvent(QCloseEvent *event) override;
 
 public:
-    static MetronomeSettings* getInstance(quint8 volume_percent = 100, QWidget *parent = nullptr);
+    MetronomeSettings(quint8 volume_percent = 100, QWidget *parent = nullptr);
 
 signals:
     void changedVolume(int volum_percent);

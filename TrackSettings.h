@@ -41,8 +41,6 @@ class TrackSettings: public QDialog
     Q_OBJECT
 
 private:
-    explicit TrackSettings(quint8 volume_percent, bool is_loop, const std::array<bool, 16>& beats_per_measure, const QColor& outer_background_color, const QColor& inner_background_color, QWidget *parent);
-
     LCDDisplay* m_volume_display;
     Fader* m_volume_fader;
 
@@ -63,13 +61,12 @@ private:
 
     QCheckBox* m_recording_checkbox;
 
-    static TrackSettings* m_instance;
 
 protected:
     void closeEvent(QCloseEvent *event) override;
 
 public:
-    static TrackSettings* getInstance(quint8 volume_percent = 100, bool is_loop = false, std::array<bool, 16> beats_per_measure = {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, const QColor& outer_background_color = Qt::gray, const QColor& inner_background_color = Qt::darkGray, QWidget *parent = nullptr);
+    explicit TrackSettings(quint8 volume_percent = 100, bool is_loop = false, const std::array<bool, 16>& beats_per_measure = {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, const QColor& outer_background_color = Qt::gray, const QColor& inner_background_color = Qt::darkGray, QWidget *parent = nullptr);
 
     void setLoopState(bool state);
     void setVolume(int volum_percent);

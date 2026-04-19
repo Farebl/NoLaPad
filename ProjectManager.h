@@ -1,25 +1,33 @@
 #ifndef PROJECTMANAGER_H
 #define PROJECTMANAGER_H
 
-#include "Project.h"
+#include <QMainWindow>
+#include "MicroTimer.h"
+#include "TrackSettings.h"
+
+class IAudioEngine;
+class Project;
+
 
 class ProjectManager : public QMainWindow
 {
     Q_OBJECT
+
 private:
 
-    QTimer* m_timer_for_REC;
-    TrackSettings* m_settings_window;
-    Metronome* m_metronome;
-    Project* m_curent_project;
+    std::unique_ptr<IAudioEngine> m_audio_engine;
+    MicroTimer m_timer;
 
-    static ProjectManager* m_instance;
+    TrackSettings m_track_settings_window;
+    std::unique_ptr<Project> m_curent_project;
 
-    explicit ProjectManager(QWidget *parent = nullptr);
-
+    void saveCurrentProjectView();
 
 public:
-    static ProjectManager* getInstance(QWidget *parent = nullptr);
+    ~ProjectManager();
+    explicit ProjectManager(QWidget *parent = nullptr);
+    void initProject(const QString& project_name);
+    void saveCurrentProject();
 };
 
 

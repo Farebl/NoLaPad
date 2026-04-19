@@ -1,17 +1,6 @@
 #include "RecorderButton.h"
 
 
-RecorderButton* RecorderButton::m_instance = nullptr;
-
-RecorderButton* RecorderButton::getInstance(uint diameter, QWidget *parent)
-{
-    if (m_instance == nullptr)
-        m_instance = new RecorderButton(diameter, parent);
-
-    return m_instance;
-}
-
-
 RecorderButton::RecorderButton(uint diameter, QWidget *parent)
     : QPushButton(parent){
     setCheckable(true); // Делаем кнопку переключаемой
