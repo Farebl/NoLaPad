@@ -27,8 +27,20 @@ private:
     std::atomic<bool> m_is_ready{false};
     std::atomic<bool> m_is_recording_enabled{false};
 
+    void loadAudioFileForPlaying(
+        const std::string& path,
+        juce::AudioTransportSource& transport,
+        std::unique_ptr<juce::AudioFormatReaderSource>& readerSource
+    );
+
 public:
-    JUCEMetronomePlayer(const std::array<std::string, 4>& measures_sounds_path, float volume = 1.0);
+    JUCEMetronomePlayer(
+        const QString& first_measure_sound_path,
+        const QString& second_measure_sound_path,
+        const QString& third_measure_sound_path,
+        const QString& fourth_measure_sound_path,
+        float volume = 1.0
+    );
 
     ~JUCEMetronomePlayer() override;
 
@@ -47,7 +59,10 @@ public:
     void setRecordingEnabled(bool enabled) override;
     bool isRecordingEnabled() const override;
 
-    void loadAudioFilesForPlaying(const std::array<std::string, 4>& samples_paths) override;
+    void loadAudioFileForFirstMeasure(const QString& sample_path) override;
+    void loadAudioFileForSecondMeasure(const QString& sample_path) override;
+    void loadAudioFileForThirdMeasure(const QString& sample_path) override;
+    void loadAudioFileForFourthMeasure(const QString& sample_path) override;
 };
 
 #endif // JUCEMETRONOMEPLAYER_H

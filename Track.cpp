@@ -10,6 +10,7 @@ Track::Track(
     MicroTimer* timer,
     float volume,
     bool is_loop,
+    bool is_recording,
     std::array<bool, 16> beats_per_measure,
     QString sound_path,
     const QColor& outer_background_color,
@@ -21,7 +22,7 @@ Track::Track(
     , m_is_loop(is_loop)
     , m_audio_sample_path(sound_path)
     , m_is_active(false)
-    , m_is_recording_enabled(false)
+    , m_is_recording(is_recording)
     , m_style("background-color: %1; color: %2; border-radius: %3px; margin: 2px;")
     , m_outer_color(outer_background_color)
     , m_inner_color(inner_active_background_color)
@@ -164,7 +165,7 @@ void Track::setAudioSamplePath(QString path)
     }
 }
 
-QString Track::getAudioSamplePath()
+QString Track::getAudioSamplePath() const
 {
     return m_audio_sample_path;
 }
@@ -174,15 +175,15 @@ void Track::setLoopState(bool state)
     m_is_loop = state;
 }
 
-void Track::setRecordingEnabled(bool state)
+void Track::setRecordingState(bool state)
 {
-    m_is_recording_enabled = state;
+    m_is_recording = state;
     m_player->setRecordingEnabled(state);
 }
 
-bool Track::isRecordingEnabled() const
+bool Track::getRecordingState() const
 {
-    return m_is_recording_enabled;
+    return m_is_recording;
 }
 
 void Track::setOuterBackgroundColor(QColor color)
@@ -197,12 +198,12 @@ void Track::setInnerActiveBackgroundColor(QColor color)
     update();
 }
 
-QString Track::getSoundPath()
+QString Track::getSoundPath() const
 {
     return m_audio_sample_path;
 }
 
-std::array<bool, 16> Track::getBeatsStates()
+std::array<bool, 16> Track::getBeatsStates() const
 {
     return m_beats_per_measure;
 }
@@ -222,22 +223,22 @@ void Track::setBeatState(quint8 index, bool state)
 }
 
 
-float Track::getVolume()
+float Track::getVolume() const
 {
     return m_player->getVolume();
 }
 
-bool Track::getLoopState()
+bool Track::getLoopState() const
 {
     return m_is_loop;
 }
 
-QColor Track::getInnerActiveBackgroundColor()
+QColor Track::getInnerActiveBackgroundColor() const
 {
     return m_inner_color;
 }
 
-QColor Track::getOuterBackgroundColor()
+QColor Track::getOuterBackgroundColor() const
 {
     return m_outer_color;
 }
@@ -248,7 +249,7 @@ void Track::setEffectType(EffectType type)
     m_player->setEffectType(type);
 }
 
-EffectType Track::getEffectType()
+EffectType Track::getEffectType() const
 {
     return m_player->getCurrentEffectType();
 }
@@ -266,7 +267,7 @@ void Track::setReverbRoomSize(float size)
     }
 }
 
-float Track::getReverbRoomSize()
+float Track::getReverbRoomSize() const
 {
     return m_player->getReverbRoomSize();
 }
@@ -279,7 +280,7 @@ void Track::setReverbDamping(float damping)
 
 }
 
-float Track::getReverbDamping()
+float Track::getReverbDamping() const
 {
     return m_player->getReverbDamping();
 }
@@ -293,7 +294,7 @@ void Track::setReverbWetLevel(float wet)
 
 }
 
-float Track::getReverbWetLevel()
+float Track::getReverbWetLevel() const
 {
 
     return m_player->getReverbWetLevel();
@@ -307,7 +308,7 @@ void Track::setReverbDryLevel(float dry)
 
 }
 
-float Track::getReverbDryLevel()
+float Track::getReverbDryLevel() const
 {
     return m_player->getReverbDryLevel();
 }
@@ -321,7 +322,7 @@ void Track::setReverbOutputVolume(float volume)
     }
 }
 
-float Track::getReverbOutputVolume()
+float Track::getReverbOutputVolume() const
 {
     return m_player->getReverbOutputVolume();
 }
@@ -338,7 +339,7 @@ void Track::setDelayTime(float time)
 
 }
 
-float Track::getDelayTime()
+float Track::getDelayTime() const
 {
     return m_player->getDelayTime();
 }
@@ -350,7 +351,7 @@ void Track::setDelayFeedback(float feedback)
     }
 }
 
-float Track::getDelayFeedback()
+float Track::getDelayFeedback() const
 {
     return m_player->getDelayFeedback();
 }
@@ -362,7 +363,7 @@ void Track::setDelayMixLevel(float mix)
     }
 }
 
-float Track::getDelayMixLevel()
+float Track::getDelayMixLevel() const
 {
     return m_player->getDelayFeedback();
 }
@@ -375,7 +376,7 @@ void Track::setDelayOutputVolume(float volume)
     }
 }
 
-float Track::getDelayOutputVolume()
+float Track::getDelayOutputVolume() const
 {
     return m_player->getDelayOutputVolume();
 }
@@ -392,7 +393,7 @@ void Track::setChorusRate(float rate)
     }
 }
 
-float Track::getChorusRate()
+float Track::getChorusRate() const
 {
     return m_player->getChorusRate();
 }
@@ -404,7 +405,7 @@ void Track::setChorusDepth(float depth)
     }
 }
 
-float Track::getChorusDepth()
+float Track::getChorusDepth() const
 {
     return m_player->getChorusDepth();
 }
@@ -416,7 +417,7 @@ void Track::setChorusCenterDelay(float delay)
     }
 }
 
-float Track::getChorusCenterDelay()
+float Track::getChorusCenterDelay() const
 {
     return m_player->getChorusCenterDelay();
 }
@@ -428,7 +429,7 @@ void Track::setChorusFeedback(float feedback)
     }
 }
 
-float Track::getChorusFeedback()
+float Track::getChorusFeedback() const
 {
     return m_player->getChorusFeedback();
 }
@@ -441,7 +442,7 @@ void Track::setChorusMix(float mix)
 
 }
 
-float Track::getChorusMix()
+float Track::getChorusMix() const
 {
     return m_player->getChorusMix();
 }
@@ -453,7 +454,7 @@ void Track::setChorusOutputVolume(float volume)
     }
 }
 
-float Track::getChorusOutputVolume()
+float Track::getChorusOutputVolume() const
 {
     return m_player->getChorusOutputVolume();
 }
@@ -469,7 +470,7 @@ void Track::setDistortionDrive(float drive)
     }
 }
 
-float Track::getDistortionDrive()
+float Track::getDistortionDrive() const
 {
     return m_player->getDistortionDrive();
 }
@@ -481,7 +482,7 @@ void Track::setDistortionMix(float mix)
     }
 }
 
-float Track::getDistortionMix()
+float Track::getDistortionMix() const
 {
     return m_player->getDistortionMix();
 }
@@ -494,25 +495,26 @@ void Track::setDistortionOutputVolume(float volume)
     }
 }
 
-float Track::getDistortionOutputVolume()
+float Track::getDistortionOutputVolume() const
 {
     return m_player->getDistortionOutputVolume();
 }
 
 
 
-void Track::play()
+void Track::play() const
 {
     m_player->play();
 }
 
-void Track::stop()
+void Track::stop() const
 {
     m_player->stop();
 }
 
 
-ITrackPlayer* Track::getPlayer(){
+ITrackPlayer* Track::getPlayer() const
+{
     return m_player.get();
 }
 

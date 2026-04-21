@@ -1,0 +1,4107 @@
+{
+    "columns_count": 8,
+    "metronome": {
+        "bpm": 60,
+        "volume": 1.0
+    },
+    "name": "Project 1",
+    "rows_count": 8,
+    "tracks": [
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "/home/dmytro_klymenko/Programmer/QtProjects/NoLaPad/music/bass_guitar/bass-gitara-elektro-so-svistom.mp3",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 0,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 0,
+                "g": 255,
+                "r": 0
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 1,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 2,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 3,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 4,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 5,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 6,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 7,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 8,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 9,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 10,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 11,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 12,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 13,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 14,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 15,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 16,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 17,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 18,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 19,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 20,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 21,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 22,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 23,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 24,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 25,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 26,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 27,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 28,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 29,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 30,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 31,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 32,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 33,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 34,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 35,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 36,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 37,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 38,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 39,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 40,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 41,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 42,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 43,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 44,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 45,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 46,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 47,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 48,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 49,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 50,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 51,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 52,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 53,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 54,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 55,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 56,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 57,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 58,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 59,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 60,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 61,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 62,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        },
+        {
+            "_16th_beats": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "audio_sample_path": "",
+            "chorus_settings": {
+                "centerDelay": 7.0,
+                "depth": 0.25,
+                "feedback": 0.0,
+                "mix": 0.5,
+                "outputVolume": 1.0,
+                "rate": 1.0
+            },
+            "delay_settings": {
+                "delayTime": 0.20000000298023224,
+                "feedback": 0.20000000298023224,
+                "mix": 0.5,
+                "outputVolume": 1.0
+            },
+            "distortion_settings": {
+                "drive": 10.0,
+                "mix": 0.5,
+                "outputVolume": 0.5
+            },
+            "effect_type": "None",
+            "index": 63,
+            "inner_color": {
+                "a": 255,
+                "b": 0,
+                "g": 0,
+                "r": 255
+            },
+            "is_loop": false,
+            "is_recording_enabled": false,
+            "outer_color": {
+                "a": 255,
+                "b": 164,
+                "g": 160,
+                "r": 160
+            },
+            "reverb_settings": {
+                "damping": 0.5,
+                "dryLevel": 0.4000000059604645,
+                "outputVolume": 1.0,
+                "roomSize": 0.5,
+                "wetLevel": 0.33000001311302185
+            },
+            "volume": 0.800000011920929
+        }
+    ]
+}

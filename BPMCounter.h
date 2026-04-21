@@ -24,9 +24,8 @@ private:
 
 public:
     explicit BPMCounter(MicroTimer* timer = nullptr, quint16 bpm_value = 60, QWidget *parent = nullptr);
-    QSpinBox* getBPMCounterDisplay();
-    QPushButton* getUpButton();
-    QPushButton* getDownButton();
+    void setBPM(quint16 value);
+    quint16 getBPM() const;
 };
 
 #endif // BPMCounterCOUNTER_H

@@ -15,16 +15,7 @@
 #include "RecorderButton.h"
 //#include "TransportCallback.h"
 #include "IAudioEngine.h"
-
-
-
-
-struct ProjectSaveParameters {
-    QString name;
-    QString save_project_path;
-    int m_row;
-    int m_column;
-};
+#include "ProjectSaveParameters.h"
 
 class Project : public QMainWindow
 {
@@ -32,41 +23,35 @@ class Project : public QMainWindow
 
 private:
 
-    explicit Project() = delete;
-	explicit Project(const Project&) = delete;
-	Project& operator=(const Project&) = delete;
-    IAudioEngine* m_audio_engine;
-
-
-
-/*
-    juce::AudioDeviceManager m_device_manager;
-    juce::MixerAudioSource m_mixer_source;
-    TransportCallback* m_callback; // not RAII because performanse is important
-  */
-
-    std::vector<Track*> m_tracks;
-
-    ProjectSaveParameters m_save_params;
+    QString m_name;
     QString m_save_records_path;
-    QWidget* m_central_widget;
-    QWidget* m_title_bar;
+
+    quint8 m_rows_count;
+    quint8 m_columns_count;
+
     bool m_dragging;
     bool m_resizing;
     QPoint m_drag_position;
     QPoint m_resize_start;
     QSize m_resize_start_size;
-    QTableWidget *m_table_widget;
 
+
+    QWidget* m_title_bar;
+    QTableWidget* m_table_widget;
+
+    IAudioEngine* m_audio_engine;
     MicroTimer* m_timer;
-    QTimer* m_timer_for_REC;
-    std::unique_ptr<QElapsedTimer> m_elapsed_timer_for_REC; // can't having a parent (not a QObject)
-    RecorderButton* m_recording_button;
-    QLabel* m_digital_clock_face;
-    BPMCounter* m_bpm_counter;
     Metronome* m_metronome;
     TrackSettings* m_track_settings_window;
-    std::vector<QMetaObject::Connection> m_current_connections;
+    QTimer* m_timer_for_REC;
+    std::unique_ptr<QElapsedTimer> m_elapsed_timer_for_REC;
+
+    QVector<Track*> m_tracks;
+    QVector<QMetaObject::Connection> m_track_settings_connections;
+
+    explicit Project() = delete;
+    explicit Project(const Project&) = delete;
+    Project& operator=(const Project&) = delete;
 
     void toggleMaximize();
     void openTrackSettings(Track* track);
@@ -77,13 +62,43 @@ protected:
     void mouseReleaseEvent(QMouseEvent* event) override;
     void closeEvent(QCloseEvent *event) override;
 
+    explicit Project(
+        IAudioEngine* audio_engine,
+        MicroTimer* timer,
+        Metronome* metronome,
+        TrackSettings* track_settings_window,
+        QWidget *parent = nullptr
+    );
+
 public:
-    explicit Project(const QString& name = "", const QString& save_project_path = "", const QString& save_records_path = ".", int row = 8, int column = 8, int bpm_value = 60, IAudioEngine* audio_engine = nullptr, MicroTimer* m_timer = nullptr,  TrackSettings* m_track_settings_window = nullptr,
-QWidget *parent = nullptr);
+    explicit Project(
+        IAudioEngine* audio_engine,
+        MicroTimer* timer,
+        Metronome* metronome,
+        TrackSettings* track_settings_window,
+        const QString& name = "",
+        const QString& save_records_path = ".",
+        quint8 row = 8,
+        quint8 column = 8,
+        quint16 bpm_value = 60,
+        QWidget *parent = nullptr
+    );
+
+    explicit Project(
+        IAudioEngine* audio_engine,
+        MicroTimer* timer,
+        Metronome* metronome,
+        TrackSettings* track_settings_window,
+        const ProjectSaveParameters& data,
+        QWidget* parent = nullptr
+    );
+
     ~Project();
+    ProjectSaveParameters getSaveParameters();
 
 signals:
     void closed();
+    void saveTriggered();
 };
 
 #endif // PROJECT_H

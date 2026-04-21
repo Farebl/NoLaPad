@@ -7,7 +7,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
+set(CMAKE_INSTALL_RPATH "${Qt6_DIR}/../../../lib")
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets Multimedia)
 find_package(Qt6 REQUIRED COMPONENTS Core)
@@ -28,6 +30,9 @@ set(JUCE_BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
 set(JUCE_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 add_subdirectory(${JUCE_DIR} JUCE)
 add_definitions(-DJUCE_DISABLE_ASSERTIONS=1)
+
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+add_subdirectory(nlohmann/json)
 
 set(PROJECT_SOURCES
     main.cpp
@@ -62,7 +67,7 @@ qt_add_executable(NoLaPad
     IPlayer.h
     IRecorder.h
     IStorage.h
-    ProjectSaveParametersAndProjectView.h
+    ProjectSaveParameters.h
     JUCETrackPlayer.h JUCETrackPlayer.cpp
     JUCEAudioEngine.h JUCEAudioEngine.cpp
     JUCERecorder.h JUCERecorder.cpp
@@ -70,6 +75,10 @@ qt_add_executable(NoLaPad
     JUCEMetronomePlayer.h JUCEMetronomePlayer.cpp
     ITrackPlayer.h
     IMetronomePlayer.h
+    ProjectView.h ProjectView.cpp
+    JSONStorage.h JSONStorage.cpp
+    Effects.h
+
 
 )
 
@@ -87,6 +96,7 @@ target_link_libraries(NoLaPad PRIVATE
     juce::juce_audio_formats
     juce::juce_dsp
     CURL::libcurl
+    nlohmann_json::nlohmann_json
     ${LAME_LIBRARY}
 )
 target_link_libraries(NoLaPad PRIVATE Qt6::Core)
@@ -110,3 +120,7 @@ install(TARGETS NoLaPad
 if(Qt6_FOUND)
     qt_finalize_executable(NoLaPad)
 endif()
+
+
+
+

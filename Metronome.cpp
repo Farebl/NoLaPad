@@ -4,9 +4,17 @@
 #include "MicroTimer.h"
 #include "MetronomeSettings.h"
 
-Metronome::Metronome(MicroTimer* timer, const std::array<std::string, 4>& measures_sounds_path, float volume, quint16 bpm_value, QWidget *parent)
+Metronome::Metronome(
+    MicroTimer* timer,
+    const QString& first_measure_sound_path,
+    const QString& second_measure_sound_path,
+    const QString& third_measure_sound_path,
+    const QString& fourth_measure_sound_path,
+    float volume,
+    quint16 bpm_value,
+    QWidget *parent)
     : QWidget(parent)
-    , m_player(new JUCEMetronomePlayer(measures_sounds_path, volume))
+    , m_player(new JUCEMetronomePlayer(first_measure_sound_path, second_measure_sound_path, third_measure_sound_path, fourth_measure_sound_path, volume))
     , m_timer(timer)
     , m_settings_window(nullptr)
     , m_bpm_counter(new BPMCounter(m_timer, bpm_value, this))
@@ -121,6 +129,20 @@ void Metronome::setVolume(float volume){
     m_player->setVolume(volume);
 }
 
+float Metronome::getVolume() const{
+    return m_player->getVolume();
+}
+
+
 IMetronomePlayer* Metronome::getPlayer(){
     return m_player.get();
+}
+
+
+void Metronome::setBPM(quint16 value){
+    m_bpm_counter->setBPM(value);
+}
+
+quint16 Metronome::getBPM() const{
+    return m_bpm_counter->getBPM();
 }

@@ -32,7 +32,7 @@ private:
 
     bool m_is_active;
     bool m_is_loop;
-    bool m_is_recording_enabled;  // Новий флаг для запису
+    bool m_is_recording;  // Новий флаг для запису
     QString m_audio_sample_path;
     QString m_style;
     QColor m_outer_color;
@@ -44,15 +44,15 @@ private:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
-    void updateEffectParameters();
+    void updateEffectParameters() const;
 
 public:
 
     explicit Track(
-
         MicroTimer* timer = nullptr,
         float volume = 1.0,
         bool is_loop = false,
+        bool is_recording = false,
         std::array<bool, 16> beats_per_measure = {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
         QString sound_path = "",
         const QColor& outer_background_color = Qt::gray,
@@ -64,83 +64,83 @@ public:
 
     // Volume methods
     void setVolume(float volume);
-    float getVolume();
+    float getVolume() const;
 
     void setAudioSamplePath(QString path);
-    QString getAudioSamplePath();
+    QString getAudioSamplePath() const;
 
     // Loop and color methods
     void setLoopState(bool state);
-    bool getLoopState();
+    bool getLoopState() const;
     void setInnerActiveBackgroundColor(QColor color);
-    QColor getInnerActiveBackgroundColor();
+    QColor getInnerActiveBackgroundColor() const;
     void setOuterBackgroundColor(QColor color);
-    QColor getOuterBackgroundColor();
-    QString getSoundPath();
-    std::array<bool, 16> getBeatsStates();
+    QColor getOuterBackgroundColor() const;
+    QString getSoundPath() const;
+    std::array<bool, 16> getBeatsStates() const;
 
     // Recording flag methods
-    void setRecordingEnabled(bool enabled);
-    bool isRecordingEnabled() const;
+    void setRecordingState(bool enabled);
+    bool getRecordingState() const;
 
     // Beat methods
     void setBeatState(quint8 index, bool state);
 
     // Effect type methods
     void setEffectType(EffectType type);
-    EffectType getEffectType();
+    EffectType getEffectType() const;
 
     // Reverb settings methods
     void setReverbRoomSize(float size);
-    float getReverbRoomSize();
+    float getReverbRoomSize() const;
     void setReverbDamping(float damping);
-    float getReverbDamping();
+    float getReverbDamping() const;
     void setReverbWetLevel(float wet);
-    float getReverbWetLevel();
+    float getReverbWetLevel() const;
     void setReverbDryLevel(float dry);
-    float getReverbDryLevel();
+    float getReverbDryLevel() const;
     void setReverbOutputVolume(float volume);
-    float getReverbOutputVolume();
+    float getReverbOutputVolume() const;
 
 
     // Delay settings methods
     void setDelayTime(float time);
-    float getDelayTime();
+    float getDelayTime() const;
     void setDelayFeedback(float feedback);
-    float getDelayFeedback();
+    float getDelayFeedback() const;
     void setDelayMixLevel(float mix);
-    float getDelayMixLevel();
+    float getDelayMixLevel() const;
     void setDelayOutputVolume(float volume);
-    float getDelayOutputVolume();
+    float getDelayOutputVolume() const;
 
 
     // Chorus settings methods
     void setChorusRate(float rate);
-    float getChorusRate();
+    float getChorusRate() const;
     void setChorusDepth(float depth);
-    float getChorusDepth();
+    float getChorusDepth() const;
     void setChorusCenterDelay(float delay);
-    float getChorusCenterDelay();
+    float getChorusCenterDelay() const;
     void setChorusFeedback(float feedback);
-    float getChorusFeedback();
+    float getChorusFeedback() const;
     void setChorusMix(float mix);
-    float getChorusMix();
+    float getChorusMix() const;
     void setChorusOutputVolume(float volume);
-    float getChorusOutputVolume();
+    float getChorusOutputVolume() const;
 
     // Distortion settings methods
     void setDistortionDrive(float drive);
-    float getDistortionDrive();
+    float getDistortionDrive() const;
     void setDistortionMix(float mix);
-    float getDistortionMix();
+    float getDistortionMix() const;
     void setDistortionOutputVolume(float volume);
-    float getDistortionOutputVolume();
+    float getDistortionOutputVolume() const;
 
 
-    void play();
-    void stop();
+    void play() const;
+    void stop() const;
 
-    ITrackPlayer* getPlayer();
+    ITrackPlayer* getPlayer() const;
 
 signals:
     void rightClicked(Track* _this);

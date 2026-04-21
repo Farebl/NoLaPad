@@ -1,17 +1,18 @@
 #ifndef ISTORAGE_H
 #define ISTORAGE_H
 
-#include "ProjectSaveParametersAndProjectView.h"
-
+#include "ProjectSaveParameters.h"
+class ProjectView;
 
 class IStorage{
 public:
-    virtual ProjectSaveParameters getProjectData(const QString&, const QString&) = 0;
-    virtual void saveProject(const ProjectSaveParameters&,  const QString&) = 0;
-    virtual void deleteProject(const QString&, const QString&) = 0;
-    virtual QVector<ProjectView> getProjectsViews(const QString&) = 0;
-    virtual void saveProjectView(ProjectView*, const QString&) = 0;
-    virtual void deleteProjectView(const QString&, const QString&) = 0;
+    virtual ~IStorage() = default;
+    virtual ProjectSaveParameters getProjectData(const QString& path) = 0;
+    virtual void saveProject(const ProjectSaveParameters& project_parameters,  const QString& path) = 0;
+    virtual void deleteProject(const QString& path) = 0;
+    virtual QVector<ProjectView> loadProjectsViews(const QString& path) = 0;
+    virtual void saveProjectView(ProjectView* project_view) = 0;
+    virtual void deleteProjectView(const QString& project_name) = 0;
 };
 
 #endif // ISTORAGE_H

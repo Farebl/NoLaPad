@@ -6,29 +6,29 @@
 #include <QGraphicsDropShadowEffect>
 #include <QLCDNumber>
 #include <QFontDatabase>
-
+#include <QMenu>
+#include <QAction>
 #include "RecorderButton.h"
-
 #include "IMetronomePlayer.h"
 
 
-Project::Project(const QString& name, const QString& save_project_path, const QString& save_records_path, int row, int column, int bpm_value, IAudioEngine* audio_engine, MicroTimer* timer, TrackSettings* track_settings_window,
-                      QWidget *parent)
+Project::Project(
+    IAudioEngine* audio_engine,
+    MicroTimer* timer,
+    Metronome* metronome,
+    TrackSettings* track_settings_window,
+    QWidget *parent
+    )
     : QMainWindow(parent)
-    , m_save_params{name, save_project_path, row, column}
-    , m_save_records_path(save_records_path)
-    , m_audio_engine(audio_engine)
-    , m_central_widget(new QWidget(this))
-    , m_title_bar(new QWidget(this))
     , m_dragging(false)
     , m_resizing(false)
-    , m_table_widget(new QTableWidget(row, column, this))
-    , m_timer(timer)
+    , m_title_bar(new QWidget(this))
     , m_timer_for_REC(new QTimer(this))
     , m_elapsed_timer_for_REC(new QElapsedTimer())
-    , m_recording_button(new RecorderButton(25, this))
-    , m_digital_clock_face(new QLabel())
-    , m_metronome(new Metronome(m_timer, {{"../../music/metronome/strong_measure.wav","../../music/metronome/weak_measure.wav","",""}}, 1.0, 60, this))
+    , m_table_widget(new QTableWidget(this))
+    , m_audio_engine(audio_engine)
+    , m_timer(timer)
+    , m_metronome(metronome)
     , m_track_settings_window(track_settings_window)
 {
 
@@ -38,32 +38,65 @@ Project::Project(const QString& name, const QString& save_project_path, const QS
     setAttribute(Qt::WA_TranslucentBackground);
     resize(800, 800);
     setMinimumSize(400, 300);
-    m_current_connections.reserve(22);
+    m_track_settings_connections.reserve(22);
+
+
+
+    // ----------------------------------------------- top zone
 
 
 
 
+    // ------------------------- title bar
+
+
+    m_title_bar->setFixedHeight(40);
+    m_title_bar->setStyleSheet(
+        "background-color: #e0e0e0;"
+        "border-top-left-radius: 10px;"
+        "border-top-right-radius: 10px;"
+        );
+
+
+
+    //------------------------ project settings menu
+
+    QPushButton* action_selector = new QPushButton("⚙", this);
+
+    action_selector->setStyleSheet(QString("color: #5a5a5a; font-size: 25px;"));
+
+    QMenu* actions = new QMenu(action_selector);
+    actions->setStyleSheet("font-size: 14px;");
+    QAction* settings_action = new QAction("Settings");
+    QAction* save_action = new QAction("Save");
+    actions ->addAction(settings_action);
+    actions ->addAction(save_action);
+
+    action_selector->setMenu(actions);
+    connect(settings_action, &QAction::triggered, this, [=](){qDebug()<<"open project settings";});
+    connect(save_action, &QAction::triggered, this, &Project::saveTriggered);
 
     // -------------------- REC zone
 
+    RecorderButton* recording_button = new RecorderButton(25, this);
+    recording_button->setCheckable(true);
+    recording_button->setChecked(false);
 
-    m_recording_button->setCheckable(true);
-    m_recording_button->setChecked(false);
-
-    m_digital_clock_face->setStyleSheet(QString("color: #5a5a5a; font-size: %1px; height: %1px").arg(25));
-    m_digital_clock_face->setText("00:00:00:0");
-    m_digital_clock_face->setAlignment(Qt::AlignCenter);
+    QLabel* digital_clock_face = new QLabel(this);
+    digital_clock_face ->setStyleSheet(QString("color: #5a5a5a; font-size: %1px; height: %1px").arg(25));
+    digital_clock_face ->setText("00:00:00:0");
+    digital_clock_face ->setAlignment(Qt::AlignCenter);
 
 
     QHBoxLayout* rec_layout = new QHBoxLayout();
-    rec_layout->addWidget(m_recording_button);
-    rec_layout->addWidget(m_digital_clock_face);
+    rec_layout->addWidget(recording_button);
+    rec_layout->addWidget(digital_clock_face );
 
 
-    connect(m_recording_button, &RecorderButton::toggled, this, [&](bool checked) {
+    connect(recording_button, &RecorderButton::toggled, this, [&](bool checked) {
         if (checked) {
-            m_recording_button->setChecked(true);
-            m_recording_button->update();
+            recording_button->setChecked(true);
+            recording_button->update();
             m_timer_for_REC->start();
             m_elapsed_timer_for_REC->start();
             m_audio_engine->startRecording(m_save_records_path);
@@ -71,9 +104,9 @@ Project::Project(const QString& name, const QString& save_project_path, const QS
         else {
             m_timer_for_REC->stop();
             m_elapsed_timer_for_REC->invalidate();
-            m_digital_clock_face->setText("00:00:00:0");
-            m_recording_button->setChecked(false);
-            m_recording_button->update();
+            digital_clock_face ->setText("00:00:00:0");
+            recording_button->setChecked(false);
+            recording_button->update();
             m_audio_engine->stopRecording();
         }
     });
@@ -83,13 +116,13 @@ Project::Project(const QString& name, const QString& save_project_path, const QS
         QTime time(0, 0);
         qint64 elapsed = m_elapsed_timer_for_REC->elapsed();
         time = time.addMSecs(elapsed);
-        m_digital_clock_face->setText(time.toString("HH:mm:ss:%1").arg(time.msec() / 100));
+        digital_clock_face ->setText(time.toString("HH:mm:ss:%1").arg(time.msec() / 100));
 
         if (elapsed >= 359999999) {
             m_timer->stop();
             m_elapsed_timer_for_REC->invalidate();
-            m_digital_clock_face->setText("00:00:00:0");
-            m_recording_button->setChecked(false);
+            digital_clock_face ->setText("00:00:00:0");
+            recording_button->setChecked(false);
             m_audio_engine->stopRecording();
         }
     });
@@ -124,18 +157,9 @@ Project::Project(const QString& name, const QString& save_project_path, const QS
 
 
 
-
-    // ----------------------- title bar
-
-    m_title_bar->setFixedHeight(40);
-    m_title_bar->setStyleSheet(
-        "background-color: #e0e0e0;"
-        "border-top-left-radius: 10px;"
-        "border-top-right-radius: 10px;"
-        );
-
     QHBoxLayout* title_layout = new QHBoxLayout(m_title_bar);
     title_layout->setContentsMargins(10, 0, 10, 0);
+    title_layout->addWidget(action_selector);
     title_layout->addLayout(rec_layout);
     title_layout->addStretch();
     title_layout->addWidget(m_metronome);
@@ -150,8 +174,8 @@ Project::Project(const QString& name, const QString& save_project_path, const QS
 
     // ------------   Центральный виджет
 
-
-    m_central_widget->setStyleSheet(
+    QWidget* central_widget = new QWidget(this);
+    central_widget->setStyleSheet(
         "background-color: #3f3f3f;"
         "border-bottom-left-radius: 10px;"
         "border-bottom-right-radius: 10px;"
@@ -165,61 +189,6 @@ Project::Project(const QString& name, const QString& save_project_path, const QS
 
 
 
-    // Ініціалізація треків
-    m_tracks.resize(row * column);
-    for (int r = 0; r < m_save_params.m_row; ++r) {
-        for (int c = 0; c < m_save_params.m_column; ++c) {
-            Track* track = new Track(
-                m_timer,
-                0.80,
-                false,
-                {
-                    1, 0, 0, 0,
-                    0, 0, 0, 0,
-                    0, 0, 0, 0,
-                    0, 0, 0, 0
-                },
-                QString("../../music/drums/jh-bolshoy-tom-2-f-15-sek.mp3"),
-                Qt::gray,
-                Qt::red,
-                m_table_widget
-                );
-            m_tracks[r * m_save_params.m_column + c] = track;
-            m_table_widget->setCellWidget(r, c, track);
-            connect(track, &Track::rightClicked, this, &Project::openTrackSettings);
-
-            // Налаштування ефектів для тестування
-            if (r == 0 && c == 0) {
-                track->setEffectType(EffectType::Delay);
-                track->setDelayTime(0.5f);
-                track->setDelayFeedback(0.6f);
-                track->setDelayMixLevel(0.7f);
-            }
-            else if (r == 0 && c == 1) {
-                track->setEffectType(EffectType::Reverb);
-                track->setReverbRoomSize(0.7f);
-                track->setReverbDamping(0.1f);
-                track->setReverbWetLevel(0.5f);
-                track->setReverbDryLevel(0.3f);
-            }
-            if (r == 0 && c == 2) {
-                track->setEffectType(EffectType::Chorus);
-                track->setChorusRate(1.5f);          // Швидкість модуляції 1.5 Hz
-                track->setChorusDepth(0.3f);         // Помірна глибина
-                track->setChorusCenterDelay(10.0f);  // 10 мс центральна затримка
-                track->setChorusFeedback(0.2f);      // Легкий feedback
-                track->setChorusMix(0.5f);           // 50/50 mix
-            }
-            else if (r == 0 && c == 3) {
-                track->setEffectType(EffectType::Distortion);
-                track->setDistortionDrive(15.0f);    // Помірне спотворення
-                track->setDistortionMix(0.7f);       // 70% distorted
-                track->setDistortionOutputVolume(0.6f); // Компенсація гучності
-            }
-
-            m_audio_engine->addPlayer(track->getPlayer());
-        }
-    }
 
     QThread* timer_thread = new QThread(this);
     m_timer->moveToThread(timer_thread);
@@ -232,7 +201,7 @@ Project::Project(const QString& name, const QString& save_project_path, const QS
 
 
     // Layout для центрального виджета
-    QVBoxLayout* content_layout = new QVBoxLayout(m_central_widget);
+    QVBoxLayout* content_layout = new QVBoxLayout(central_widget);
     content_layout->addWidget(m_table_widget);
 
     // Собираем все вместе
@@ -241,7 +210,7 @@ Project::Project(const QString& name, const QString& save_project_path, const QS
     main_layout->setContentsMargins(0, 0, 0, 0);
     main_layout->setSpacing(0);
     main_layout->addWidget(m_title_bar);
-    main_layout->addWidget(m_central_widget);
+    main_layout->addWidget(central_widget);
 
 
     QWidget* container = new QWidget(this);
@@ -252,7 +221,114 @@ Project::Project(const QString& name, const QString& save_project_path, const QS
     shadow->setBlurRadius(20);
     shadow->setOffset(0, 0);
     shadow->setColor(QColor(0, 0, 0, 100));
-    m_central_widget->setGraphicsEffect(shadow);
+    central_widget->setGraphicsEffect(shadow);
+}
+
+
+
+
+
+
+
+Project::Project(
+    IAudioEngine* audio_engine,
+    MicroTimer* timer,
+    Metronome* metronome,
+    TrackSettings* track_settings_window,
+    const QString& name,
+    const QString& save_records_path,
+    quint8 rows_count,
+    quint8 columns_count,
+    quint16 bpm_value,
+    QWidget *parent
+    )
+    : Project(audio_engine, timer, metronome, track_settings_window, parent)
+{
+    m_name = name;
+    m_save_records_path = save_records_path;
+    m_rows_count = rows_count;
+    m_columns_count = columns_count;
+
+
+    // Ініціалізація треків
+    m_table_widget->setRowCount(m_rows_count);
+    m_table_widget->setColumnCount(m_columns_count);
+    m_tracks.resize(m_rows_count * m_columns_count);
+    size_t index = 0;
+    for (int r = 0; r < m_rows_count; ++r) {
+        for (int c = 0; c < m_columns_count; ++c, ++index) {
+            Track* track = new Track(
+                m_timer,
+                0.80,
+                false,
+                false,
+                {
+                    1, 0, 0, 0,
+                    0, 0, 0, 0,
+                    0, 0, 0, 0,
+                    0, 0, 0, 0
+                },
+                QString(""),
+                Qt::gray,
+                Qt::red,
+                m_table_widget
+                );
+
+            track->setObjectName(QString::number(index));
+
+            m_table_widget->setCellWidget(r, c, track);
+            connect(track, &Track::rightClicked, this, &Project::openTrackSettings);
+
+            m_audio_engine->addPlayer(track->getPlayer());
+            m_tracks[index] = track;
+        }
+    }
+}
+
+
+Project::Project(
+    IAudioEngine* audio_engine,
+    MicroTimer* timer,
+    Metronome* metronome,
+    TrackSettings* track_settings_window,
+    const ProjectSaveParameters& data,
+    QWidget* parent
+    )
+    : Project(audio_engine, timer, metronome, track_settings_window, parent)
+{
+    m_name = data.name;
+    m_save_records_path = data.save_records_path;
+    m_rows_count = data.rows_count;
+    m_columns_count = data.columns_count;
+
+
+    // Ініціалізація треків
+    m_table_widget->setRowCount(m_rows_count);
+    m_table_widget->setColumnCount(m_columns_count);
+    m_tracks.resize(m_rows_count * m_columns_count);
+    size_t index = 0;
+    for (int r = 0; r < m_rows_count; ++r) {
+        for (int c = 0; c < m_columns_count; ++c, ++index) {
+            Track* track = new Track(
+                m_timer,
+                data.tracks_info[index].volume,
+                data.tracks_info[index].is_loop,
+                data.tracks_info[index].is_recording,
+                data.tracks_info[index]._16th_beats,
+                data.tracks_info[index].audio_sample_path,
+                data.tracks_info[index].outer_color,
+                data.tracks_info[index].inner_color,
+                m_table_widget
+            );
+
+            track->setObjectName(QString::number(index));
+            m_table_widget->setCellWidget(r, c, track);
+            connect(track, &Track::rightClicked, this, &Project::openTrackSettings);
+
+            m_audio_engine->addPlayer(track->getPlayer());
+            m_tracks[index] = track;
+        }
+    }
 }
 
 Project::~Project()
@@ -267,15 +343,14 @@ Project::~Project()
         }
     }
     m_tracks.clear();
-    //delete m_callback;
 }
 
 void Project::openTrackSettings(Track* track)
 {
-    for (const auto& connection : m_current_connections) {
+    for (const auto& connection : m_track_settings_connections) {
         disconnect(connection);
     }
-    m_current_connections.clear();
+    m_track_settings_connections.clear();
 
     m_track_settings_window->setVolume(track->getVolume());
     m_track_settings_window->setLoopState(track->getLoopState());
@@ -283,16 +358,16 @@ void Project::openTrackSettings(Track* track)
     m_track_settings_window->setOuterBackgroundColor(track->getOuterBackgroundColor());
     m_track_settings_window->setIsAudioSampleSelectedState((!track->getSoundPath().isEmpty()));
     m_track_settings_window->setBeats(track->getBeatsStates());
-    m_track_settings_window->setRecordingEnabled(track->isRecordingEnabled());
+    m_track_settings_window->setRecordingEnabled(track->getRecordingState());
 
 
-    m_current_connections.push_back(connect(m_track_settings_window, &TrackSettings::changedVolume, track, &Track::setVolume));
-    m_current_connections.push_back(connect(m_track_settings_window, &TrackSettings::changedLoopState, track, &Track::setLoopState));
-    m_current_connections.push_back(connect(m_track_settings_window, &TrackSettings::changedInnerActiveBackgroundColor, track, &Track::setInnerActiveBackgroundColor));
-    m_current_connections.push_back(connect(m_track_settings_window, &TrackSettings::changedOuterBackgroundColor, track, &Track::setOuterBackgroundColor));
-    m_current_connections.push_back(connect(m_track_settings_window, &TrackSettings::changedBeatState, track, &Track::setBeatState));
-    m_current_connections.push_back(connect(m_track_settings_window, &TrackSettings::changedAudioSamplePath, track, &Track::setAudioSamplePath));
-    m_current_connections.push_back(connect(m_track_settings_window, &TrackSettings::changedRecordingEnabled, track, &Track::setRecordingEnabled));
+    m_track_settings_connections.push_back(connect(m_track_settings_window, &TrackSettings::changedVolume, track, &Track::setVolume));
+    m_track_settings_connections.push_back(connect(m_track_settings_window, &TrackSettings::changedLoopState, track, &Track::setLoopState));
+    m_track_settings_connections.push_back(connect(m_track_settings_window, &TrackSettings::changedInnerActiveBackgroundColor, track, &Track::setInnerActiveBackgroundColor));
+    m_track_settings_connections.push_back(connect(m_track_settings_window, &TrackSettings::changedOuterBackgroundColor, track, &Track::setOuterBackgroundColor));
+    m_track_settings_connections.push_back(connect(m_track_settings_window, &TrackSettings::changedBeatState, track, &Track::setBeatState));
+    m_track_settings_connections.push_back(connect(m_track_settings_window, &TrackSettings::changedAudioSamplePath, track, &Track::setAudioSamplePath));
+    m_track_settings_connections.push_back(connect(m_track_settings_window, &TrackSettings::changedRecordingEnabled, track, &Track::setRecordingState));
     m_track_settings_window->show();
 }
 
@@ -349,4 +424,53 @@ void Project::closeEvent(QCloseEvent *event) {
     emit closed();
     event->accept();
 }
+
+
+
+ProjectSaveParameters Project::getSaveParameters() {
+
+    ITrackPlayer* track_player;
+    QVector<TrackInfo> tracks_info;
+    tracks_info.reserve(m_rows_count * m_columns_count);
+    for(auto track : m_tracks){
+        track_player = track->getPlayer();
+        tracks_info.push_back(TrackInfo{
+            track->objectName().toUShort(),
+            track->getLoopState(),
+            track->getRecordingState(),
+            track->getAudioSamplePath(),
+            track->getOuterBackgroundColor(),
+            track->getInnerActiveBackgroundColor(),
+            track->getBeatsStates(),
+            track->getVolume(),
+            track_player->getCurrentEffectType(),
+            track_player->getReverbSettings(),
+            track_player->getDelaySettings(),
+            track_player->getChorusSettings(),
+            track_player->getDistortionSettings()
+        });
+    }
+
+    ProjectSaveParameters save_data{
+        m_name,
+        m_save_records_path,
+        m_rows_count,
+        m_columns_count,
+        tracks_info,
+        MetronomeInfo {
+            m_metronome->getBPM(),
+            m_metronome->getVolume(),
+        }
+    };
+
+    return save_data;
+}
+
+
+
+
+
+
+
+
 

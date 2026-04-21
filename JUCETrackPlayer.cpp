@@ -217,6 +217,23 @@ EffectType JUCETrackPlayer::getCurrentEffectType() const{
 }
 
 
+ReverbSettings JUCETrackPlayer::getReverbSettings() const {
+    return m_reverb_settings;
+}
+
+DelaySettings JUCETrackPlayer::getDelaySettings() const {
+    return m_delay_settings;
+}
+
+ChorusSettings JUCETrackPlayer::getChorusSettings() const {
+    return m_chorus_settings;
+}
+
+DistortionSettings JUCETrackPlayer::getDistortionSettings() const {
+    return m_distortion_settings;
+}
+
+
 
 
 // Reverb methods
@@ -228,7 +245,7 @@ void JUCETrackPlayer::setReverbRoomSize(float size)
 
 }
 
-float JUCETrackPlayer::getReverbRoomSize()
+float JUCETrackPlayer::getReverbRoomSize() const
 {
     return m_reverb_settings.roomSize;
 }
@@ -241,7 +258,7 @@ void JUCETrackPlayer::setReverbDamping(float damping)
 
 }
 
-float JUCETrackPlayer::getReverbDamping()
+float JUCETrackPlayer::getReverbDamping() const
 {
     return m_reverb_settings.damping;
 }
@@ -254,7 +271,7 @@ void JUCETrackPlayer::setReverbWetLevel(float wet)
 
 }
 
-float JUCETrackPlayer::getReverbWetLevel()
+float JUCETrackPlayer::getReverbWetLevel() const
 {
     return m_reverb_settings.wetLevel;
 }
@@ -267,7 +284,7 @@ void JUCETrackPlayer::setReverbDryLevel(float dry)
 
 }
 
-float JUCETrackPlayer::getReverbDryLevel()
+float JUCETrackPlayer::getReverbDryLevel() const
 {
     return m_reverb_settings.dryLevel;
 }
@@ -281,7 +298,7 @@ void JUCETrackPlayer::setReverbOutputVolume(float volume)
 
 }
 
-float JUCETrackPlayer::getReverbOutputVolume()
+float JUCETrackPlayer::getReverbOutputVolume() const
 {
     return m_reverb_settings.outputVolume;
 }
@@ -298,7 +315,7 @@ void JUCETrackPlayer::setDelayTime(float time)
 
 }
 
-float JUCETrackPlayer::getDelayTime()
+float JUCETrackPlayer::getDelayTime() const
 {
     return m_delay_settings.delayTime;
 }
@@ -311,7 +328,7 @@ void JUCETrackPlayer::setDelayFeedback(float feedback)
 
 }
 
-float JUCETrackPlayer::getDelayFeedback()
+float JUCETrackPlayer::getDelayFeedback() const
 {
     return m_delay_settings.feedback;
 }
@@ -324,7 +341,7 @@ void JUCETrackPlayer::setDelayMixLevel(float mix)
 
 }
 
-float JUCETrackPlayer::getDelayMixLevel()
+float JUCETrackPlayer::getDelayMixLevel() const
 {
     return m_delay_settings.mix;
 }
@@ -337,7 +354,7 @@ void JUCETrackPlayer::setDelayOutputVolume(float volume)
 
 }
 
-float JUCETrackPlayer::getDelayOutputVolume()
+float JUCETrackPlayer::getDelayOutputVolume() const
 {
     return m_delay_settings.outputVolume;
 }
@@ -355,7 +372,7 @@ void JUCETrackPlayer::setChorusRate(float rate)
 
 }
 
-float JUCETrackPlayer::getChorusRate()
+float JUCETrackPlayer::getChorusRate() const
 {
     return m_chorus_settings.rate;
 }
@@ -368,7 +385,7 @@ void JUCETrackPlayer::setChorusDepth(float depth)
 
 }
 
-float JUCETrackPlayer::getChorusDepth()
+float JUCETrackPlayer::getChorusDepth() const
 {
     return m_chorus_settings.depth;
 }
@@ -381,7 +398,7 @@ void JUCETrackPlayer::setChorusCenterDelay(float delay)
 
 }
 
-float JUCETrackPlayer::getChorusCenterDelay()
+float JUCETrackPlayer::getChorusCenterDelay() const
 {
     return m_chorus_settings.centerDelay;
 }
@@ -394,7 +411,7 @@ void JUCETrackPlayer::setChorusFeedback(float feedback)
 
 }
 
-float JUCETrackPlayer::getChorusFeedback()
+float JUCETrackPlayer::getChorusFeedback() const
 {
     return m_chorus_settings.feedback;
 }
@@ -407,7 +424,7 @@ void JUCETrackPlayer::setChorusMix(float mix)
 
 }
 
-float JUCETrackPlayer::getChorusMix()
+float JUCETrackPlayer::getChorusMix() const
 {
     return m_chorus_settings.mix;
 }
@@ -419,7 +436,7 @@ void JUCETrackPlayer::setChorusOutputVolume(float volume)
 
 }
 
-float JUCETrackPlayer::getChorusOutputVolume()
+float JUCETrackPlayer::getChorusOutputVolume() const
 {
     return m_chorus_settings.outputVolume;
 }
@@ -436,7 +453,7 @@ void JUCETrackPlayer::setDistortionDrive(float drive)
 
 }
 
-float JUCETrackPlayer::getDistortionDrive()
+float JUCETrackPlayer::getDistortionDrive() const
 {
     return m_distortion_settings.drive;
 }
@@ -449,7 +466,7 @@ void JUCETrackPlayer::setDistortionMix(float mix)
 
 }
 
-float JUCETrackPlayer::getDistortionMix()
+float JUCETrackPlayer::getDistortionMix() const
 {
     return m_distortion_settings.mix;
 }
@@ -462,7 +479,7 @@ void JUCETrackPlayer::setDistortionOutputVolume(float volume)
 
 }
 
-float JUCETrackPlayer::getDistortionOutputVolume()
+float JUCETrackPlayer::getDistortionOutputVolume() const
 {
     return m_distortion_settings.outputVolume;
 }

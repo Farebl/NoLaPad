@@ -9,7 +9,10 @@ class IMetronomePlayer : public IPlayer {
 public:
     virtual ~IMetronomePlayer() = default;
 
-    virtual void loadAudioFilesForPlaying(const std::array<std::string, 4>& samples_paths) = 0;
+    virtual void loadAudioFileForFirstMeasure(const QString& sample_path)  = 0;
+    virtual void loadAudioFileForSecondMeasure(const QString& sample_path) = 0;
+    virtual void loadAudioFileForThirdMeasure(const QString& sample_path)  = 0;
+    virtual void loadAudioFileForFourthMeasure(const QString& sample_path) = 0;
 };
 
 #endif // IMETRONOMEPLAYER_H

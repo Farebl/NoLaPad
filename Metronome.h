@@ -27,26 +27,29 @@ private:
     QPushButton* m_play_button;
     BPMCounter* m_bpm_counter;
 
-
 protected:
     void mousePressEvent(QMouseEvent *event) override;
 
 public:
     explicit Metronome(
         MicroTimer* timer,
-        const std::array<std::string, 4>& measures_sounds_path = {
-            "..//..//music//metronome//strong_measure.wav",
-            "..//..//music//metronome//weak_measure.wav",
-            "..//..//music//metronome//weak_measure.wav",
-            "..//..//music//metronome//weak_measure.wav"},
+        const QString& first_measure_sound_path = "..//..//music//metronome//strong_measure.wav",
+        const QString& second_measure_sound_path = "..//..//music//metronome//weak_measure.wav",
+        const QString& third_measure_sound_path = "..//..//music//metronome//weak_measure.wav",
+        const QString& fourth_measure_sound_path = "..//..//music//metronome//weak_measure.wav",
         float volume = 1.0,
         quint16 bpm_value = 60,
         QWidget* parent = nullptr
-        );
+    );
 
     ~Metronome();
     void play();
+
     void setVolume(float volume);
+    float getVolume() const;
+
+    void setBPM(quint16 value);
+    quint16 getBPM() const;
 
     IMetronomePlayer* getPlayer();
 };

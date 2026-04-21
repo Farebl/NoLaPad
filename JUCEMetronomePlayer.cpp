@@ -1,33 +1,51 @@
 #include "JUCEMetronomePlayer.h"
 #include "AudioBlockInfo.h"
 #include <QDebug>
-JUCEMetronomePlayer::JUCEMetronomePlayer(const std::array<std::string, 4>& measures_sounds_path, float volume)
-    : m_current_measure(0)
+JUCEMetronomePlayer::JUCEMetronomePlayer(
+     const QString& first_measure_sound_path,
+     const QString& second_measure_sound_path,
+     const QString& third_measure_sound_path,
+     const QString& fourth_measure_sound_path,
+     float volume
+    ) : m_current_measure(0)
 {
     m_format_manager.registerBasicFormats();
     setVolume(volume);
-    loadAudioFilesForPlaying(measures_sounds_path); 
+    loadAudioFileForFirstMeasure(first_measure_sound_path);
+    loadAudioFileForSecondMeasure(second_measure_sound_path);
+    loadAudioFileForThirdMeasure(third_measure_sound_path);
+    loadAudioFileForFourthMeasure(fourth_measure_sound_path);
 }
 
 JUCEMetronomePlayer::~JUCEMetronomePlayer(){}
 
-void JUCEMetronomePlayer::loadAudioFilesForPlaying(const std::array<std::string, 4>& samples_paths){
-    auto loadSource = [&](const std::string& path,
-                          juce::AudioTransportSource& transport,
-                          std::unique_ptr<juce::AudioFormatReaderSource>& readerSource)
-    {
-        juce::File file(path);
-        if (!file.existsAsFile()) return;
-        auto* reader = m_format_manager.createReaderFor(file);
-        if (!reader) return;
-        readerSource = std::make_unique<juce::AudioFormatReaderSource>(reader, true);
-        transport.setSource(readerSource.get(), 0, nullptr, reader->sampleRate);
-    };
 
-    loadSource(samples_paths[0], m_transport_0, m_reader_0);
-    loadSource(samples_paths[1], m_transport_1, m_reader_1);
-    loadSource(samples_paths[2], m_transport_2, m_reader_2);
-    loadSource(samples_paths[3], m_transport_3, m_reader_3);
+void JUCEMetronomePlayer::loadAudioFileForFirstMeasure(const QString& sample_path) {
+    loadAudioFileForPlaying(sample_path.toStdString(), m_transport_0, m_reader_0);
+}
+
+void JUCEMetronomePlayer::loadAudioFileForSecondMeasure(const QString& sample_path) {
+    loadAudioFileForPlaying(sample_path.toStdString(), m_transport_1, m_reader_1);
+}
+void JUCEMetronomePlayer::loadAudioFileForThirdMeasure(const QString& sample_path) {
+    loadAudioFileForPlaying(sample_path.toStdString(), m_transport_2, m_reader_2);
+}
+void JUCEMetronomePlayer::loadAudioFileForFourthMeasure(const QString& sample_path) {
+    loadAudioFileForPlaying(sample_path.toStdString(), m_transport_3, m_reader_3);
+}
+
+
+void JUCEMetronomePlayer::loadAudioFileForPlaying(
+    const std::string& path,
+    juce::AudioTransportSource& transport,
+    std::unique_ptr<juce::AudioFormatReaderSource>& readerSource)
+{
+    juce::File file(path);
+    if (!file.existsAsFile()) return;
+    auto* reader = m_format_manager.createReaderFor(file);
+    if (!reader) return;
+    readerSource = std::make_unique<juce::AudioFormatReaderSource>(reader, true);
+    transport.setSource(readerSource.get(), 0, nullptr, reader->sampleRate);
 }
 
 void JUCEMetronomePlayer::prepareToPlay(int samplesPerBlock, double sampleRate) {

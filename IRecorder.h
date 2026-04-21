@@ -8,6 +8,7 @@ struct AudioBlockInfo;
 
 class IRecorder {
 public:
+
     virtual ~IRecorder() = default;
     virtual void startRecording(const QString& path) = 0;
     virtual void stopRecording() = 0;

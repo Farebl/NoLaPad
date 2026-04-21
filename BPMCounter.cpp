@@ -1,5 +1,7 @@
 #include "BPMCounter.h"
 
+#define MAX_BMP 500
+
 
 BPMCounter::BPMCounter(MicroTimer *timer, quint16 bpm_value, QWidget *parent)
     : QWidget{parent},
@@ -22,7 +24,7 @@ BPMCounter::BPMCounter(MicroTimer *timer, quint16 bpm_value, QWidget *parent)
         QString font_family = QFontDatabase::applicationFontFamilies(font_id).at(0);
         lcd_font = QFont(font_family, 12);
     }
-    m_display->setRange(1, 500);
+    m_display->setRange(1, MAX_BMP);
     m_display->setValue(bpm_value);
     m_display->setFont(lcd_font);
     m_display->setFixedSize(55, 35);
@@ -87,7 +89,7 @@ BPMCounter::BPMCounter(MicroTimer *timer, quint16 bpm_value, QWidget *parent)
 
 
     connect(m_up_button, &QPushButton::clicked, this, [this]() {
-        if (m_display->value() < 500) {
+        if (m_display->value() < MAX_BMP) {
             m_display->setValue(m_display->value() + 1);
         }
     });
@@ -105,7 +107,16 @@ BPMCounter::BPMCounter(MicroTimer *timer, quint16 bpm_value, QWidget *parent)
 }
 
 
+void BPMCounter::setBPM(quint16 value){
+    if ((value < 1) || (value > MAX_BMP)){
+        return;
+    }
+    m_display->setValue(value);
+}
 
-QSpinBox* BPMCounter::getBPMCounterDisplay(){return m_display;}
-QPushButton* BPMCounter::getUpButton(){return m_up_button;}
-QPushButton* BPMCounter::getDownButton(){return m_down_button;}
+
+quint16 BPMCounter::getBPM() const{
+    return m_display->value();
+}
+
+
