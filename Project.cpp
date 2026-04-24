@@ -23,14 +23,15 @@ Project::Project(
     , m_dragging(false)
     , m_resizing(false)
     , m_title_bar(new QWidget(this))
+    , m_table_widget(new QTableWidget(this))
     , m_timer_for_REC(new QTimer(this))
     , m_elapsed_timer_for_REC(new QElapsedTimer())
-    , m_table_widget(new QTableWidget(this))
     , m_audio_engine(audio_engine)
     , m_timer(timer)
     , m_metronome(metronome)
     , m_track_settings_window(track_settings_window)
 {
+    //m_track_settings_connections.reserve(22);
 
     // -------------------- general parameters of window
 
@@ -38,7 +39,7 @@ Project::Project(
     setAttribute(Qt::WA_TranslucentBackground);
     resize(800, 800);
     setMinimumSize(400, 300);
-    m_track_settings_connections.reserve(22);
+
 
 
 
@@ -62,8 +63,16 @@ Project::Project(
     //------------------------ project settings menu
 
     QPushButton* action_selector = new QPushButton("⚙", this);
+    action_selector->setStyleSheet(
+        "QPushButton {"
+        "  color: #5a5a5a;"
+        "  font-size: 25px;"
+        "}"
+        "QPushButton::menu-indicator {"
+        "  image: none;"
+        "}"
+    );
 
-    action_selector->setStyleSheet(QString("color: #5a5a5a; font-size: 25px;"));
 
     QMenu* actions = new QMenu(action_selector);
     actions->setStyleSheet("font-size: 14px;");
@@ -73,8 +82,10 @@ Project::Project(
     actions ->addAction(save_action);
 
     action_selector->setMenu(actions);
-    connect(settings_action, &QAction::triggered, this, [=](){qDebug()<<"open project settings";});
+    connect(settings_action, &QAction::triggered, this,&Project::settingsTriggered);
     connect(save_action, &QAction::triggered, this, &Project::saveTriggered);
+
+
 
     // -------------------- REC zone
 
@@ -99,7 +110,8 @@ Project::Project(
             recording_button->update();
             m_timer_for_REC->start();
             m_elapsed_timer_for_REC->start();
-            m_audio_engine->startRecording(m_save_records_path);
+            QString path = m_save_records_dir_path + "/Recording_" + QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss") + ".wav";
+            m_audio_engine->startRecording(path);
         }
         else {
             m_timer_for_REC->stop();
@@ -227,25 +239,26 @@ Project::Project(
 
 
 
-
-
-
 Project::Project(
     IAudioEngine* audio_engine,
     MicroTimer* timer,
     Metronome* metronome,
     TrackSettings* track_settings_window,
     const QString& name,
-    const QString& save_records_path,
+    const QString& save_project_dir_path,
+    const QString& save_records_dir_path,
+    const QString& description,
     quint8 rows_count,
     quint8 columns_count,
-    quint16 bpm_value,
     QWidget *parent
     )
     : Project(audio_engine, timer, metronome, track_settings_window, parent)
 {
     m_name = name;
-    m_save_records_path = save_records_path;
+    m_save_project_dir_path = save_project_dir_path;
+    m_save_records_dir_path = save_records_dir_path;
+    m_description = description;
+
     m_rows_count = rows_count;
     m_columns_count = columns_count;
 
@@ -297,7 +310,9 @@ Project::Project(
     : Project(audio_engine, timer, metronome, track_settings_window, parent)
 {
     m_name = data.name;
-    m_save_records_path = data.save_records_path;
+    m_save_records_dir_path = data.save_records_dir_path;
+    m_description = data.description;
+
     m_rows_count = data.rows_count;
     m_columns_count = data.columns_count;
 
@@ -343,14 +358,19 @@ Project::~Project()
         }
     }
     m_tracks.clear();
+    //m_track_settings_connections.clear();
 }
 
 void Project::openTrackSettings(Track* track)
 {
+/*
     for (const auto& connection : m_track_settings_connections) {
         disconnect(connection);
     }
     m_track_settings_connections.clear();
+*/
+
+    m_track_settings_window->disconnect();
 
     m_track_settings_window->setVolume(track->getVolume());
     m_track_settings_window->setLoopState(track->getLoopState());
@@ -361,13 +381,13 @@ void Project::openTrackSettings(Track* track)
     m_track_settings_window->setRecordingEnabled(track->getRecordingState());
 
 
-    m_track_settings_connections.push_back(connect(m_track_settings_window, &TrackSettings::changedVolume, track, &Track::setVolume));
-    m_track_settings_connections.push_back(connect(m_track_settings_window, &TrackSettings::changedLoopState, track, &Track::setLoopState));
-    m_track_settings_connections.push_back(connect(m_track_settings_window, &TrackSettings::changedInnerActiveBackgroundColor, track, &Track::setInnerActiveBackgroundColor));
-    m_track_settings_connections.push_back(connect(m_track_settings_window, &TrackSettings::changedOuterBackgroundColor, track, &Track::setOuterBackgroundColor));
-    m_track_settings_connections.push_back(connect(m_track_settings_window, &TrackSettings::changedBeatState, track, &Track::setBeatState));
-    m_track_settings_connections.push_back(connect(m_track_settings_window, &TrackSettings::changedAudioSamplePath, track, &Track::setAudioSamplePath));
-    m_track_settings_connections.push_back(connect(m_track_settings_window, &TrackSettings::changedRecordingEnabled, track, &Track::setRecordingState));
+    connect(m_track_settings_window, &TrackSettings::changedVolume, track, &Track::setVolume);
+    connect(m_track_settings_window, &TrackSettings::changedLoopState, track, &Track::setLoopState);
+    connect(m_track_settings_window, &TrackSettings::changedInnerActiveBackgroundColor, track, &Track::setInnerActiveBackgroundColor);
+    connect(m_track_settings_window, &TrackSettings::changedOuterBackgroundColor, track, &Track::setOuterBackgroundColor);
+    connect(m_track_settings_window, &TrackSettings::changedBeatState, track, &Track::setBeatState);
+    connect(m_track_settings_window, &TrackSettings::changedAudioSamplePath, track, &Track::setAudioSamplePath);
+    connect(m_track_settings_window, &TrackSettings::changedRecordingEnabled, track, &Track::setRecordingState);
     m_track_settings_window->show();
 }
 
@@ -453,7 +473,9 @@ ProjectSaveParameters Project::getSaveParameters() {
 
     ProjectSaveParameters save_data{
         m_name,
-        m_save_records_path,
+
+        m_save_records_dir_path,
+        m_description,
         m_rows_count,
         m_columns_count,
         tracks_info,
@@ -466,9 +488,9 @@ ProjectSaveParameters Project::getSaveParameters() {
     return save_data;
 }
 
-
-
-
+QString Project::getProjectSaveDirPath() const {
+    return  m_save_project_dir_path;
+}
 
 
 

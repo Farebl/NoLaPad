@@ -147,19 +147,22 @@ bool JUCETrackPlayer::hasFileLoaded() const {
     return
         m_reader_source != nullptr;
 }
-void JUCETrackPlayer::loadAudioFileForPlaying(const QString& audio_sample_path){
 
+void JUCETrackPlayer::loadAudioFileForPlaying(const QString& audio_sample_path) {
     juce::File audioFile(audio_sample_path.toStdString());
     if (!audioFile.existsAsFile()) return;
+
     auto* reader = m_format_manager.createReaderFor(audioFile);
+    if (!reader) return;
 
 
-    if (!reader){
-        return;
-    }
+    m_transport_source.stop();
+    m_transport_source.setSource(nullptr);
+
 
     m_reader_source = std::make_unique<juce::AudioFormatReaderSource>(reader, true);
-    m_transport_source.stop();
+
+
     m_transport_source.setSource(m_reader_source.get(), 0, nullptr, reader->sampleRate);
 }
 

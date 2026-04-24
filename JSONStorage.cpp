@@ -9,9 +9,19 @@
 
 #include "Track.h"
 #include "Metronome.h"
+#include "ProjectView.h"
+
+extern const size_t ICON_SIZE;
 
 
-JSONStorage::JSONStorage(const QString& project_views_save_path) : m_project_views_save_path(project_views_save_path){}
+
+JSONStorage::JSONStorage(const QString& project_views_save_dir_path, const QString& project_views_file_name, const QString& project_view_preview_icon_save_format)
+    : m_projects_views_save_dir_path(project_views_save_dir_path)
+    , m_projects_views_file_name(project_views_file_name)
+    , m_project_view_preview_icon_save_format(project_view_preview_icon_save_format)
+{}
+
+
 JSONStorage::~JSONStorage(){}
 
 // ─────────────────────────────────────────────────────────────
@@ -226,8 +236,13 @@ static void metronomeInfoFromJson(const nlohmann::json& j, MetronomeInfo& m)
 
 void JSONStorage::saveProject(const ProjectSaveParameters& p, const QString& path)
 {
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qWarning() << "[JSONStorage] Cannot open for writing:" << path;
+        return;
+    }
+
     nlohmann::json jTracks = nlohmann::json::array();
-    int i = 0;
     for (const TrackInfo& t : p.tracks_info){
         jTracks.push_back(trackInfoToJson(t));
     }
@@ -240,16 +255,10 @@ void JSONStorage::saveProject(const ProjectSaveParameters& p, const QString& pat
         { "metronome",     metronomeInfoToJson(p.metronome_info) },
     };
 
-    QFile file(path);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        qWarning() << "[JSONStorage] Cannot open for writing:" << path;
-        return;
-    }
     const std::string dump = j.dump(4);
     file.write(dump.c_str(), static_cast<qint64>(dump.size()));
     file.close();
 }
-
 
 
 
@@ -284,7 +293,6 @@ ProjectSaveParameters JSONStorage::getProjectData(const QString& path)
     }
 
     metronomeInfoFromJson(j.at("metronome"), project_params.metronome_info);
-
     return project_params;
 }
 
@@ -292,6 +300,118 @@ ProjectSaveParameters JSONStorage::getProjectData(const QString& path)
 
 
 void JSONStorage::deleteProject(const QString& path){}
-QVector<ProjectView> JSONStorage::loadProjectsViews(const QString& path) {}
-void JSONStorage::saveProjectView(ProjectView* project_view){}
+
+
+
+
+QVector<ProjectView*> JSONStorage::loadProjectsViews() {
+    QVector<ProjectView*> views;
+
+    QString path = getProjectsViewsFilePath();
+
+    QFile file(getProjectsViewsFilePath());
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning() << "[JSONStorage] Cannot open for reading:" << getProjectsViewsFilePath();
+        return views;
+    }
+
+    nlohmann::json jArray;
+    try {
+        jArray = nlohmann::json::parse(file.readAll().constData());
+    } catch (...) {
+        return views;
+    }
+    file.close();
+
+
+
+
+    ProjectView* current_view = nullptr;
+    QPixmap* preview_icon = nullptr;
+
+    for (const auto& j : jArray) {
+        current_view = new ProjectView(
+            ICON_SIZE,
+            QString::fromStdString(j.at("project_name").get<std::string>()),
+            QString::fromStdString(j.at("project_path").get<std::string>()),
+            QString::fromStdString(j.at("date_of_last_use").get<std::string>()),
+            QString::fromStdString(j.at("description").get<std::string>()),
+            nullptr
+        );
+        preview_icon = new QPixmap();
+        preview_icon->load(getPreviewIconPath(current_view->getProjectName()));
+        qDebug() << "Loading icon from:" << getPreviewIconPath(current_view->getProjectName());
+        qDebug() << "Icon is null:" << preview_icon->isNull();
+        qDebug() << "Icon size:" << preview_icon->size();
+
+
+        current_view->setPreviewIcon(preview_icon);
+        views.push_back(current_view);
+    }
+
+    return views;
+}
+
+
+
+void JSONStorage::saveProjectView(ProjectView* project_view){
+    // 1. Читаємо існуючий файл (якщо є)
+    nlohmann::json jArray = nlohmann::json::array();
+
+    QString path = getProjectsViewsFilePath();
+
+    QFile file(path);
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        try {
+            jArray = nlohmann::json::parse(file.readAll().constData());
+            if (!jArray.is_array()) {
+                jArray = nlohmann::json::array(); // захист від битого файлу
+            }
+        } catch (...) {
+            jArray = nlohmann::json::array();
+        }
+        file.close();
+    }
+
+    // 2. Додаємо новий запис
+    nlohmann::json j = {
+        { "project_name",      project_view->getProjectName()     },
+        { "project_path",      project_view->getPathToProject()   },
+        { "date_of_last_use",  project_view->getDateOfLastUse()   },
+        { "description",       project_view->getDescription()     },
+    };
+    jArray.push_back(j);
+
+    // 3. Записуємо назад
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qWarning() << "[JSONStorage] Cannot open for writing:" << path;
+        return;
+    }
+    const std::string dump = jArray.dump(4);
+    file.write(dump.c_str(), static_cast<qint64>(dump.size()));
+    file.close();
+
+    project_view->getPreviewIcon()->save(
+        getPreviewIconPath(project_view->getProjectName()),
+        m_project_view_preview_icon_save_format.toStdString().data(),
+        100
+    );
+}
+
+
+QString JSONStorage::getProjectsViewsFilePath() const{
+    QString result_path = (m_projects_views_save_dir_path + "/" + m_projects_views_file_name);
+    return result_path;
+}
+
+QString JSONStorage::getPreviewIconPath(const QString& project_name) const{
+    QString result_path = m_projects_views_save_dir_path + "/" + project_name + "." + m_project_view_preview_icon_save_format.toLower();
+    return result_path;
+}
+
+
+
+
+
+
 void JSONStorage::deleteProjectView(const QString& project_name) {}

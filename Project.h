@@ -24,7 +24,9 @@ class Project : public QMainWindow
 private:
 
     QString m_name;
-    QString m_save_records_path;
+    QString m_save_project_dir_path;
+    QString m_save_records_dir_path;
+    QString m_description;
 
     quint8 m_rows_count;
     quint8 m_columns_count;
@@ -47,7 +49,7 @@ private:
     std::unique_ptr<QElapsedTimer> m_elapsed_timer_for_REC;
 
     QVector<Track*> m_tracks;
-    QVector<QMetaObject::Connection> m_track_settings_connections;
+    //QVector<QMetaObject::Connection> m_track_settings_connections;
 
     explicit Project() = delete;
     explicit Project(const Project&) = delete;
@@ -77,10 +79,11 @@ public:
         Metronome* metronome,
         TrackSettings* track_settings_window,
         const QString& name = "",
-        const QString& save_records_path = ".",
+        const QString& save_project_dir_path = "../..",
+        const QString& save_records_dir_path = "../..",
+        const QString& description = "",
         quint8 row = 8,
         quint8 column = 8,
-        quint16 bpm_value = 60,
         QWidget *parent = nullptr
     );
 
@@ -95,9 +98,11 @@ public:
 
     ~Project();
     ProjectSaveParameters getSaveParameters();
+    QString getProjectSaveDirPath() const;
 
 signals:
     void closed();
+    void settingsTriggered();
     void saveTriggered();
 };
 

@@ -58,9 +58,9 @@
             "is_recording_enabled": false,
             "outer_color": {
                 "a": 255,
-                "b": 0,
-                "g": 255,
-                "r": 0
+                "b": 48,
+                "g": 12,
+                "r": 164
             },
             "reverb_settings": {
                 "damping": 0.5,

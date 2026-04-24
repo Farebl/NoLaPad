@@ -15,6 +15,7 @@ find_package(Qt6 REQUIRED COMPONENTS Widgets Multimedia)
 find_package(Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Widgets)
 find_package(CURL REQUIRED)
 find_library(LAME_LIBRARY NAMES mp3lame lame REQUIRED)
 if(NOT LAME_LIBRARY)
@@ -78,6 +79,7 @@ qt_add_executable(NoLaPad
     ProjectView.h ProjectView.cpp
     JSONStorage.h JSONStorage.cpp
     Effects.h
+    ProjectSettings.h ProjectSettings.cpp
 
 
 )
@@ -102,6 +104,7 @@ target_link_libraries(NoLaPad PRIVATE
 target_link_libraries(NoLaPad PRIVATE Qt6::Core)
 target_link_libraries(NoLaPad PRIVATE Qt6::Core)
 target_link_libraries(NoLaPad PRIVATE Qt6::Core Qt6::Widgets)
+target_link_libraries(NoLaPad PRIVATE Qt6::Widgets)
 
 target_include_directories(NoLaPad PRIVATE
     ${CMAKE_SOURCE_DIR}/JUCE/modules

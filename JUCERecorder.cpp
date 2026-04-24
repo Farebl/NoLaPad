@@ -1,10 +1,6 @@
 #include "JUCERecorder.h"
 #include "AudioBlockInfo.h"
-#include <QDebug>
 
-
-#include <QDateTime>
-#include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
 
@@ -18,10 +14,8 @@ JUCERecorder::~JUCERecorder() {
     m_background_thread.stopThread(500);
 }
 
-void JUCERecorder::startRecording(const QString& path_) {
-    QString path = QCoreApplication::applicationDirPath() + "/Recorderording_" + QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss") + ".wav";
+void JUCERecorder::startRecording(const QString& path) {
     stopRecording();
-
 
     juce::File outputFile(path.toStdString());
     m_file_stream = outputFile.createOutputStream();
