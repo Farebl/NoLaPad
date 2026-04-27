@@ -8,7 +8,7 @@
 
 #include <QMouseEvent>
 
-
+class IPlayer;
 class IMetronomePlayer;
 class BPMCounter;
 class QPushButton;
@@ -51,7 +51,7 @@ public:
     void setBPM(quint16 value);
     quint16 getBPM() const;
 
-    IMetronomePlayer* getPlayer();
+    IPlayer* getPlayer();
 };
 
 #endif // METRONOME_H

@@ -17,6 +17,8 @@
 #include "IAudioEngine.h"
 #include "ProjectSaveParameters.h"
 
+
+
 class Project : public QMainWindow
 {
     Q_OBJECT
@@ -24,8 +26,8 @@ class Project : public QMainWindow
 private:
 
     QString m_name;
-    QString m_save_project_dir_path;
-    QString m_save_records_dir_path;
+    QString m_project_save_dir_path;
+    QString m_records_save_dir_path;
     QString m_description;
 
     quint8 m_rows_count;
@@ -49,14 +51,16 @@ private:
     std::unique_ptr<QElapsedTimer> m_elapsed_timer_for_REC;
 
     QVector<Track*> m_tracks;
-    //QVector<QMetaObject::Connection> m_track_settings_connections;
+    Track* last_opend_track;
 
     explicit Project() = delete;
     explicit Project(const Project&) = delete;
     Project& operator=(const Project&) = delete;
 
-    void toggleMaximize();
+    void updateTracksTable();
     void openTrackSettings(Track* track);
+    void toggleMaximize();
+
 	
 protected:
     void mousePressEvent(QMouseEvent* event) override;
@@ -69,7 +73,7 @@ protected:
         MicroTimer* timer,
         Metronome* metronome,
         TrackSettings* track_settings_window,
-        QWidget *parent = nullptr
+        QWidget *parent
     );
 
 public:
@@ -78,13 +82,13 @@ public:
         MicroTimer* timer,
         Metronome* metronome,
         TrackSettings* track_settings_window,
-        const QString& name = "",
-        const QString& save_project_dir_path = "../..",
-        const QString& save_records_dir_path = "../..",
-        const QString& description = "",
-        quint8 row = 8,
-        quint8 column = 8,
-        QWidget *parent = nullptr
+        const QString& name,
+        const QString& save_project_dir_path,
+        const QString& save_records_dir_path,
+        const QString& description,
+        quint8 row,
+        quint8 column,
+        QWidget *parent
     );
 
     explicit Project(
@@ -93,16 +97,34 @@ public:
         Metronome* metronome,
         TrackSettings* track_settings_window,
         const ProjectSaveParameters& data,
-        QWidget* parent = nullptr
+        QWidget* parent
     );
 
-    ~Project();
+    ~Project() override;
     ProjectSaveParameters getSaveParameters();
+
+
+    void setName(const QString& name);
+    QString getName() const;
+
+    void setSize(const QSize& count);
+    QSize getSize() const;
+
+    void setTemp(quint16 value);
+    quint16 getTemp() const;
+
+    void setProjectSaveDirPath(const QString& path);
     QString getProjectSaveDirPath() const;
+
+    void setRectordsSaveDirPath(const QString& path);
+    QString getRectordsSaveDirPath() const;
+
+    void setDescription(const QString& text);
+    QString getDescription() const;
 
 signals:
     void closed();
-    void settingsTriggered();
+    void settingsTriggered(Project* project);
     void saveTriggered();
 };
 

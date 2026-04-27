@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "MicroTimer.h"
 #include "TrackSettings.h"
+#include "ProjectSettings.h"
 #include "Metronome.h"
 
 
@@ -19,12 +20,19 @@ class ProjectManager : public QMainWindow
 private:
     std::unique_ptr<IStorage> m_storage;
     std::unique_ptr<IAudioEngine> m_audio_engine;
+
+    QThread* m_timer_thread;
     MicroTimer m_timer;
-    Metronome m_metronome;
-    TrackSettings m_track_settings_window;
+    Metronome* m_metronome;
+
+    TrackSettings* m_track_settings_window;
+    ProjectSettings* m_project_settings_window;
+
     std::unique_ptr<Project> m_curent_project;
     QVector<ProjectView*> m_projects_views;
     ProjectView* m_current_project_view;
+
+
 
     bool m_dragging;
     QPoint m_drag_position;
@@ -38,7 +46,7 @@ private:
     void initProject(const QString& path_to_project);
     void deleteProject(const QString& path_to_project);
 
-    void openProjectSettings(Project* project);
+    void openProjectSettings(Project* project, bool is_creating_a_new_projet);
 
     void saveCurrentProject();
     void updateViewsTable();

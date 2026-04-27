@@ -9,15 +9,16 @@
 #include "JSONStorage.h"
 
 
-extern const size_t ICON_SIZE = 450;
+extern const qsizetype ICON_SIZE = 450;
 
 
 ProjectManager::ProjectManager(QWidget *parent)
     : QMainWindow(parent)
     , m_storage(new JSONStorage("../../projectsViews", "views.json", "PNG"))
     , m_audio_engine(new JUCEAudioEngine())
+    , m_timer_thread(new QThread(this))
     , m_timer(static_cast<quint32>(60.0/(120*4)*1'000'000), nullptr)
-    , m_metronome(
+    , m_metronome( new Metronome(
         &m_timer,
         "../../music/metronome/strong_measure.wav",
         "../../music/metronome/weak_measure.wav",
@@ -25,9 +26,11 @@ ProjectManager::ProjectManager(QWidget *parent)
         "../../music/metronome/weak_measure.wav",
         1.0,
         60,
-        nullptr
+        this
+        )
     )
-    , m_track_settings_window(100, false, {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, Qt::gray, Qt::darkGray, this)
+    , m_track_settings_window(new TrackSettings(100, false, {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, Qt::gray, Qt::darkGray))
+    , m_project_settings_window(new ProjectSettings(this))
     , m_curent_project(nullptr)
     , m_dragging(false)
     , m_title_bar(new QWidget(this))
@@ -35,16 +38,24 @@ ProjectManager::ProjectManager(QWidget *parent)
     , m_columns_of_views_count(2)
     , m_current_project_view(nullptr)
 {
+    m_audio_engine->start();
+
+    m_timer.moveToThread(m_timer_thread);
+    connect(m_timer_thread, &QThread::started, &m_timer, &MicroTimer::start);
+    m_timer_thread->start();
+
+    m_audio_engine->addPlayer(m_metronome->getPlayer());
 
 
-    ///////////////////////////////////////////
+
+    ///////////////////////////////////// GUI ////////////////////////////////////////
 
 
     // -------------------- general parameters of window
 
     setWindowFlags(Qt::FramelessWindowHint | Qt::Window);
     setAttribute(Qt::WA_TranslucentBackground);
-    size_t window_side = 900;
+    qsizetype window_side = 900;
     resize(window_side+50, window_side);
 
 
@@ -64,9 +75,9 @@ ProjectManager::ProjectManager(QWidget *parent)
     QPushButton* create_project_button = new QPushButton("+", m_title_bar);
     create_project_button->setFixedSize(30, 30);
     create_project_button->setStyleSheet(QString("color: #5a5a5a; font-size: %1px; outline: none; border: none;").arg(create_project_button->height() - 4));
-    connect(create_project_button, &QPushButton::clicked, this, [&](){
+    connect(create_project_button, &QPushButton::clicked, this, [this](){
         m_current_project_view = nullptr;
-        initProject("");
+        initProject(QString());
     });
 
 
@@ -110,21 +121,38 @@ ProjectManager::ProjectManager(QWidget *parent)
     m_table_widget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     m_table_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    m_table_widget->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    //m_table_widget->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
-    m_table_widget->setStyleSheet("QTableWidget { background: transparent; border: none; }");
+    m_table_widget->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    m_table_widget->verticalHeader()->setDefaultSectionSize(ICON_SIZE);
+
+
+    m_table_widget->setStyleSheet(R"(
+        QTableWidget {
+            background: transparent;
+            border: none;
+            outline: none;
+        }
+        QTableWidget::item {
+            /* Убираем отступы внутри ячейки, если нужно */
+            padding: 0px;
+        }
+        QTableWidget::item:selected {
+            background: transparent;
+            border: none;
+        }
+    )");
 
 
     // ------------   load views
     m_projects_views = m_storage->loadProjectsViews();
     for (auto view : m_projects_views){
         view->setFixedSize(window_side/m_columns_of_views_count, window_side/m_columns_of_views_count);
-        connect(view, &ProjectView::doubleClicked, this, &ProjectManager::initProject);
-        connect(view, &ProjectView::doubleClicked, this, [&](const QString& path){
+        connect(view, &ProjectView::doubleClicked, this, [this](const QString& path){
             m_current_project_view = qobject_cast<ProjectView*>(sender());
             initProject(path);
         });
-        connect(view, &ProjectView::deleteTriggered, this, [&](const QString& path){
+        connect(view, &ProjectView::deleteTriggered, this, [this](const QString& path){
             m_current_project_view = qobject_cast<ProjectView*>(sender());
             deleteProject(path);
         });
@@ -172,49 +200,56 @@ ProjectManager::ProjectManager(QWidget *parent)
     shadow->setOffset(0, 0);
     shadow->setColor(QColor(0, 0, 0, 100));
     central_widget->setGraphicsEffect(shadow);
-
-
-
-
-
-
-    //m_curent_project.reset(initProject("../../projects/Project 1.json"));
-    //m_curent_project.reset(new Project(m_audio_engine.get(), &m_timer, &m_metronome, &m_track_settings_window, "Project 1", "../../projects", "../../records", "...", 8, 8,  this));
-    //m_curent_project->show();
 }
 
 
 ProjectManager::~ProjectManager(){
 
+    m_timer.stop();
+    m_timer_thread->quit();
+    m_timer_thread->wait();
+
+
+    if (m_audio_engine){
+        m_audio_engine->removePlayer(m_metronome->getPlayer());
+    }
+
+    m_curent_project.reset();
+    m_audio_engine.reset();
 }
 
 
-
-
-
 void ProjectManager::initProject(const QString& path_to_project){
-    if (path_to_project.isEmpty()) {
-        m_curent_project.reset(new Project(m_audio_engine.get(), &m_timer, &m_metronome, &m_track_settings_window, "", "", "", "", 1, 1,  this));
-        openProjectSettings(m_curent_project.get());
+    if (path_to_project.isEmpty() && m_current_project_view == nullptr) {
+        //Project* new_project = new Project(m_audio_engine.get(), &m_timer, m_metronome, m_track_settings_window, "Project1", "../../projects", "../../records", "...haha", 0, 0,  this);
+        m_curent_project.reset(new Project(m_audio_engine.get(), &m_timer, m_metronome, m_track_settings_window, "Project1", "../../projects", "../../records", "...haha", 0, 0,  this));
+        openProjectSettings(m_curent_project.get(), true);
+        if (m_curent_project == nullptr){
+            return;
+        }
     }
     else{
         ProjectSaveParameters data = m_storage->getProjectData(path_to_project);
-        m_metronome.setBPM(data.metronome_info.bpm);
-        m_metronome.setVolume(data.metronome_info.volume);
+        m_metronome->setBPM(data.metronome_info.bpm);
+        m_metronome->setVolume(data.metronome_info.volume);
 
-        m_curent_project.reset(new Project(m_audio_engine.get(), &m_timer, &m_metronome, &m_track_settings_window, data, this));
-
-        this->hide();
-        m_curent_project->show();
-
-        connect(m_curent_project.get(), &Project::saveTriggered, this, &ProjectManager::saveCurrentProject);
-
-        connect(m_curent_project.get(), &Project::closed, this, [&](){
-            Project* expiredProject = m_curent_project.release();
-            expiredProject->deleteLater();
-            this->show();
-        });
+        m_curent_project.reset(new Project(m_audio_engine.get(), &m_timer, m_metronome, m_track_settings_window, data, this));
     }
+
+    this->hide();
+    m_curent_project->show();
+    m_curent_project->raise();
+    m_curent_project->activateWindow();
+
+    connect(m_curent_project.get(), &Project::settingsTriggered, this, [this](Project* project){
+        openProjectSettings(project, false);
+    });
+
+    connect(m_curent_project.get(), &Project::saveTriggered, this, &ProjectManager::saveCurrentProject);
+
+    connect(m_curent_project.get(), &Project::closed, this, [this](){
+        this->show();
+    });
 }
 
 
@@ -231,13 +266,12 @@ void ProjectManager::deleteProject(const QString& path_to_project){
 void ProjectManager::saveCurrentProject(){
     // saving project
     ProjectSaveParameters current_project_save_data = m_curent_project->getSaveParameters();
-    QString save_path = m_curent_project->getProjectSaveDirPath() + "/" + current_project_save_data.name + ".json";
 
-    m_storage->saveProject(current_project_save_data, save_path);
-
-
-
-
+    QString save_path = m_storage->saveProject(current_project_save_data);
+    if (save_path.isEmpty()){
+        QMessageBox::information(this, "Error", "Невдалося зберегти проєкт -> перевірте шлях збереження");
+        return;
+    }
 
     // create & saving view
     QString date_of_last_use = QDateTime::currentDateTime().toString("yyyy:MM:dd-hh:mm:ss");
@@ -246,7 +280,7 @@ void ProjectManager::saveCurrentProject(){
     m_curent_project->render(preview_icon);
 
     if (m_current_project_view == nullptr) {
-        ProjectView* view = new ProjectView(
+        m_current_project_view = new ProjectView(
             ICON_SIZE,
             current_project_save_data.name,
             save_path,
@@ -255,68 +289,81 @@ void ProjectManager::saveCurrentProject(){
             preview_icon,
             this
         );
-        m_projects_views.push_back(view);
-        m_storage->saveProjectView(view);
+        m_projects_views.push_back(m_current_project_view);
     }
     else{
-        m_current_project_view->setPathToProject(save_path);
         m_current_project_view->setProjectName(current_project_save_data.name);
+        m_current_project_view->setPathToProject(save_path);
+        m_current_project_view->setDateOfLastUse(date_of_last_use);
+        m_current_project_view->setDescription(current_project_save_data.description);
+        m_current_project_view->setPreviewIcon(preview_icon);
     }
-}
+    if(!m_storage->saveProjectView(m_current_project_view)){
+        QMessageBox::information(this, "Error", "Невдалося зберегти оновлений образ проєкту");
+        return;
+    }
 
+    QMessageBox::information(this, "Success", "Проєкт збережено");
+    updateViewsTable();
+}
 
 
 
 void ProjectManager::updateViewsTable(){
     m_table_widget->setColumnCount(m_columns_of_views_count);
-    size_t rows_count = (m_projects_views.size() + m_columns_of_views_count - 1)/m_columns_of_views_count;
+    qsizetype rows_count = (m_projects_views.size() + m_columns_of_views_count - 1)/m_columns_of_views_count;
     m_table_widget->setRowCount((m_projects_views.size() + m_columns_of_views_count - 1)/m_columns_of_views_count);
 
-    size_t index = 0;
-    size_t views_count = m_projects_views.size();
+    qsizetype index = 0;
+    qsizetype views_count = m_projects_views.size();
     for (int r = 0; r < rows_count; ++r) {
+        m_table_widget->setRowHeight(r, ICON_SIZE);
         for (int c = 0; (c < m_columns_of_views_count) && (index < views_count); ++c, ++index) {
             m_table_widget->setCellWidget(r, c, m_projects_views[index]);
+            m_projects_views[index]->setContentsMargins(10, 10, 10, 10);
         }
     }
 }
 
 
-void ProjectManager::openProjectSettings(Project* track)
+
+
+void ProjectManager::openProjectSettings(Project* project, bool is_creating_a_new_projet)
 {
-    qDebug()<<"ProjectManager::openProjectSettings";
+    qDebug()<< project->getProjectSaveDirPath();
 
-    /*
-    for (const auto& connection : m_track_settings_connections) {
-        disconnect(connection);
+    m_project_settings_window->setName(project->getName());
+    m_project_settings_window->setSize(project->getSize());
+    m_project_settings_window->setProjectSaveDirPath(project->getProjectSaveDirPath());
+    m_project_settings_window->setRectordsSaveDirPath(project->getRectordsSaveDirPath());
+    m_project_settings_window->setDescription(project->getDescription());
+
+    // all this connection will be disconected, beacuse previous object is guaranteed dead (autonatic disconect)
+    connect(m_project_settings_window, &ProjectSettings::changedName, project, &Project::setName);
+    connect(m_project_settings_window, &ProjectSettings::changedSize, project, &Project::setSize);
+    connect(m_project_settings_window, &ProjectSettings::changedProjectSaveDirPath, project, &Project::setProjectSaveDirPath);
+    connect(m_project_settings_window, &ProjectSettings::changedRectordsSaveDirPath, project, &Project::setRectordsSaveDirPath);
+    connect(m_project_settings_window, &ProjectSettings::changedDescription, project, &Project::setDescription);
+
+
+
+    if (is_creating_a_new_projet){
+        connect(m_project_settings_window, &ProjectSettings::confirmed, this, [this, project](){
+            m_project_settings_window->hide();
+            m_curent_project.reset(project);
+        });
+        connect(m_project_settings_window, &ProjectSettings::canceled, this, [this, &project](){
+            m_project_settings_window->hide();
+            //delete project;
+            //project = nullptr;
+            m_curent_project.reset();
+        });
+        m_project_settings_window->exec();
     }
-    m_track_settings_connections.clear();
-
-    m_track_settings_window->setVolume(track->getVolume());
-    m_track_settings_window->setLoopState(track->getLoopState());
-    m_track_settings_window->setInnerActiveBackgroundColor(track->getInnerActiveBackgroundColor());
-    m_track_settings_window->setOuterBackgroundColor(track->getOuterBackgroundColor());
-    m_track_settings_window->setIsAudioSampleSelectedState((!track->getSoundPath().isEmpty()));
-    m_track_settings_window->setBeats(track->getBeatsStates());
-    m_track_settings_window->setRecordingEnabled(track->getRecordingState());
-
-
-    m_track_settings_connections.push_back(connect(m_track_settings_window, &TrackSettings::changedVolume, track, &Track::setVolume));
-    m_track_settings_connections.push_back(connect(m_track_settings_window, &TrackSettings::changedLoopState, track, &Track::setLoopState));
-    m_track_settings_connections.push_back(connect(m_track_settings_window, &TrackSettings::changedInnerActiveBackgroundColor, track, &Track::setInnerActiveBackgroundColor));
-    m_track_settings_connections.push_back(connect(m_track_settings_window, &TrackSettings::changedOuterBackgroundColor, track, &Track::setOuterBackgroundColor));
-    m_track_settings_connections.push_back(connect(m_track_settings_window, &TrackSettings::changedBeatState, track, &Track::setBeatState));
-    m_track_settings_connections.push_back(connect(m_track_settings_window, &TrackSettings::changedAudioSamplePath, track, &Track::setAudioSamplePath));
-    m_track_settings_connections.push_back(connect(m_track_settings_window, &TrackSettings::changedRecordingEnabled, track, &Track::setRecordingState));
-    m_track_settings_window->show();
-*/
+    else{
+        m_project_settings_window->show();
+    }
 }
-
-
-
-
-
-
 
 
 
@@ -367,7 +414,7 @@ void ProjectManager::mouseReleaseEvent(QMouseEvent* event)
 
 
 void ProjectManager::closeEvent(QCloseEvent *event) {
-    this->close();
+    event->accept();
     QCoreApplication::quit();
 }
 

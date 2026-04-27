@@ -30,6 +30,10 @@ Track::Track(
     , m_beats_per_measure(beats_per_measure)
 
 {
+     setStyleSheet(
+        "QPushButton { outline: none; border: none; background: transparent; }"
+        "QPushButton:focus { border: none; outline: none; }"
+        );
     setStyleSheet(m_style.arg(m_outer_color.name()).arg("black").arg(width()/BORDER_RADIUS_COEF));
     setAudioSamplePath(sound_path);
     setVolume(volume);
@@ -58,22 +62,25 @@ void Track::mousePressEvent(QMouseEvent *event)
                 if (m_timer) {
                     disconnect(m_timer, &MicroTimer::tick1, this, &Track::stop);
                     auto measures_count = m_beats_per_measure.size();
-                    for(size_t i = 0; i < measures_count; ++i){
+                    for(qsizetype i = 0; i < measures_count; ++i){
                         if (m_beats_per_measure[i])
                             connect(m_timer, m_timer->m_signals[i], this, &Track::play);
                     }
+
                 }
             }
             else {
                 m_is_active = false;
                 if (m_timer) {
+                    this->disconnect(m_timer);
                     connect(m_timer, &MicroTimer::tick1, this, &Track::stop);
-
+                    /*
                     auto measures_count = m_beats_per_measure.size();
-                    for(size_t i = 0; i < measures_count; ++i){
+                    for(qsizetype i = 0; i < measures_count; ++i){
                         if (m_beats_per_measure[i])
                             disconnect(m_timer, m_timer->m_signals[i], this, &Track::play);
                     }
+                    */
                 }
             }
         }
@@ -139,11 +146,7 @@ void Track::paintEvent(QPaintEvent *event){
 
 void Track::setVolume(float volume)
 {
-    if ((volume < 0.0f) || (volume > 1.0f)) {
-        return;
-    }
     m_player->setVolume(volume);
-
 }
 
 
@@ -156,7 +159,7 @@ void Track::setAudioSamplePath(QString path)
         m_is_active = false;
         if (m_timer) {
             auto measures_count = m_beats_per_measure.size();
-            for(size_t i = 0; i < measures_count; ++i){
+            for(qsizetype i = 0; i < measures_count; ++i){
                 if (m_beats_per_measure[i])
                     disconnect(m_timer, m_timer->m_signals[i], this, &Track::play);
             }
@@ -210,6 +213,7 @@ std::array<bool, 16> Track::getBeatsStates() const
 
 void Track::setBeatState(quint8 index, bool state)
 {
+    qDebug()<<"Track::changedBeatState --> "<<index<<": "<<state;
     m_beats_per_measure[index] = state;
 
     if (m_beats_per_measure[index] && m_is_active)

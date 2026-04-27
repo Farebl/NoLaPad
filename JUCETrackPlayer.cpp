@@ -18,7 +18,6 @@ JUCETrackPlayer::~JUCETrackPlayer() {
 
 
 void JUCETrackPlayer::prepareToPlay(int samplesPerBlock, double sampleRate){
-
     m_sample_rate = sampleRate;
 
     juce::dsp::ProcessSpec spec;
@@ -29,12 +28,13 @@ void JUCETrackPlayer::prepareToPlay(int samplesPerBlock, double sampleRate){
     m_effect_chain.prepare(spec);
     m_transport_source.prepareToPlay(samplesPerBlock, sampleRate);
 
-    m_effect_buffer = std::make_unique<juce::AudioBuffer<float>>(2, samplesPerBlock * 2); // x2 для запасу
+    m_effect_buffer = std::make_unique<juce::AudioBuffer<float>>(2, samplesPerBlock * 2);
     m_effect_buffer->clear();
 
     updateEffectParameters();
     m_is_ready.store(true);
 }
+
 
 void JUCETrackPlayer::getNextAudioBlock(AudioBlockInfo* block) {
 
@@ -44,8 +44,7 @@ void JUCETrackPlayer::getNextAudioBlock(AudioBlockInfo* block) {
         return;
     }
 
-
-    // Обгортаємо AudioBlockInfo у juce::AudioBuffer без копіювання (non-owning)
+    // Обгортаємо AudioBlockInfo у juce::AudioBuffer
     juce::AudioBuffer<float> wrapper(block->data, block->numChannels, block->numSamples);
     juce::AudioSourceChannelInfo info(&wrapper, 0, block->numSamples);
     m_transport_source.getNextAudioBlock(info);
@@ -71,11 +70,12 @@ void JUCETrackPlayer::releaseResources()
 void JUCETrackPlayer::applyEffect(juce::AudioBuffer<float>& buffer, int numSamples) {
     const int channels = juce::jmin(2, buffer.getNumChannels());
     const int samples  = juce::jmin(numSamples, m_effect_buffer->getNumSamples());
+
     // Копіюємо у тимчасовий буфер для DSP
     for (int ch = 0; ch < channels; ++ch)
         m_effect_buffer->copyFrom(ch, 0, buffer.getReadPointer(ch), samples);
     juce::dsp::AudioBlock<float> fullBlock(*m_effect_buffer);
-    auto block = fullBlock.getSubBlock(0, static_cast<size_t>(samples));
+    auto block = fullBlock.getSubBlock(0, static_cast<qsizetype>(samples));
     juce::dsp::ProcessContextReplacing<float> ctx(block);
     switch (m_current_effect) {
     case EffectType::Reverb:
@@ -87,7 +87,7 @@ void JUCETrackPlayer::applyEffect(juce::AudioBuffer<float>& buffer, int numSampl
         for (int ch = 0; ch < channels; ++ch) {
             auto* dst = block.getChannelPointer(ch);
             const auto* src = buffer.getReadPointer(ch);
-            for (size_t i = 0; i < block.getNumSamples(); ++i)
+            for (qsizetype i = 0; i < block.getNumSamples(); ++i)
                 dst[i] = dst[i] * wet + src[i] * dry;
         }
         break;
@@ -98,7 +98,7 @@ void JUCETrackPlayer::applyEffect(juce::AudioBuffer<float>& buffer, int numSampl
         float wet      = m_delay_settings.mix, dry = 1.0f - wet;
         for (int ch = 0; ch < channels; ++ch) {
             auto* dst = block.getChannelPointer(ch);
-            for (size_t i = 0; i < block.getNumSamples(); ++i) {
+            for (qsizetype i = 0; i < block.getNumSamples(); ++i) {
                 float delayed = delay.popSample(ch,
                                                 static_cast<float>(m_delay_settings.delayTime * m_sample_rate));
                 delay.pushSample(ch, dst[i] + delayed * feedback);
@@ -114,7 +114,7 @@ void JUCETrackPlayer::applyEffect(juce::AudioBuffer<float>& buffer, int numSampl
         for (int ch = 0; ch < channels; ++ch) {
             auto* dst       = block.getChannelPointer(ch);
             const auto* src = buffer.getReadPointer(ch);
-            for (size_t i = 0; i < block.getNumSamples(); ++i) {
+            for (qsizetype i = 0; i < block.getNumSamples(); ++i) {
                 float distorted = std::tanh(src[i] * drive) / std::tanh(drive);
                 dst[i] = (distorted * mix + src[i] * (1.0f - mix)) * outputVolume;
             }
@@ -155,14 +155,10 @@ void JUCETrackPlayer::loadAudioFileForPlaying(const QString& audio_sample_path) 
     auto* reader = m_format_manager.createReaderFor(audioFile);
     if (!reader) return;
 
-
     m_transport_source.stop();
     m_transport_source.setSource(nullptr);
 
-
     m_reader_source = std::make_unique<juce::AudioFormatReaderSource>(reader, true);
-
-
     m_transport_source.setSource(m_reader_source.get(), 0, nullptr, reader->sampleRate);
 }
 

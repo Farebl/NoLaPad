@@ -26,6 +26,7 @@ private:
     juce::AudioBuffer<float> m_record_buffer;
 
     std::mutex m_tracks_mutex;
+    std::atomic<bool> m_is_ready{false};
     std::atomic<bool> m_initialized{false};
     std::atomic<bool> m_is_recording{false};
 
@@ -50,6 +51,8 @@ public:
     void startRecording(const QString& outputPath) override;
     void stopRecording() override;
     bool isRecording() const override;
+    void start() override;
+    void stop() override;
 };
 
 #endif // JUCEAUDIOENGINE_H

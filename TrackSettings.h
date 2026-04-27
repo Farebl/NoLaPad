@@ -69,7 +69,7 @@ public:
     explicit TrackSettings(quint8 volume_percent = 100, bool is_loop = false, const std::array<bool, 16>& beats_per_measure = {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, const QColor& outer_background_color = Qt::gray, const QColor& inner_background_color = Qt::darkGray, QWidget *parent = nullptr);
 
     void setLoopState(bool state);
-    void setVolume(int volum_percent);
+    void setVolume(float volume);
     void setEffectVolume(int volum_percent);
     void setInnerActiveBackgroundColor(QColor color);
     void setOuterBackgroundColor(QColor color);
@@ -84,7 +84,7 @@ private slots:
 
 signals:
     void changedLoopState(bool state);
-    void changedVolume(int volum_percent);
+    void changedVolume(float volum_percent);
     void changedInnerActiveBackgroundColor(QColor color);
     void changedOuterBackgroundColor(QColor color);
     void changedAudioSamplePath(QString path);

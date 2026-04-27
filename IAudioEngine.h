@@ -14,6 +14,8 @@ public:
     virtual void startRecording(const QString& outputPath) = 0;
     virtual void stopRecording() = 0;
     virtual bool isRecording() const = 0;
+    virtual void start() = 0;
+    virtual void stop() = 0;
 };
 
 #endif // IAUDIOENGINE_H

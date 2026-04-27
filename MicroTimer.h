@@ -19,10 +19,13 @@ public:
     explicit MicroTimer(quint32 interval_in_nanoseconds = 1'000'000'000, QObject* parent = nullptr);
     ~MicroTimer();
 
-    void start();
-    void stop();
+
     void setInterval(quint32 microsec);
     std::array<void (MicroTimer::*)(), 16> m_signals;
+
+public slots:
+    void start();
+    void stop();
 
 signals:
     void tick0();

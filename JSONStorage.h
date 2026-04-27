@@ -18,10 +18,10 @@ public:
     ~JSONStorage() override;
 
     virtual ProjectSaveParameters getProjectData(const QString& path) override;
-    virtual void saveProject(const ProjectSaveParameters& project_save_parameters, const QString& path) override;
+    virtual QString saveProject(const ProjectSaveParameters& project_save_parameters) override;
     virtual void deleteProject(const QString& path) override;
     virtual QVector<ProjectView*> loadProjectsViews() override;
-    virtual void saveProjectView(ProjectView* project_view) override;
+    virtual bool saveProjectView(ProjectView* project_view) override;
     virtual void deleteProjectView(const QString& project_name) override;
 };
 

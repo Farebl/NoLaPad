@@ -27,11 +27,11 @@ MetronomeSettings::MetronomeSettings(quint8 volume_percent, QWidget *parent)
     m_volume_display->setValue(volume_percent);
 
 
-    connect(m_volume_slider, &QSlider::valueChanged, this, [&](int value) {
+    connect(m_volume_slider, &QSlider::valueChanged, this, [this](int value) {
         m_volume_display->setValue(value);
     });
 
-    connect(m_volume_display, &QSpinBox::valueChanged, this, [&](int value) {
+    connect(m_volume_display, &QSpinBox::valueChanged, this, [this](int value) {
         m_volume_slider->setValue(value);
     });
 

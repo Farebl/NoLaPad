@@ -23,15 +23,21 @@ JUCEAudioEngine::JUCEAudioEngine():
     m_initialized.store(true);
 }
 
-
 JUCEAudioEngine::~JUCEAudioEngine() {
     if (!m_initialized.load()) return;
+    m_is_ready.store(false);
+    m_initialized.store(false);
     m_device_manager.removeAudioCallback(this);
     m_device_manager.closeAudioDevice();
-    m_initialized.store(false);
 }
 
+void JUCEAudioEngine::start(){
+    m_is_ready.store(true);
+}
 
+void JUCEAudioEngine::stop(){
+    m_is_ready.store(false);
+}
 
 void JUCEAudioEngine::addPlayer(IPlayer* player) {
     std::lock_guard<std::mutex> lock(m_tracks_mutex);
@@ -46,8 +52,7 @@ void JUCEAudioEngine::addPlayer(IPlayer* player) {
 
 void JUCEAudioEngine::removePlayer(IPlayer* player) {
     std::lock_guard<std::mutex> lock(m_tracks_mutex);
-    m_tracks.erase(std::remove(m_tracks.begin(), m_tracks.end(), player),
-                   m_tracks.end());
+    m_tracks.erase(std::remove(m_tracks.begin(), m_tracks.end(), player), m_tracks.end());
 }
 
 void JUCEAudioEngine::startRecording(const QString& outputPath) {
@@ -80,6 +85,16 @@ void JUCEAudioEngine::audioDeviceIOCallbackWithContext(
     const juce::AudioIODeviceCallbackContext&)
 {
     if (!outputChannelData || numOutputChannels <= 0 || numSamples <= 0) return;
+
+    // захист від виклику після початку деструкції або після зцпини
+    if (!m_initialized.load() || !m_is_ready.load()) {
+        for (int ch = 0; ch < numOutputChannels; ++ch)
+            if (outputChannelData[ch])
+                std::memset(outputChannelData[ch], 0, numSamples * sizeof(float));
+        return;
+    }
+
+
 
     // Вихідний буфер — non-owning wrapper (дані ідуть напряму на ЦАП)
     juce::AudioBuffer<float> outputBuffer(outputChannelData, numOutputChannels, numSamples);

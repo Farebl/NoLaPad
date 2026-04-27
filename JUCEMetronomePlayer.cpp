@@ -17,7 +17,19 @@ JUCEMetronomePlayer::JUCEMetronomePlayer(
     loadAudioFileForFourthMeasure(fourth_measure_sound_path);
 }
 
-JUCEMetronomePlayer::~JUCEMetronomePlayer(){}
+
+JUCEMetronomePlayer::~JUCEMetronomePlayer() {
+
+    m_transport_0.stop();
+    m_transport_0.setSource(nullptr);
+    m_transport_1.stop();
+    m_transport_1.setSource(nullptr);
+    m_transport_2.stop();
+    m_transport_2.setSource(nullptr);
+    m_transport_3.stop();
+    m_transport_3.setSource(nullptr);
+
+}
 
 
 void JUCEMetronomePlayer::loadAudioFileForFirstMeasure(const QString& sample_path) {

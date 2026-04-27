@@ -56,6 +56,10 @@ ProjectView::ProjectView(
     , m_preview_icon_button(new PreviewButton(nullptr, this))
 {
 
+    connect(m_preview_icon_button, &PreviewButton::clicked, this, [this](){
+        emit doubleClicked(getPathToProject());
+    });
+
     // ---------------------- title
 
     quint16 title_bar_heigh = 20;
@@ -123,9 +127,10 @@ ProjectView::ProjectView(
     QAction* delete_action = new QAction("delete");
     m_menu->addAction(delete_action);
 
-    connect(delete_action, &QAction::triggered, this,[&](){
+    connect(delete_action, &QAction::triggered, this,[this](){
         emit deleteTriggered(getPathToProject());
     });
+
 
 }
 
@@ -134,12 +139,6 @@ ProjectView::~ProjectView(){}
 
 
 
-void ProjectView::mouseDoubleClickEvent(QMouseEvent *event)
-{
-    if (event->button() == Qt::LeftButton) {
-        emit doubleClicked(getPathToProject());
-    }
-}
 
 void ProjectView::mousePressEvent(QMouseEvent *event)
 {

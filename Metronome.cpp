@@ -16,12 +16,10 @@ Metronome::Metronome(
     : QWidget(parent)
     , m_player(new JUCEMetronomePlayer(first_measure_sound_path, second_measure_sound_path, third_measure_sound_path, fourth_measure_sound_path, volume))
     , m_timer(timer)
-    , m_settings_window(nullptr)
+    , m_settings_window(new MetronomeSettings(100, this))
     , m_bpm_counter(new BPMCounter(m_timer, bpm_value, this))
     , m_play_button(new QPushButton(this))
 {
-    m_settings_window = new MetronomeSettings(100, this);
-
     m_play_button->setFixedSize(30, 25);
     m_play_button->setText("▶");
     m_play_button->setCheckable(true);
@@ -102,7 +100,9 @@ Metronome::Metronome(
 }
 
 
-Metronome::~Metronome() {}
+Metronome::~Metronome() {
+
+}
 
 
 
@@ -134,7 +134,7 @@ float Metronome::getVolume() const{
 }
 
 
-IMetronomePlayer* Metronome::getPlayer(){
+IPlayer* Metronome::getPlayer(){
     return m_player.get();
 }
 

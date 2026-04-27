@@ -20,7 +20,6 @@ private:
     class PreviewButton;
     PreviewButton* m_preview_icon_button;
 
-    void mouseDoubleClickEvent(QMouseEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
 
 public:

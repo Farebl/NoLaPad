@@ -31,7 +31,10 @@ Project::Project(
     , m_metronome(metronome)
     , m_track_settings_window(track_settings_window)
 {
-    //m_track_settings_connections.reserve(22);
+
+    qDebug()<<"Project delegate(): "<< this;
+    /////////////////////////////// GUI building //////////////////////////////
+
 
     // -------------------- general parameters of window
 
@@ -43,12 +46,12 @@ Project::Project(
 
 
 
-    // ----------------------------------------------- top zone
+    // ----------------------------------------------------- top zone
 
 
 
 
-    // ------------------------- title bar
+    // ---------------------------- title bar
 
 
     m_title_bar->setFixedHeight(40);
@@ -60,7 +63,7 @@ Project::Project(
 
 
 
-    //------------------------ project settings menu
+    //--------------- project settings menu
 
     QPushButton* action_selector = new QPushButton("⚙", this);
     action_selector->setStyleSheet(
@@ -82,12 +85,14 @@ Project::Project(
     actions ->addAction(save_action);
 
     action_selector->setMenu(actions);
-    connect(settings_action, &QAction::triggered, this,&Project::settingsTriggered);
+    connect(settings_action, &QAction::triggered, this, [this](){
+        emit settingsTriggered(this);
+    });
     connect(save_action, &QAction::triggered, this, &Project::saveTriggered);
 
 
 
-    // -------------------- REC zone
+    // ---------------- REC zone
 
     RecorderButton* recording_button = new RecorderButton(25, this);
     recording_button->setCheckable(true);
@@ -104,13 +109,13 @@ Project::Project(
     rec_layout->addWidget(digital_clock_face );
 
 
-    connect(recording_button, &RecorderButton::toggled, this, [&](bool checked) {
+    connect(recording_button, &RecorderButton::toggled, this, [this, recording_button, digital_clock_face](bool checked) {
         if (checked) {
             recording_button->setChecked(true);
             recording_button->update();
             m_timer_for_REC->start();
             m_elapsed_timer_for_REC->start();
-            QString path = m_save_records_dir_path + "/Recording_" + QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss") + ".wav";
+            QString path = m_records_save_dir_path + "/Recording_" + QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss") + ".wav";
             m_audio_engine->startRecording(path);
         }
         else {
@@ -124,7 +129,7 @@ Project::Project(
     });
 
 
-    connect(m_timer_for_REC, &QTimer::timeout, this, [&](){
+    connect(m_timer_for_REC, &QTimer::timeout, this, [this, digital_clock_face, recording_button](){
         QTime time(0, 0);
         qint64 elapsed = m_elapsed_timer_for_REC->elapsed();
         time = time.addMSecs(elapsed);
@@ -141,12 +146,8 @@ Project::Project(
 
 
 
-    // -------------------- Metronome
-    m_audio_engine->addPlayer(m_metronome->getPlayer());
 
-
-
-    // -------------------- Window control buttons
+    // ------------- Window control buttons
 
 
     QPushButton* close_button = new QPushButton("✖", m_title_bar);
@@ -184,7 +185,7 @@ Project::Project(
 
 
 
-    // ------------   Центральный виджет
+    // ------------------------------------------------------------  Central widget for tracks matrix
 
     QWidget* central_widget = new QWidget(this);
     central_widget->setStyleSheet(
@@ -193,30 +194,27 @@ Project::Project(
         "border-bottom-right-radius: 10px;"
         );
 
-    // Создаем таблицу для кнопок
+
+
+    // ------------------------------------- Tracks matrix
     m_table_widget->setShowGrid(false);
     m_table_widget->horizontalHeader()->setVisible(false);
     m_table_widget->verticalHeader()->setVisible(false);
     m_table_widget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    m_table_widget->setRowCount(0);
+    m_table_widget->setColumnCount(0);
 
-
-
-
-    QThread* timer_thread = new QThread(this);
-    m_timer->moveToThread(timer_thread);
-    connect(timer_thread, &QThread::started, m_timer, &MicroTimer::start);
-    timer_thread->start();
 
 
     m_table_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     m_table_widget->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
 
-    // Layout для центрального виджета
+
     QVBoxLayout* content_layout = new QVBoxLayout(central_widget);
     content_layout->addWidget(m_table_widget);
 
-    // Собираем все вместе
+
 
     QVBoxLayout* main_layout = new QVBoxLayout;
     main_layout->setContentsMargins(0, 0, 0, 0);
@@ -255,47 +253,11 @@ Project::Project(
     : Project(audio_engine, timer, metronome, track_settings_window, parent)
 {
     m_name = name;
-    m_save_project_dir_path = save_project_dir_path;
-    m_save_records_dir_path = save_records_dir_path;
+    m_project_save_dir_path = save_project_dir_path;
+    m_records_save_dir_path = save_records_dir_path;
     m_description = description;
 
-    m_rows_count = rows_count;
-    m_columns_count = columns_count;
-
-
-    // Ініціалізація треків
-    m_table_widget->setRowCount(m_rows_count);
-    m_table_widget->setColumnCount(m_columns_count);
-    m_tracks.resize(m_rows_count * m_columns_count);
-    size_t index = 0;
-    for (int r = 0; r < m_rows_count; ++r) {
-        for (int c = 0; c < m_columns_count; ++c, ++index) {
-            Track* track = new Track(
-                m_timer,
-                0.80,
-                false,
-                false,
-                {
-                    1, 0, 0, 0,
-                    0, 0, 0, 0,
-                    0, 0, 0, 0,
-                    0, 0, 0, 0
-                },
-                QString(""),
-                Qt::gray,
-                Qt::red,
-                m_table_widget
-                );
-
-            track->setObjectName(QString::number(index));
-
-            m_table_widget->setCellWidget(r, c, track);
-            connect(track, &Track::rightClicked, this, &Project::openTrackSettings);
-
-            m_audio_engine->addPlayer(track->getPlayer());
-            m_tracks[index] = track;
-        }
-    }
+    setSize(QSize(columns_count, rows_count)); // + call updateTracksTable()
 }
 
 
@@ -306,25 +268,33 @@ Project::Project(
     TrackSettings* track_settings_window,
     const ProjectSaveParameters& data,
     QWidget* parent
-    )
-    : Project(audio_engine, timer, metronome, track_settings_window, parent)
+    ) : Project(audio_engine, timer, metronome, track_settings_window, parent)
 {
     m_name = data.name;
-    m_save_records_dir_path = data.save_records_dir_path;
+
+    m_project_save_dir_path = data.project_save_dir_path;
+    m_records_save_dir_path = data.save_records_dir_path;
     m_description = data.description;
+
+
+
+    auto tracks_count = data.rows_count * data.columns_count;
+
+
+
 
     m_rows_count = data.rows_count;
     m_columns_count = data.columns_count;
 
-
-    // Ініціалізація треків
     m_table_widget->setRowCount(m_rows_count);
     m_table_widget->setColumnCount(m_columns_count);
-    m_tracks.resize(m_rows_count * m_columns_count);
-    size_t index = 0;
+
+    qsizetype index = 0;
+
+    m_tracks.resize(tracks_count, nullptr);
     for (int r = 0; r < m_rows_count; ++r) {
-        for (int c = 0; c < m_columns_count; ++c, ++index) {
-            Track* track = new Track(
+        for (int c = 0; (c < m_columns_count); ++c, ++index) {
+            m_tracks[index] = new Track(
                 m_timer,
                 data.tracks_info[index].volume,
                 data.tracks_info[index].is_loop,
@@ -333,44 +303,113 @@ Project::Project(
                 data.tracks_info[index].audio_sample_path,
                 data.tracks_info[index].outer_color,
                 data.tracks_info[index].inner_color,
-                m_table_widget
+                this
             );
+            m_table_widget->setCellWidget(r, c, m_tracks[index]);
 
-            track->setObjectName(QString::number(index));
-            m_table_widget->setCellWidget(r, c, track);
-            connect(track, &Track::rightClicked, this, &Project::openTrackSettings);
+            m_audio_engine->addPlayer(m_tracks[index]->getPlayer());
 
-            m_audio_engine->addPlayer(track->getPlayer());
-            m_tracks[index] = track;
+            m_table_widget->setCellWidget(r, c, m_tracks[index]);
+            m_tracks[index]->setObjectName(QString::number(index));
+
+            connect(m_tracks[index], &Track::rightClicked, this, &Project::openTrackSettings);
         }
     }
 }
 
 Project::~Project()
 {
-    m_timer->stop();
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-
-    for (Track* track : m_tracks) {
-        if (track != nullptr) {
-            delete track;
+    qDebug()<<"~Project(): "<< this;
+    m_metronome->setParent(this->parentWidget());
+    m_audio_engine->stop();
+    if (m_audio_engine) {
+        for (Track* track : m_tracks) {
+            m_audio_engine->removePlayer(track->getPlayer());
+            m_timer->disconnect(track);
         }
     }
-    m_tracks.clear();
-    //m_track_settings_connections.clear();
+
+    QMetaObject::invokeMethod(m_timer, "stop", Qt::QueuedConnection);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
 }
+
+
+
+void Project::updateTracksTable(){
+    qsizetype old_size = m_table_widget->rowCount() * m_table_widget->columnCount();
+    qsizetype new_size = m_rows_count * m_columns_count;
+
+    qsizetype index = 0;
+    Track* current_track = nullptr;
+    if (new_size > old_size){
+        m_table_widget->setRowCount(m_rows_count);
+        m_table_widget->setColumnCount(m_columns_count);
+        m_tracks.resize(new_size);
+        for (int r = 0; r < m_rows_count; ++r) {
+            for (int c = 0; (c < m_columns_count); ++c, ++index) {
+                current_track = qobject_cast<Track*>(m_table_widget->cellWidget(r, c));
+                if (current_track == nullptr){
+                    current_track = new Track(
+                        m_timer,
+                        0.80,
+                        false,
+                        false,
+                        {
+                            1, 0, 0, 0,
+                            0, 0, 0, 0,
+                            0, 0, 0, 0,
+                            0, 0, 0, 0
+                        },
+                        QString(""),
+                        Qt::gray,
+                        Qt::red,
+                        this
+                    );
+                    m_table_widget->setCellWidget(r, c, current_track);
+                }
+                connect(current_track, &Track::rightClicked, this, &Project::openTrackSettings);
+                m_audio_engine->addPlayer(current_track->getPlayer());
+                current_track->setObjectName(QString::number(index));
+                m_tracks[index] = current_track;
+            }
+        }
+    }
+    else{
+        // in this branch, we need to update order of track in accordance with their display on m_table_widget
+        // current ros & columns count in m_table_widget is really more than new values of (m_rows_count) & (m_columns_count);
+        auto current_rows_count = m_table_widget->rowCount();
+        auto current_columns_count = m_table_widget->columnCount();
+
+        m_tracks.resize(m_rows_count * m_columns_count);
+        for (int r = 0; r < current_rows_count; ++r) {
+            for (int c = 0; c < current_columns_count; ++c) {
+                current_track = qobject_cast<Track*>(m_table_widget->cellWidget(r, c));
+                if (r >= m_rows_count || c >= m_columns_count){
+                    m_audio_engine->removePlayer(current_track->getPlayer());
+                }
+                else{
+                    current_track->setObjectName(QString::number(index));
+                    m_tracks[index] = current_track;
+                    ++index;
+                }
+            }
+        }
+        m_table_widget->setRowCount(m_rows_count);
+        m_table_widget->setColumnCount(m_columns_count);
+    }
+}
+
+
+
+
 
 void Project::openTrackSettings(Track* track)
 {
-/*
-    for (const auto& connection : m_track_settings_connections) {
-        disconnect(connection);
+    if (last_opend_track){
+        m_track_settings_window->disconnect(m_track_settings_window, nullptr, last_opend_track, nullptr);
     }
-    m_track_settings_connections.clear();
-*/
-
-    m_track_settings_window->disconnect();
+    last_opend_track = track;
 
     m_track_settings_window->setVolume(track->getVolume());
     m_track_settings_window->setLoopState(track->getLoopState());
@@ -388,8 +427,114 @@ void Project::openTrackSettings(Track* track)
     connect(m_track_settings_window, &TrackSettings::changedBeatState, track, &Track::setBeatState);
     connect(m_track_settings_window, &TrackSettings::changedAudioSamplePath, track, &Track::setAudioSamplePath);
     connect(m_track_settings_window, &TrackSettings::changedRecordingEnabled, track, &Track::setRecordingState);
+
     m_track_settings_window->show();
 }
+
+
+
+
+ProjectSaveParameters Project::getSaveParameters() {
+
+    ITrackPlayer* track_player;
+    QVector<TrackInfo> tracks_info;
+    tracks_info.reserve(m_rows_count * m_columns_count);
+    for(auto track : m_tracks){
+        track_player = track->getPlayer();
+        tracks_info.push_back(TrackInfo{
+            track->objectName().toUShort(),
+            track->getLoopState(),
+            track->getRecordingState(),
+            track->getAudioSamplePath(),
+            track->getOuterBackgroundColor(),
+            track->getInnerActiveBackgroundColor(),
+            track->getBeatsStates(),
+            track->getVolume(),
+            track_player->getCurrentEffectType(),
+            track_player->getReverbSettings(),
+            track_player->getDelaySettings(),
+            track_player->getChorusSettings(),
+            track_player->getDistortionSettings()
+        });
+    }
+
+    ProjectSaveParameters save_data{
+        m_name,
+        m_project_save_dir_path,
+        m_records_save_dir_path,
+        m_description,
+        m_rows_count,
+        m_columns_count,
+        tracks_info,
+        MetronomeInfo {
+            m_metronome->getBPM(),
+            m_metronome->getVolume(),
+        }
+    };
+
+    return save_data;
+}
+
+
+
+
+
+void Project::setName(const QString& name){
+    m_name = name;
+}
+QString Project::getName() const{
+    return m_name;
+}
+
+
+void Project::setSize(const QSize& size){
+    m_columns_count = size.width();
+    m_rows_count = size.height();
+    updateTracksTable(); // + resize m_tracks (possible new Tracks) + + Control over the tracks lifespan passes to m_table_widget.
+}
+
+
+QSize Project::getSize() const{
+    return QSize(m_columns_count, m_rows_count);
+}
+
+
+void Project::setTemp(quint16 value){
+    m_metronome->setBPM(value);
+}
+quint16 Project::getTemp() const{
+    return m_metronome->getBPM();
+}
+
+
+
+void Project::setProjectSaveDirPath(const QString& path){
+    m_project_save_dir_path = path;
+}
+
+QString Project::getProjectSaveDirPath() const {
+    return  m_project_save_dir_path;
+}
+
+void Project::setRectordsSaveDirPath(const QString& path){
+    m_records_save_dir_path = path;
+}
+QString Project::getRectordsSaveDirPath() const{
+    return m_records_save_dir_path;
+}
+
+
+void Project::setDescription(const QString& text){
+    m_description = text;
+}
+QString Project::getDescription() const{
+    return m_description;
+}
+
+
+
+
+
 
 void Project::toggleMaximize()
 {
@@ -440,59 +585,10 @@ void Project::mouseReleaseEvent(QMouseEvent* event)
 }
 
 
+
 void Project::closeEvent(QCloseEvent *event) {
     emit closed();
     event->accept();
 }
-
-
-
-ProjectSaveParameters Project::getSaveParameters() {
-
-    ITrackPlayer* track_player;
-    QVector<TrackInfo> tracks_info;
-    tracks_info.reserve(m_rows_count * m_columns_count);
-    for(auto track : m_tracks){
-        track_player = track->getPlayer();
-        tracks_info.push_back(TrackInfo{
-            track->objectName().toUShort(),
-            track->getLoopState(),
-            track->getRecordingState(),
-            track->getAudioSamplePath(),
-            track->getOuterBackgroundColor(),
-            track->getInnerActiveBackgroundColor(),
-            track->getBeatsStates(),
-            track->getVolume(),
-            track_player->getCurrentEffectType(),
-            track_player->getReverbSettings(),
-            track_player->getDelaySettings(),
-            track_player->getChorusSettings(),
-            track_player->getDistortionSettings()
-        });
-    }
-
-    ProjectSaveParameters save_data{
-        m_name,
-
-        m_save_records_dir_path,
-        m_description,
-        m_rows_count,
-        m_columns_count,
-        tracks_info,
-        MetronomeInfo {
-            m_metronome->getBPM(),
-            m_metronome->getVolume(),
-        }
-    };
-
-    return save_data;
-}
-
-QString Project::getProjectSaveDirPath() const {
-    return  m_save_project_dir_path;
-}
-
-
-
 
 

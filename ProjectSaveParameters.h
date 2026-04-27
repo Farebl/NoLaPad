@@ -36,6 +36,7 @@ struct MetronomeInfo{
 
 struct ProjectSaveParameters{
     QString name;
+    QString project_save_dir_path;
     QString save_records_dir_path;
     QString description;
 
