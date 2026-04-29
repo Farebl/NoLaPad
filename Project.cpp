@@ -12,8 +12,10 @@
 #include "IMetronomePlayer.h"
 
 
+
 Project::Project(
     IAudioEngine* audio_engine,
+    ITrackPlayer*(*track_players_fabric)(),
     MicroTimer* timer,
     Metronome* metronome,
     TrackSettings* track_settings_window,
@@ -22,6 +24,7 @@ Project::Project(
     : QMainWindow(parent)
     , m_dragging(false)
     , m_resizing(false)
+    , m_recording_button( new RecorderButton(25, this))
     , m_title_bar(new QWidget(this))
     , m_table_widget(new QTableWidget(this))
     , m_timer_for_REC(new QTimer(this))
@@ -30,6 +33,7 @@ Project::Project(
     , m_timer(timer)
     , m_metronome(metronome)
     , m_track_settings_window(track_settings_window)
+    , m_track_players_fabric(track_players_fabric)
 {
 
     qDebug()<<"Project delegate(): "<< this;
@@ -92,11 +96,11 @@ Project::Project(
 
 
 
+
     // ---------------- REC zone
 
-    RecorderButton* recording_button = new RecorderButton(25, this);
-    recording_button->setCheckable(true);
-    recording_button->setChecked(false);
+    m_recording_button->setCheckable(true);
+    m_recording_button->setChecked(false);
 
     QLabel* digital_clock_face = new QLabel(this);
     digital_clock_face ->setStyleSheet(QString("color: #5a5a5a; font-size: %1px; height: %1px").arg(25));
@@ -105,14 +109,14 @@ Project::Project(
 
 
     QHBoxLayout* rec_layout = new QHBoxLayout();
-    rec_layout->addWidget(recording_button);
+    rec_layout->addWidget(m_recording_button);
     rec_layout->addWidget(digital_clock_face );
 
 
-    connect(recording_button, &RecorderButton::toggled, this, [this, recording_button, digital_clock_face](bool checked) {
+    connect(m_recording_button, &RecorderButton::toggled, this, [this, digital_clock_face](bool checked) {
         if (checked) {
-            recording_button->setChecked(true);
-            recording_button->update();
+            m_recording_button->setChecked(true);
+            m_recording_button->update();
             m_timer_for_REC->start();
             m_elapsed_timer_for_REC->start();
             QString path = m_records_save_dir_path + "/Recording_" + QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss") + ".wav";
@@ -122,14 +126,14 @@ Project::Project(
             m_timer_for_REC->stop();
             m_elapsed_timer_for_REC->invalidate();
             digital_clock_face ->setText("00:00:00:0");
-            recording_button->setChecked(false);
-            recording_button->update();
+            m_recording_button->setChecked(false);
+            m_recording_button->update();
             m_audio_engine->stopRecording();
         }
     });
 
 
-    connect(m_timer_for_REC, &QTimer::timeout, this, [this, digital_clock_face, recording_button](){
+    connect(m_timer_for_REC, &QTimer::timeout, this, [this, digital_clock_face](){
         QTime time(0, 0);
         qint64 elapsed = m_elapsed_timer_for_REC->elapsed();
         time = time.addMSecs(elapsed);
@@ -139,7 +143,7 @@ Project::Project(
             m_timer->stop();
             m_elapsed_timer_for_REC->invalidate();
             digital_clock_face ->setText("00:00:00:0");
-            recording_button->setChecked(false);
+            m_recording_button->setChecked(false);
             m_audio_engine->stopRecording();
         }
     });
@@ -166,7 +170,6 @@ Project::Project(
     connect(close_button, &QPushButton::clicked, this, &QWidget::close);
     connect(minimize_button, &QPushButton::clicked, this, &QWidget::showMinimized);
     connect(maximize_button, &QPushButton::clicked, this, &Project::toggleMaximize);
-
 
 
 
@@ -239,6 +242,7 @@ Project::Project(
 
 Project::Project(
     IAudioEngine* audio_engine,
+    ITrackPlayer*(*track_players_fabric)(),
     MicroTimer* timer,
     Metronome* metronome,
     TrackSettings* track_settings_window,
@@ -250,7 +254,7 @@ Project::Project(
     quint8 columns_count,
     QWidget *parent
     )
-    : Project(audio_engine, timer, metronome, track_settings_window, parent)
+    : Project(audio_engine, track_players_fabric, timer, metronome, track_settings_window, parent)
 {
     m_name = name;
     m_project_save_dir_path = save_project_dir_path;
@@ -263,25 +267,22 @@ Project::Project(
 
 Project::Project(
     IAudioEngine* audio_engine,
+    ITrackPlayer*(*track_players_fabric)(),
     MicroTimer* timer,
     Metronome* metronome,
     TrackSettings* track_settings_window,
     const ProjectSaveParameters& data,
     QWidget* parent
-    ) : Project(audio_engine, timer, metronome, track_settings_window, parent)
+    ) : Project(audio_engine, track_players_fabric, timer, metronome, track_settings_window, parent)
 {
     m_name = data.name;
 
     m_project_save_dir_path = data.project_save_dir_path;
-    m_records_save_dir_path = data.save_records_dir_path;
+    m_records_save_dir_path = data.records_save_dir_path;
     m_description = data.description;
 
 
-
     auto tracks_count = data.rows_count * data.columns_count;
-
-
-
 
     m_rows_count = data.rows_count;
     m_columns_count = data.columns_count;
@@ -295,6 +296,7 @@ Project::Project(
     for (int r = 0; r < m_rows_count; ++r) {
         for (int c = 0; (c < m_columns_count); ++c, ++index) {
             m_tracks[index] = new Track(
+                m_track_players_fabric(),
                 m_timer,
                 data.tracks_info[index].volume,
                 data.tracks_info[index].is_loop,
@@ -351,6 +353,7 @@ void Project::updateTracksTable(){
                 current_track = qobject_cast<Track*>(m_table_widget->cellWidget(r, c));
                 if (current_track == nullptr){
                     current_track = new Track(
+                        m_track_players_fabric(),
                         m_timer,
                         0.80,
                         false,
@@ -529,6 +532,11 @@ void Project::setDescription(const QString& text){
 }
 QString Project::getDescription() const{
     return m_description;
+}
+
+
+RecorderButton* Project::getRecordingButton() const{
+    return m_recording_button;
 }
 
 

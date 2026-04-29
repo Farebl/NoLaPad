@@ -49,6 +49,10 @@ void MicroTimer::setInterval(quint32 nanosec) {
     }
 }
 
+quint32 MicroTimer::getInterval() const{
+    return m_interval;
+}
+
 void MicroTimer::start() {
     QElapsedTimer timer;
     timer.start();

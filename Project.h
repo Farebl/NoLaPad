@@ -18,13 +18,11 @@
 #include "ProjectSaveParameters.h"
 
 
-
 class Project : public QMainWindow
 {
     Q_OBJECT
 
-private:
-
+private:    
     QString m_name;
     QString m_project_save_dir_path;
     QString m_records_save_dir_path;
@@ -39,6 +37,7 @@ private:
     QPoint m_resize_start;
     QSize m_resize_start_size;
 
+    RecorderButton* m_recording_button;
 
     QWidget* m_title_bar;
     QTableWidget* m_table_widget;
@@ -52,6 +51,7 @@ private:
 
     QVector<Track*> m_tracks;
     Track* last_opend_track;
+    ITrackPlayer*(*m_track_players_fabric)();
 
     explicit Project() = delete;
     explicit Project(const Project&) = delete;
@@ -70,6 +70,7 @@ protected:
 
     explicit Project(
         IAudioEngine* audio_engine,
+        ITrackPlayer*(*track_players_fabric)(),
         MicroTimer* timer,
         Metronome* metronome,
         TrackSettings* track_settings_window,
@@ -79,6 +80,7 @@ protected:
 public:
     explicit Project(
         IAudioEngine* audio_engine,
+        ITrackPlayer*(*track_players_fabric)(),
         MicroTimer* timer,
         Metronome* metronome,
         TrackSettings* track_settings_window,
@@ -93,6 +95,7 @@ public:
 
     explicit Project(
         IAudioEngine* audio_engine,
+        ITrackPlayer*(*track_players_fabric)(),
         MicroTimer* timer,
         Metronome* metronome,
         TrackSettings* track_settings_window,
@@ -121,6 +124,8 @@ public:
 
     void setDescription(const QString& text);
     QString getDescription() const;
+
+    RecorderButton* getRecordingButton() const;
 
 signals:
     void closed();

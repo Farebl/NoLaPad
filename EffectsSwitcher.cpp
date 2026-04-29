@@ -2,15 +2,6 @@
 #include <QtMath>
 
 
-EffectsSwitcher* EffectsSwitcher::m_instance = nullptr;
-
-EffectsSwitcher* EffectsSwitcher::getInstance(uint radius, QWidget *parent){
-    if (m_instance == nullptr)
-        m_instance = new EffectsSwitcher(radius, parent);
-
-    return m_instance;
-}
-
 EffectsSwitcher::EffectsSwitcher(uint radius, QWidget *parent)
     : QDial(parent), m_dragging(false)
 {
@@ -37,7 +28,6 @@ void EffectsSwitcher::paintEvent(QPaintEvent *event)
     painter.setBrush(QBrush(Qt::lightGray));
     painter.setPen(QPen(Qt::black, 2));
     painter.drawEllipse(baseRect);
-
 
 
     // Малюємо поділки (лінії) і додаємо надписи цифр (1, 2, 3, 4) по колу

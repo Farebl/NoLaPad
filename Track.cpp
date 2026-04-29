@@ -2,23 +2,25 @@
 #include <QTime>
 #include <QDebug>
 #include "Track.h"
-#include "JUCETrackPlayer.h"
+
 
 #define BORDER_RADIUS_COEF 10
 
 Track::Track(
+    ITrackPlayer* player,
     MicroTimer* timer,
     float volume,
     bool is_loop,
     bool is_recording,
     std::array<bool, 16> beats_per_measure,
-    QString sound_path,
+    const QString& sound_path,
     const QColor& outer_background_color,
     const QColor& inner_active_background_color,
     QWidget *parent
     ):
       QPushButton(parent)
-    , m_player(new JUCETrackPlayer())
+
+    , m_player(player)
     , m_is_loop(is_loop)
     , m_audio_sample_path(sound_path)
     , m_is_active(false)
@@ -150,7 +152,7 @@ void Track::setVolume(float volume)
 }
 
 
-void Track::setAudioSamplePath(QString path)
+void Track::setAudioSamplePath(const QString& path)
 {
     m_audio_sample_path = path;
     if (!m_audio_sample_path.isEmpty()) {

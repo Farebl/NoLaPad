@@ -12,9 +12,6 @@ class EffectsSwitcher : public QDial
 private:
     bool m_dragging; // Відстежуємо, чи утримується кнопка миші
 
-    static EffectsSwitcher* m_instance;
-    explicit EffectsSwitcher(uint radius, QWidget *parent);
-
 protected:
     void paintEvent(QPaintEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
@@ -23,7 +20,7 @@ protected:
     bool event(QEvent *event)override;
 
 public:
-    static EffectsSwitcher* getInstance(uint radius = 60, QWidget *parent = nullptr);
+   explicit EffectsSwitcher(uint radius = 60, QWidget *parent = nullptr);
 
 signals:
     void settedFirstQuarter();

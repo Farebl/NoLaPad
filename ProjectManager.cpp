@@ -7,31 +7,32 @@
 #include "Project.h"
 #include "ProjectView.h"
 #include "JSONStorage.h"
+#include "JUCETrackPlayer.h"
 
 
 extern const qsizetype ICON_SIZE = 450;
 
-
-ProjectManager::ProjectManager(QWidget *parent)
+ProjectManager::ProjectManager(IStorage* storage, IAudioEngine* audio_engine, ITrackPlayer*(*track_players_fabric)(), QWidget* parent)
     : QMainWindow(parent)
-    , m_storage(new JSONStorage("../../projectsViews", "views.json", "PNG"))
-    , m_audio_engine(new JUCEAudioEngine())
+    , m_storage(storage)
+    , m_audio_engine(audio_engine)
     , m_timer_thread(new QThread(this))
     , m_timer(static_cast<quint32>(60.0/(120*4)*1'000'000), nullptr)
     , m_metronome( new Metronome(
-        &m_timer,
-        "../../music/metronome/strong_measure.wav",
-        "../../music/metronome/weak_measure.wav",
-        "../../music/metronome/weak_measure.wav",
-        "../../music/metronome/weak_measure.wav",
-        1.0,
-        60,
-        this
-        )
-    )
+          &m_timer,
+          "../../music/metronome/strong_measure.wav",
+          "../../music/metronome/weak_measure.wav",
+          "../../music/metronome/weak_measure.wav",
+          "../../music/metronome/weak_measure.wav",
+          1.0,
+          60,
+          this
+          )
+                  )
     , m_track_settings_window(new TrackSettings(100, false, {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, Qt::gray, Qt::darkGray))
     , m_project_settings_window(new ProjectSettings(this))
     , m_curent_project(nullptr)
+    , m_track_players_fabric(track_players_fabric)
     , m_dragging(false)
     , m_title_bar(new QWidget(this))
     , m_table_widget(new QTableWidget(this))
@@ -70,7 +71,7 @@ ProjectManager::ProjectManager(QWidget *parent)
         "background-color: #e0e0e0;"
         "border-top-left-radius: 10px;"
         "border-top-right-radius: 10px;"
-    );
+        );
 
     QPushButton* create_project_button = new QPushButton("+", m_title_bar);
     create_project_button->setFixedSize(30, 30);
@@ -203,6 +204,12 @@ ProjectManager::ProjectManager(QWidget *parent)
 }
 
 
+
+
+ProjectManager::ProjectManager(QWidget *parent)
+    : ProjectManager(new JSONStorage("../../projectsViews", "views.json", "PNG"), new JUCEAudioEngine(), []() -> ITrackPlayer* {return new JUCETrackPlayer();}, parent)
+{}
+
 ProjectManager::~ProjectManager(){
 
     m_timer.stop();
@@ -221,8 +228,21 @@ ProjectManager::~ProjectManager(){
 
 void ProjectManager::initProject(const QString& path_to_project){
     if (path_to_project.isEmpty() && m_current_project_view == nullptr) {
-        //Project* new_project = new Project(m_audio_engine.get(), &m_timer, m_metronome, m_track_settings_window, "Project1", "../../projects", "../../records", "...haha", 0, 0,  this);
-        m_curent_project.reset(new Project(m_audio_engine.get(), &m_timer, m_metronome, m_track_settings_window, "Project1", "../../projects", "../../records", "...haha", 0, 0,  this));
+        m_curent_project.reset(
+            new Project(
+                m_audio_engine.get(),
+                m_track_players_fabric,
+                &m_timer, m_metronome,
+                m_track_settings_window,
+                "Project1",
+                "../../projects",
+                "../../records",
+                "...haha",
+                0,
+                0,
+                this
+            )
+        );
         openProjectSettings(m_curent_project.get(), true);
         if (m_curent_project == nullptr){
             return;
@@ -233,7 +253,16 @@ void ProjectManager::initProject(const QString& path_to_project){
         m_metronome->setBPM(data.metronome_info.bpm);
         m_metronome->setVolume(data.metronome_info.volume);
 
-        m_curent_project.reset(new Project(m_audio_engine.get(), &m_timer, m_metronome, m_track_settings_window, data, this));
+        m_curent_project.reset(
+            new Project(
+                m_audio_engine.get(),
+                m_track_players_fabric,
+                &m_timer, m_metronome,
+                m_track_settings_window,
+                data,
+                this
+            )
+        );
     }
 
     this->hide();
@@ -368,10 +397,6 @@ void ProjectManager::openProjectSettings(Project* project, bool is_creating_a_ne
 
 
 
-
-
-
-
 void ProjectManager::toggleMaximize()
 {
     if (isMaximized()) {
@@ -417,6 +442,70 @@ void ProjectManager::closeEvent(QCloseEvent *event) {
     event->accept();
     QCoreApplication::quit();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+// ── Методи для тестування (testHook_*) ───────────────────────────────────
+// Надають тестам доступ до приватної логіки без зміни production-поведінки.
+// Викликаються лише з тестового коду через friend class або напряму.
+
+// Завантажує проєкт за шляхом (використовує m_storage->getProjectData)
+void ProjectManager::testHook_loadProject(const QString& path) {
+    initProject(path);
+}
+
+// Створює новий порожній проєкт з вказаною назвою
+void ProjectManager::testHook_createProject(const QString& name) {
+    // Скидаємо поточний вигляд щоб initProject створив новий проєкт
+    m_current_project_view = nullptr;
+    // Створюємо проєкт напряму через storage (без GUI-діалогу)
+    ProjectSaveParameters data;
+    data.name           = name;
+    data.rows_count     = 4;
+    data.columns_count  = 4;
+    data.tracks_info.resize(16);
+    for (auto& t : data.tracks_info) {
+        t.volume       = 0.8f;
+        t.is_loop      = false;
+        t.is_recording = false;
+        t._16th_beats  = {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    }
+    m_curent_project.reset(
+        new Project(
+            m_audio_engine.get(),
+            m_track_players_fabric,
+            &m_timer,
+            m_metronome,
+            m_track_settings_window,
+            data,
+            nullptr
+            )
+        );
+}
+
+// Зберігає поточний проєкт (викликає saveCurrentProject)
+void ProjectManager::testHook_save() {
+    if (m_curent_project)
+        saveCurrentProject();
+}
+
+// Закриває поточний проєкт і знімає всі його плеєри з engine
+void ProjectManager::testHook_closeProject() {
+    m_curent_project.reset();
+    m_current_project_view = nullptr;
+}
+
+
+
 
 
 

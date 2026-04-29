@@ -8,8 +8,9 @@
 #include "Metronome.h"
 
 
-class IAudioEngine;
 class IStorage;
+class IAudioEngine;
+class ITrackPlayer;
 class Project;
 class ProjectView;
 
@@ -32,6 +33,8 @@ private:
     QVector<ProjectView*> m_projects_views;
     ProjectView* m_current_project_view;
 
+
+    ITrackPlayer*(*m_track_players_fabric)();
 
 
     bool m_dragging;
@@ -61,6 +64,23 @@ private:
 public:
     ~ProjectManager();
     explicit ProjectManager(QWidget *parent = nullptr);
+    explicit ProjectManager(IStorage* storage, IAudioEngine* audio_engine, ITrackPlayer*(*track_players_fabric)(), QWidget *parent = nullptr);
+
+    // ── Методи для тестування (testHook_*) ───────────────────────────────────
+    // Надають тестам доступ до приватної логіки без зміни production-поведінки.
+    // Викликаються лише з тестового коду через friend class або напряму.
+
+    // Завантажує проєкт за шляхом (використовує m_storage->getProjectData)
+    void testHook_loadProject(const QString& path);
+
+    // Створює новий порожній проєкт з вказаною назвою
+    void testHook_createProject(const QString& name);
+
+    // Зберігає поточний проєкт (викликає saveCurrentProject)
+    void testHook_save();
+
+    // Закриває поточний проєкт і знімає всі його плеєри з engine
+    void testHook_closeProject();
 
 };
 

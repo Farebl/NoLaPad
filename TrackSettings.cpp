@@ -20,8 +20,7 @@ TrackSettings::TrackSettings(quint8 volume_percent, bool is_loop, const std::arr
     , m_lag_16_th_setter(new LCDCounter("1/16 of takt"))
     , m_duration_whole_takts_setter(new LCDCounter("whole takts"))
     , m_duration_16_th_setter(new LCDCounter("1/16 of takt"))
-
-    , m_effects_switcher(EffectsSwitcher::getInstance(140, this))
+    , m_effects_switcher(new EffectsSwitcher(140, this))
     , m_audio_input_connector(new AudioSampleSelector("..//..//images//audio_in_plugged.png", "..//..//images//audio_in_unplugged.png", this))
     , m_beats_per_measure(beats_per_measure)
 {

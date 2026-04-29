@@ -21,6 +21,7 @@ public:
 
 
     void setInterval(quint32 microsec);
+    quint32 getInterval() const;
     std::array<void (MicroTimer::*)(), 16> m_signals;
 
 public slots:

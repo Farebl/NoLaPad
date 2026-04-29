@@ -1,6 +1,16 @@
+# main /CMakeLists
+
 cmake_minimum_required(VERSION 3.22)
 
+
 project(NoLaPad VERSION 0.1 LANGUAGES CXX)
+
+enable_testing()
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+    set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+    set(CMAKE_C_COMPILER_LAUNCHER   "${CCACHE_PROGRAM}")
+endif()
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -22,10 +32,17 @@ if(NOT LAME_LIBRARY)
     message(FATAL_ERROR "LAME library not found. Please install libmp3lame-dev.")
 endif()
 
+
 set(JUCE_DIR "${CMAKE_SOURCE_DIR}/JUCE")
 if(NOT EXISTS "${JUCE_DIR}")
     message(FATAL_ERROR "JUCE directory not found at ${JUCE_DIR}. Please set JUCE_DIR correctly.")
 endif()
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_options(--coverage)
+    add_link_options(--coverage)
+endif()
+
 set(JUCE_USE_HARFBUZZ_SUBSET OFF CACHE BOOL "" FORCE)
 set(JUCE_BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
 set(JUCE_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
@@ -125,3 +142,5 @@ if(Qt6_FOUND)
 endif()
 
 
+
+add_subdirectory(tests)

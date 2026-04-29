@@ -91,12 +91,16 @@ QString JSONStorage::saveProject(const ProjectSaveParameters& p){
         nlohmann::json jTracks = nlohmann::json::array();
         for (const TrackInfo& t : p.tracks_info){jTracks.push_back(t);}
         nlohmann::json j = {
-            { "name",          p.name           },
-            { "rows_count",    p.rows_count     },
-            { "columns_count", p.columns_count  },
-            { "tracks",        jTracks          },
-            { "metronome",     p.metronome_info },
+            { "name",                  p.name                  },
+            { "project_save_dir_path", p.project_save_dir_path },
+            { "records_save_dir_path", p.records_save_dir_path },
+            { "description",           p.description           },
+            { "rows_count",            p.rows_count            },
+            { "columns_count",         p.columns_count         },
+            { "tracks",                jTracks                 },
+            { "metronome",             p.metronome_info        },
         };
+
         const std::string dump = j.dump(4);
         file.write(dump.c_str(), static_cast<qint64>(dump.size()));
         if (!file.commit()) {path.clear();}
@@ -125,9 +129,12 @@ ProjectSaveParameters JSONStorage::getProjectData(const QString& path)
     }
     file.close();
 
-    project_params.name          = j.at("name").get<QString>();
-    project_params.rows_count    = j.at("rows_count").get<quint8>();
-    project_params.columns_count = j.at("columns_count").get<quint8>();
+    project_params.name                  = j.at("name").get<QString>();
+    project_params.project_save_dir_path = j.at("project_save_dir_path").get<QString>();
+    project_params.records_save_dir_path = j.at("records_save_dir_path").get<QString>();
+    project_params.description           = j.at("description").get<QString>();
+    project_params.rows_count            = j.at("rows_count").get<quint8>();
+    project_params.columns_count         = j.at("columns_count").get<quint8>();
 
     // Треки: створюємо нові об'єкти Track і заповнюємо з JSON
     for (const auto& jTrack : j.at("tracks")) {
@@ -250,8 +257,6 @@ QString JSONStorage::getPreviewIconPath(const QString& project_name) const{
     QString result_path = m_projects_views_save_dir_path + "/" + project_name + "." + m_project_view_preview_icon_save_format.toLower();
     return result_path;
 }
-
-
 
 
 

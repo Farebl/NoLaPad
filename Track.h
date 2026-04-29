@@ -49,12 +49,13 @@ private:
 public:
 
     explicit Track(
+        ITrackPlayer* player,
         MicroTimer* timer = nullptr,
         float volume = 1.0,
         bool is_loop = false,
         bool is_recording = false,
         std::array<bool, 16> beats_per_measure = {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-        QString sound_path = "",
+        const QString& sound_path = "",
         const QColor& outer_background_color = Qt::gray,
         const QColor& inner_active_background_color = Qt::red,
         QWidget *parent = nullptr
@@ -66,7 +67,7 @@ public:
     void setVolume(float volume);
     float getVolume() const;
 
-    void setAudioSamplePath(QString path);
+    void setAudioSamplePath(const QString& path);
     QString getAudioSamplePath() const;
 
     // Loop and color methods
