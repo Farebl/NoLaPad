@@ -23,6 +23,10 @@ ProjectSettings::ProjectSettings(QWidget* parent)
     setFixedSize(400, 500);
     setStyleSheet("background-color: #8e8e8e;");
 
+    m_rows_count_spin_box->setMinimum(1);
+    m_rows_count_spin_box->setMaximum(8);
+    m_columns_count_spin_box->setMinimum(1);
+    m_columns_count_spin_box->setMaximum(8);
 
     QHBoxLayout* row_and_column_spin_box_layout = new QHBoxLayout();
     row_and_column_spin_box_layout->addWidget(m_rows_count_spin_box);

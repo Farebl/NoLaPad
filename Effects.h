@@ -1,7 +1,10 @@
 #ifndef EFFECTS_H
 #define EFFECTS_H
 
+#include <qtypes.h>
+
 enum class EffectType { None, Reverb, Chorus, Delay, Distortion };
+
 struct ReverbSettings {
     float roomSize    = 0.5f;
     float damping     = 0.5f;

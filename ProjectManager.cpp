@@ -243,7 +243,7 @@ void ProjectManager::initProject(const QString& path_to_project){
                 this
             )
         );
-        openProjectSettings(m_curent_project.get(), true);
+        openProjectSettings(m_curent_project.get(), ProjectSettingMode::CreatingNewProject);
         if (m_curent_project == nullptr){
             return;
         }
@@ -271,7 +271,7 @@ void ProjectManager::initProject(const QString& path_to_project){
     m_curent_project->activateWindow();
 
     connect(m_curent_project.get(), &Project::settingsTriggered, this, [this](Project* project){
-        openProjectSettings(project, false);
+        openProjectSettings(project, ProjectSettingMode::OpeningExistedProject);
     });
 
     connect(m_curent_project.get(), &Project::saveTriggered, this, &ProjectManager::saveCurrentProject);
@@ -357,7 +357,7 @@ void ProjectManager::updateViewsTable(){
 
 
 
-void ProjectManager::openProjectSettings(Project* project, bool is_creating_a_new_projet)
+void ProjectManager::openProjectSettings(Project* project, ProjectSettingMode mode)
 {
     qDebug()<< project->getProjectSaveDirPath();
 
@@ -376,20 +376,19 @@ void ProjectManager::openProjectSettings(Project* project, bool is_creating_a_ne
 
 
 
-    if (is_creating_a_new_projet){
-        connect(m_project_settings_window, &ProjectSettings::confirmed, this, [this, project](){
+    if (mode == ProjectSettingMode::CreatingNewProject){
+        connect(m_project_settings_window, &ProjectSettings::confirmed, this, [this](){
             m_project_settings_window->hide();
-            m_curent_project.reset(project);
         });
-        connect(m_project_settings_window, &ProjectSettings::canceled, this, [this, &project](){
+        connect(m_project_settings_window, &ProjectSettings::canceled, this, [this](){
             m_project_settings_window->hide();
-            //delete project;
-            //project = nullptr;
             m_curent_project.reset();
         });
+
         m_project_settings_window->exec();
+
     }
-    else{
+    else if (mode == ProjectSettingMode::OpeningExistedProject){
         m_project_settings_window->show();
     }
 }

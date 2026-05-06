@@ -27,6 +27,7 @@
 #include "AudioSampleSelector.h"
 
 class LCDCounter;
+class QStackedWidget;
 
 // in Track.h:
 enum class EffectType;
@@ -35,6 +36,7 @@ struct DelaySettings;
 struct ChorusSettings;
 struct DistortionSettings;
 
+class Potentiometer;
 
 class TrackSettings: public QDialog
 {
@@ -61,6 +63,31 @@ private:
 
     QCheckBox* m_recording_checkbox;
 
+    QStackedWidget* m_effects_settings_stack_widget;
+    LCDDisplay* m_effect_value_display;
+    Potentiometer* m_reverb_room_size_potentiometer;
+    Potentiometer* m_reverb_damping_potentiometer;
+    Potentiometer* m_reverb_wet_level_potentiometer;
+    Potentiometer* m_reverb_dry_level_potentiometer;
+    Potentiometer* m_reverb_output_volume_potentiometer;
+
+    Potentiometer* m_delay_time_potentiometer;
+    Potentiometer* m_delay_feedback_potentiometer;
+    Potentiometer* m_delay_mix_potentiometer;
+    Potentiometer* m_delay_output_volume_potentiometer;
+
+    Potentiometer* m_chorus_rate_potentiometer;
+    Potentiometer* m_chorus_depth_potentiometer;
+    Potentiometer* m_chorus_center_delay_potentiometer;
+    Potentiometer* m_chorus_feedback_potentiometer;
+    Potentiometer* m_chorus_mix_potentiometer;
+    Potentiometer* m_chorus_output_volume_potentiometer;
+
+    Potentiometer* m_distortion_drive_potentiometer;
+    Potentiometer* m_distortion_mix_potentiometer;
+    Potentiometer* m_distortion_output_volume_potentiometer;
+
+    void connectEffectsPotentiometersWithDisplay();
 
 protected:
     void closeEvent(QCloseEvent *event) override;
@@ -89,8 +116,35 @@ signals:
     void changedOuterBackgroundColor(QColor color);
     void changedAudioSamplePath(QString path);
     void changedBeatState(int index, bool state);
-
     void changedRecordingEnabled(bool enabled);
+
+
+    // Effects
+
+    void changedEffectType(EffectType);
+
+    void changedReverbRoomSize(int value);
+    void changedReverbDamping(int value);
+    void changedReverbWetLevel(int value);
+    void changedReverbDryLevel(int value);
+    void changedReverbOutputVolume(int value);
+
+    void changedDelayTime(int value);
+    void changedDelayFeedback(int value);
+    void changedDelayMix(int value);
+    void changedDelayOutputVolume(int value);
+
+    void changedChorusRate(int value);
+    void changedChorusDepth(int value);
+    void changedChorusCenterDelay(int value);
+    void changedChorusFeedback(int value);
+    void changedChorusMix(int value);
+    void changedChorusOutputVolume(int value);
+
+    void changedDistortionDrive(int value);
+    void changedDistortionMix(int value);
+    void changedDistortionOutputVolume(int value);
+
 };
 
 #endif // TrackSETTINGS_H

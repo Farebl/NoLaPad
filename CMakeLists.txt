@@ -26,6 +26,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Core)
 find_package(CURL REQUIRED)
 find_library(LAME_LIBRARY NAMES mp3lame lame REQUIRED)
 if(NOT LAME_LIBRARY)
@@ -61,7 +62,6 @@ set(PROJECT_SOURCES
     MicroTimer.h MicroTimer.cpp
     Metronome.h Metronome.cpp
     MetronomeSettings.h MetronomeSettings.cpp
-
     RecorderButton.h RecorderButton.cpp
     BPMCounter.h BPMCounter.cpp
     BeatCheckBox.h BeatCheckBox.cpp
@@ -71,7 +71,6 @@ set(PROJECT_SOURCES
     TrackColorButtons.h TrackColorButtons.cpp
     ClickableLabel.h ClickableLabel.cpp
     AudioSampleSelector.h AudioSampleSelector.cpp
-
     DigitalClockFace.h DigitalClockFace.cpp
 
 )
@@ -97,8 +96,7 @@ qt_add_executable(NoLaPad
     JSONStorage.h JSONStorage.cpp
     Effects.h
     ProjectSettings.h ProjectSettings.cpp
-
-
+    Potentiometer.h Potentiometer.cpp
 )
 
 target_compile_options(NoLaPad PRIVATE -g -O0)  # Додано прапори для налагодження
@@ -122,6 +120,7 @@ target_link_libraries(NoLaPad PRIVATE Qt6::Core)
 target_link_libraries(NoLaPad PRIVATE Qt6::Core)
 target_link_libraries(NoLaPad PRIVATE Qt6::Core Qt6::Widgets)
 target_link_libraries(NoLaPad PRIVATE Qt6::Widgets)
+target_link_libraries(NoLaPad PRIVATE Qt6::Core)
 
 target_include_directories(NoLaPad PRIVATE
     ${CMAKE_SOURCE_DIR}/JUCE/modules

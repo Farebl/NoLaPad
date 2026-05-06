@@ -249,7 +249,8 @@ QColor Track::getOuterBackgroundColor() const
     return m_outer_color;
 }
 
-void Track::setEffectType(EffectType type)
+
+void Track::setCurrentEffectType(EffectType type)
 {
 
     m_player->setEffectType(type);

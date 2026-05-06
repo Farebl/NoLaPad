@@ -14,6 +14,13 @@ class ITrackPlayer;
 class Project;
 class ProjectView;
 
+
+enum class ProjectSettingMode : bool{
+    CreatingNewProject,
+    OpeningExistedProject
+};
+
+
 class ProjectManager : public QMainWindow
 {
     Q_OBJECT
@@ -49,7 +56,7 @@ private:
     void initProject(const QString& path_to_project);
     void deleteProject(const QString& path_to_project);
 
-    void openProjectSettings(Project* project, bool is_creating_a_new_projet);
+    void openProjectSettings(Project* project, ProjectSettingMode mode);
 
     void saveCurrentProject();
     void updateViewsTable();

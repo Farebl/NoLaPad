@@ -431,6 +431,38 @@ void Project::openTrackSettings(Track* track)
     connect(m_track_settings_window, &TrackSettings::changedAudioSamplePath, track, &Track::setAudioSamplePath);
     connect(m_track_settings_window, &TrackSettings::changedRecordingEnabled, track, &Track::setRecordingState);
 
+    // ------------ Effects
+
+    connect(m_track_settings_window, &TrackSettings::changedEffectType, track, &Track::setCurrentEffectType);
+
+    // Reverb
+    connect(m_track_settings_window, &TrackSettings::changedReverbRoomSize, track, &Track::setReverbRoomSize);
+    connect(m_track_settings_window, &TrackSettings::changedReverbDamping, track, &Track::setReverbDamping);
+    connect(m_track_settings_window, &TrackSettings::changedReverbWetLevel, track, &Track::setReverbWetLevel);
+    connect(m_track_settings_window, &TrackSettings::changedReverbDryLevel, track, &Track::setReverbDryLevel);
+    connect(m_track_settings_window, &TrackSettings::changedReverbOutputVolume, track, &Track::setReverbOutputVolume);
+
+    // Delay
+    connect(m_track_settings_window, &TrackSettings::changedDelayTime, track, &Track::setDelayTime);
+    connect(m_track_settings_window, &TrackSettings::changedDelayFeedback, track, &Track::setDelayFeedback);
+    connect(m_track_settings_window, &TrackSettings::changedDelayMix, track, &Track::setDelayMixLevel);
+    connect(m_track_settings_window, &TrackSettings::changedDelayOutputVolume, track, &Track::setDelayOutputVolume);
+
+    // Chorus
+    connect(m_track_settings_window, &TrackSettings::changedChorusRate, track, &Track::setChorusRate);
+    connect(m_track_settings_window, &TrackSettings::changedChorusDepth, track, &Track::setChorusDepth);
+    connect(m_track_settings_window, &TrackSettings::changedChorusCenterDelay, track, &Track::setChorusCenterDelay);
+    connect(m_track_settings_window, &TrackSettings::changedChorusFeedback, track, &Track::setChorusFeedback);
+    connect(m_track_settings_window, &TrackSettings::changedChorusMix, track, &Track::setChorusMix);
+    connect(m_track_settings_window, &TrackSettings::changedChorusOutputVolume, track, &Track::setChorusOutputVolume);
+
+    // Distortion
+    connect(m_track_settings_window, &TrackSettings::changedDistortionDrive, track, &Track::setDistortionDrive);
+    connect(m_track_settings_window, &TrackSettings::changedDistortionMix, track, &Track::setDistortionMix);
+    connect(m_track_settings_window, &TrackSettings::changedDistortionOutputVolume, track, &Track::setDistortionOutputVolume);
+
+
+
     m_track_settings_window->show();
 }
 

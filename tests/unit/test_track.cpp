@@ -362,7 +362,7 @@ void TestTrack::testRightClickEmitsSignalWithPointer() {
 void TestTrack::testSetEffectTypeReverb() {
     MockTrackPlayer* player;
     QScopedPointer<Track> t(makeTrack(player));
-    t->setEffectType(EffectType::Reverb);
+    t->setCurrentEffectType(EffectType::Reverb);
     QCOMPARE(player->effect_type, EffectType::Reverb);
     QCOMPARE(t->getEffectType(),  EffectType::Reverb);
 }
@@ -370,29 +370,29 @@ void TestTrack::testSetEffectTypeReverb() {
 void TestTrack::testSetEffectTypeDelay() {
     MockTrackPlayer* player;
     QScopedPointer<Track> t(makeTrack(player));
-    t->setEffectType(EffectType::Delay);
+    t->setCurrentEffectType(EffectType::Delay);
     QCOMPARE(player->effect_type, EffectType::Delay);
 }
 
 void TestTrack::testSetEffectTypeChorus() {
     MockTrackPlayer* player;
     QScopedPointer<Track> t(makeTrack(player));
-    t->setEffectType(EffectType::Chorus);
+    t->setCurrentEffectType(EffectType::Chorus);
     QCOMPARE(player->effect_type, EffectType::Chorus);
 }
 
 void TestTrack::testSetEffectTypeDistortion() {
     MockTrackPlayer* player;
     QScopedPointer<Track> t(makeTrack(player));
-    t->setEffectType(EffectType::Distortion);
+    t->setCurrentEffectType(EffectType::Distortion);
     QCOMPARE(player->effect_type, EffectType::Distortion);
 }
 
 void TestTrack::testSetEffectTypeNone() {
     MockTrackPlayer* player;
     QScopedPointer<Track> t(makeTrack(player));
-    t->setEffectType(EffectType::Reverb);
-    t->setEffectType(EffectType::None);
+    t->setCurrentEffectType(EffectType::Reverb);
+    t->setCurrentEffectType(EffectType::None);
     QCOMPARE(player->effect_type, EffectType::None);
 }
 

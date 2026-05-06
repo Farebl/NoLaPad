@@ -4,12 +4,19 @@
 #include <QStackedWidget>
 #include "LCDCounter.h"
 #include <QHeaderView>
+#include <QStackedLayout>
+#include <QMap>
 
+#include "Potentiometer.h"
+
+#include "Effects.h"
+
+qsizetype EFFECT_POTENTIOMETER_SIZE = 50;
 
 
 TrackSettings::TrackSettings(quint8 volume_percent, bool is_loop, const std::array<bool, 16>& beats_per_measure, const QColor& outer_background_color, const QColor& inner_background_color, QWidget* parent)
     : QDialog(parent)
-    , m_volume_display (new LCDDisplay())
+    , m_volume_display(new LCDDisplay())
     , m_volume_fader(new Fader("..//..//images//fader_track.png", "..//..//images//fader_handle.png", "..//..//images//fader_measures.png", this))
 
     , m_select_track_colors_button(new TrackColorButtons(80, Qt::gray, Qt::darkGray, this))
@@ -23,6 +30,30 @@ TrackSettings::TrackSettings(quint8 volume_percent, bool is_loop, const std::arr
     , m_effects_switcher(new EffectsSwitcher(140, this))
     , m_audio_input_connector(new AudioSampleSelector("..//..//images//audio_in_plugged.png", "..//..//images//audio_in_unplugged.png", this))
     , m_beats_per_measure(beats_per_measure)
+
+    , m_effects_settings_stack_widget(new QStackedWidget(this))
+    , m_effect_value_display(new LCDDisplay())
+    , m_reverb_room_size_potentiometer(new Potentiometer(EFFECT_POTENTIOMETER_SIZE, this))
+    , m_reverb_damping_potentiometer(new Potentiometer(EFFECT_POTENTIOMETER_SIZE, this))
+    , m_reverb_wet_level_potentiometer(new Potentiometer(EFFECT_POTENTIOMETER_SIZE, this))
+    , m_reverb_dry_level_potentiometer(new Potentiometer(EFFECT_POTENTIOMETER_SIZE, this))
+    , m_reverb_output_volume_potentiometer(new Potentiometer(EFFECT_POTENTIOMETER_SIZE, this))
+
+    , m_delay_time_potentiometer(new Potentiometer(EFFECT_POTENTIOMETER_SIZE, this))
+    , m_delay_feedback_potentiometer(new Potentiometer(EFFECT_POTENTIOMETER_SIZE, this))
+    , m_delay_mix_potentiometer(new Potentiometer(EFFECT_POTENTIOMETER_SIZE, this))
+    , m_delay_output_volume_potentiometer(new Potentiometer(EFFECT_POTENTIOMETER_SIZE, this))
+
+    , m_chorus_rate_potentiometer(new Potentiometer(EFFECT_POTENTIOMETER_SIZE, this))
+    , m_chorus_depth_potentiometer(new Potentiometer(EFFECT_POTENTIOMETER_SIZE, this))
+    , m_chorus_center_delay_potentiometer(new Potentiometer(EFFECT_POTENTIOMETER_SIZE, this))
+    , m_chorus_feedback_potentiometer(new Potentiometer(EFFECT_POTENTIOMETER_SIZE, this))
+    , m_chorus_mix_potentiometer(new Potentiometer(EFFECT_POTENTIOMETER_SIZE, this))
+    , m_chorus_output_volume_potentiometer(new Potentiometer(EFFECT_POTENTIOMETER_SIZE, this))
+
+    , m_distortion_drive_potentiometer(new Potentiometer(EFFECT_POTENTIOMETER_SIZE, this))
+    , m_distortion_mix_potentiometer(new Potentiometer(EFFECT_POTENTIOMETER_SIZE, this))
+    , m_distortion_output_volume_potentiometer(new Potentiometer(EFFECT_POTENTIOMETER_SIZE, this))
 {
     setWindowTitle("Track settings");
     setWindowFlags(Qt::Dialog);
@@ -189,80 +220,94 @@ TrackSettings::TrackSettings(quint8 volume_percent, bool is_loop, const std::arr
 
     m_effects_switcher->setValue(0);
 
-    ClickableLabel* effect_label_1 = new ClickableLabel("1 Reverb", this);
-    ClickableLabel* effect_label_2 = new ClickableLabel("2 Chorus", this);
-    ClickableLabel* effect_label_3 = new ClickableLabel("3 Delay", this);
-    ClickableLabel* effect_label_4 = new ClickableLabel("4 Distortion", this);
-    effect_label_1->setStyleSheet("color: #ebebeb");
-    effect_label_2->setStyleSheet("color: #ebebeb");
-    effect_label_3->setStyleSheet("color: #ebebeb");
-    effect_label_4->setStyleSheet("color: #ebebeb");
+    ClickableLabel* effect_off_label = new ClickableLabel("0 off", this);
+    ClickableLabel* effect_reverb_label = new ClickableLabel("1 Reverb", this);
+    ClickableLabel* effect_delay_label = new ClickableLabel("2 Delay", this);
+    ClickableLabel* effect_chorus_label = new ClickableLabel("3 Chorus", this);
+    ClickableLabel* effect_distortion_label = new ClickableLabel("4 Distortion", this);
 
-    QWidget::connect(m_effects_switcher, &EffectsSwitcher::settedFirstQuarter, this, [=](){
-        effect_label_1->setStyleSheet("color: #ffef40");
-        effect_label_2->setStyleSheet("color: #ebebeb");
-        effect_label_3->setStyleSheet("color: #ebebeb");
-        effect_label_4->setStyleSheet("color: #ebebeb");
-    });
-
-    QWidget::connect(m_effects_switcher, &EffectsSwitcher::settedSecondQuarter, this, [=](){
-        effect_label_1->setStyleSheet("color: #ebebeb");
-        effect_label_2->setStyleSheet("color: #ffef40");
-        effect_label_3->setStyleSheet("color: #ebebeb");
-        effect_label_4->setStyleSheet("color: #ebebeb");
-    });
-
-    QWidget::connect(m_effects_switcher, &EffectsSwitcher::settedThirdQuarter, this, [=](){
-        effect_label_1->setStyleSheet("color: #ebebeb");
-        effect_label_2->setStyleSheet("color: #ebebeb");
-        effect_label_3->setStyleSheet("color: #ffef40");
-        effect_label_4->setStyleSheet("color: #ebebeb");
-    });
-
-    QWidget::connect(m_effects_switcher, &EffectsSwitcher::settedFourthQuarter, this, [=](){
-        effect_label_1->setStyleSheet("color: #ebebeb");
-        effect_label_2->setStyleSheet("color: #ebebeb");
-        effect_label_3->setStyleSheet("color: #ebebeb");
-        effect_label_4->setStyleSheet("color: #ffef40");
-    });
+    effect_off_label->setStyleSheet("color: #ebebeb");
+    effect_reverb_label->setStyleSheet("color: #ebebeb");
+    effect_delay_label->setStyleSheet("color: #ebebeb");
+    effect_chorus_label->setStyleSheet("color: #ebebeb");
+    effect_distortion_label->setStyleSheet("color: #ebebeb");
 
 
-    QWidget::connect(effect_label_1, &ClickableLabel::clicked, this, [=](){
-        m_effects_switcher->setValue(50);
-        effect_label_1->setStyleSheet("color: #ffef40");
-        effect_label_2->setStyleSheet("color: #ebebeb");
-        effect_label_3->setStyleSheet("color: #ebebeb");
-        effect_label_4->setStyleSheet("color: #ebebeb");
+    QWidget::connect(m_effects_switcher, &EffectsSwitcher::settedZeroPos, this, [=](){
+        effect_off_label->setStyleSheet("color: #ff0000");
+        effect_reverb_label->setStyleSheet("color: #ebebeb");
+        effect_delay_label->setStyleSheet("color: #ebebeb");
+        effect_chorus_label->setStyleSheet("color: #ebebeb");
+        effect_distortion_label->setStyleSheet("color: #ebebeb");
+        emit changedEffectType(EffectType::None);
+        m_effects_settings_stack_widget->setCurrentIndex(static_cast<int>(EffectType::None));
     });
-    QWidget::connect(effect_label_2, &ClickableLabel::clicked, this, [=](){
-        m_effects_switcher->setValue(75);
-        effect_label_1->setStyleSheet("color: #ebebeb");
-        effect_label_2->setStyleSheet("color: #ffef40");
-        effect_label_3->setStyleSheet("color: #ebebeb");
-        effect_label_4->setStyleSheet("color: #ebebeb");
+
+    QWidget::connect(m_effects_switcher, &EffectsSwitcher::settedFirstPos, this, [=](){
+        effect_off_label->setStyleSheet("color: #ebebeb");
+        effect_reverb_label->setStyleSheet("color: #ffef40");
+        effect_delay_label->setStyleSheet("color: #ebebeb");
+        effect_chorus_label->setStyleSheet("color: #ebebeb");
+        effect_distortion_label->setStyleSheet("color: #ebebeb");
+        emit changedEffectType(EffectType::Reverb);
+        m_effects_settings_stack_widget->setCurrentIndex(static_cast<int>(EffectType::Reverb));
     });
-    QWidget::connect(effect_label_3, &ClickableLabel::clicked, this, [=](){
-        m_effects_switcher->setValue(0);
-        effect_label_1->setStyleSheet("color: #ebebeb");
-        effect_label_2->setStyleSheet("color: #ebebeb");
-        effect_label_3->setStyleSheet("color: #ffef40");
-        effect_label_4->setStyleSheet("color: #ebebeb");
+
+    QWidget::connect(m_effects_switcher, &EffectsSwitcher::settedSecondPos, this, [=](){
+        effect_off_label->setStyleSheet("color: #ebebeb");
+        effect_reverb_label->setStyleSheet("color: #ebebeb");
+        effect_delay_label->setStyleSheet("color: #ffef40");
+        effect_chorus_label->setStyleSheet("color: #ebebeb");
+        effect_distortion_label->setStyleSheet("color: #ebebeb");
+        emit changedEffectType(EffectType::Delay);
+        m_effects_settings_stack_widget->setCurrentIndex(static_cast<int>(EffectType::Delay));
     });
-    QWidget::connect(effect_label_4, &ClickableLabel::clicked, this, [=](){
-        m_effects_switcher->setValue(25);
-        effect_label_1->setStyleSheet("color: #ebebeb");
-        effect_label_2->setStyleSheet("color: #ebebeb");
-        effect_label_3->setStyleSheet("color: #ebebeb");
-        effect_label_4->setStyleSheet("color: #ffef40");
+
+    QWidget::connect(m_effects_switcher, &EffectsSwitcher::settedThirdPos, this, [=](){
+        effect_off_label->setStyleSheet("color: #ebebeb");
+        effect_reverb_label->setStyleSheet("color: #ebebeb");
+        effect_delay_label->setStyleSheet("color: #ebebeb");
+        effect_chorus_label->setStyleSheet("color: #ffef40");
+        effect_distortion_label->setStyleSheet("color: #ebebeb");
+        emit changedEffectType(EffectType::Chorus);
+        m_effects_settings_stack_widget->setCurrentIndex(static_cast<int>(EffectType::Chorus));
+    });
+
+    QWidget::connect(m_effects_switcher, &EffectsSwitcher::settedFourthPos, this, [=](){
+        effect_off_label->setStyleSheet("color: #ebebeb");
+        effect_reverb_label->setStyleSheet("color: #ebebeb");
+        effect_delay_label->setStyleSheet("color: #ebebeb");
+        effect_chorus_label->setStyleSheet("color: #ebebeb");
+        effect_distortion_label->setStyleSheet("color: #ffef40");
+        emit changedEffectType(EffectType::Distortion);
+        m_effects_settings_stack_widget->setCurrentIndex(static_cast<int>(EffectType::Distortion));
+    });
+
+
+    QWidget::connect(effect_off_label, &ClickableLabel::clicked, this, [=](){
+        m_effects_switcher->setZeroPos();
+    });
+    QWidget::connect(effect_reverb_label, &ClickableLabel::clicked, this, [=](){
+        m_effects_switcher->setFirstPos();
+    });
+    QWidget::connect(effect_delay_label, &ClickableLabel::clicked, this, [=](){
+        m_effects_switcher->setSecondPos();
+    });
+    QWidget::connect(effect_chorus_label, &ClickableLabel::clicked, this, [=](){
+        m_effects_switcher->setThirdPos();
+    });
+    QWidget::connect(effect_distortion_label, &ClickableLabel::clicked, this, [=](){
+        m_effects_switcher->setFourthPos();
     });
 
 
     QVBoxLayout* effects_labels_layout = new QVBoxLayout();
     effects_labels_layout->setObjectName("effects_labels_layout");
-    effects_labels_layout->addWidget(effect_label_1);
-    effects_labels_layout->addWidget(effect_label_2);
-    effects_labels_layout->addWidget(effect_label_3);
-    effects_labels_layout->addWidget(effect_label_4);
+    effects_labels_layout->addWidget(effect_off_label);
+    effects_labels_layout->addWidget(effect_reverb_label);
+    effects_labels_layout->addWidget(effect_delay_label);
+    effects_labels_layout->addWidget(effect_chorus_label);
+    effects_labels_layout->addWidget(effect_distortion_label);
     effects_labels_layout->setAlignment(Qt::AlignCenter);
     effects_labels_layout->setSpacing(0);
     effects_labels_layout->setContentsMargins(0, -20, 0 ,-20);
@@ -332,14 +377,334 @@ TrackSettings::TrackSettings(quint8 volume_percent, bool is_loop, const std::arr
     QLabel* effect_settings_label = new QLabel("Effect settings");
     effect_settings_label->setStyleSheet("color: #ebebeb");
 
-    QStackedWidget* effects_settings = new QStackedWidget();
-    effects_settings->setFixedSize(210, 210);
 
-    QVBoxLayout*  effects_settings_layout = new QVBoxLayout();
+    // --------- LCD display
+    m_effect_value_display->setMaximum(100);
+    QHBoxLayout* effect_value_display_layout = new QHBoxLayout();
+    effect_value_display_layout->addWidget(m_effect_value_display, Qt::AlignHCenter);
+
+
+
+
+
+
+    quint16 spacing_between_potentiometers = 25;
+
+
+    // -------- Off settings
+    QWidget* off_settings_widget = new QWidget(this);
+
+
+    // -------- Reverb settings
+
+    m_reverb_room_size_potentiometer->setMaximum(100);
+    m_reverb_damping_potentiometer->setMaximum(100);
+    m_reverb_wet_level_potentiometer->setMaximum(100);
+    m_reverb_dry_level_potentiometer->setMaximum(100);
+    m_reverb_output_volume_potentiometer->setMaximum(100);
+
+
+    // Reverb labels
+    QLabel* reverb_room_size_label = new QLabel("room", this);
+    reverb_room_size_label->setAlignment(Qt::AlignCenter);
+
+    QLabel* reverb_damping_label = new QLabel("damping", this);
+    reverb_damping_label->setAlignment(Qt::AlignCenter);
+
+    QLabel* reverb_wet_level_label = new QLabel("wet", this);
+    reverb_wet_level_label->setAlignment(Qt::AlignCenter);
+
+    QLabel* reverb_dry_level_label = new QLabel("dry", this);
+    reverb_dry_level_label->setAlignment(Qt::AlignCenter);
+
+    QLabel* reverb_output_volume_label = new QLabel("volume", this);
+    reverb_output_volume_label->setAlignment(Qt::AlignCenter);
+
+
+    // Reverb potentiometers + labels
+    QVBoxLayout* reverb_room_size_layout = new QVBoxLayout();
+    reverb_room_size_layout->addWidget(m_reverb_room_size_potentiometer);
+    reverb_room_size_layout->addWidget(reverb_room_size_label);
+    reverb_room_size_layout->setAlignment(Qt::AlignHCenter);
+
+    QVBoxLayout* reverb_damping_layout = new QVBoxLayout();
+    reverb_damping_layout->addWidget(m_reverb_damping_potentiometer);
+    reverb_damping_layout->addWidget(reverb_damping_label);
+    reverb_damping_layout->setAlignment(Qt::AlignHCenter);
+
+    QVBoxLayout* reverb_wet_level_layout = new QVBoxLayout();
+    reverb_wet_level_layout->addWidget(m_reverb_wet_level_potentiometer);
+    reverb_wet_level_layout->addWidget(reverb_wet_level_label );
+    reverb_wet_level_layout->setAlignment(Qt::AlignHCenter);
+
+    QVBoxLayout* reverb_dry_level_layout = new QVBoxLayout();
+    reverb_dry_level_layout->addWidget(m_reverb_dry_level_potentiometer);
+    reverb_dry_level_layout->addWidget(reverb_dry_level_label );
+    reverb_dry_level_layout->setAlignment(Qt::AlignHCenter);
+
+    QVBoxLayout* reverb_output_volume_layout = new QVBoxLayout();
+    reverb_output_volume_layout->addWidget(m_reverb_output_volume_potentiometer);
+    reverb_output_volume_layout->addWidget(reverb_output_volume_label);
+    reverb_output_volume_layout->setAlignment(Qt::AlignHCenter);
+
+
+    QHBoxLayout* reverb_volume_and_room_size_and_damping_potentiometers_layout = new QHBoxLayout();
+    reverb_volume_and_room_size_and_damping_potentiometers_layout->addStretch();
+    reverb_volume_and_room_size_and_damping_potentiometers_layout->addLayout(reverb_output_volume_layout);
+    reverb_volume_and_room_size_and_damping_potentiometers_layout->addSpacing(spacing_between_potentiometers);
+    reverb_volume_and_room_size_and_damping_potentiometers_layout->addLayout(reverb_room_size_layout);
+    reverb_volume_and_room_size_and_damping_potentiometers_layout->addSpacing(spacing_between_potentiometers);
+    reverb_volume_and_room_size_and_damping_potentiometers_layout->addLayout(reverb_damping_layout);
+    reverb_volume_and_room_size_and_damping_potentiometers_layout->addStretch();
+
+    QHBoxLayout* reverb_wet_and_dry_level_potentiometers_layout = new QHBoxLayout();
+    reverb_wet_and_dry_level_potentiometers_layout->addStretch();
+    reverb_wet_and_dry_level_potentiometers_layout->addLayout(reverb_wet_level_layout);
+    reverb_wet_and_dry_level_potentiometers_layout->addSpacing(spacing_between_potentiometers);
+    reverb_wet_and_dry_level_potentiometers_layout->addLayout(reverb_dry_level_layout);
+    reverb_wet_and_dry_level_potentiometers_layout->addStretch();
+
+    QWidget* reverb_settings_widget = new QWidget(this);
+    QVBoxLayout* reverb_settings_layoput = new QVBoxLayout(reverb_settings_widget);
+    reverb_settings_layoput->addLayout(reverb_volume_and_room_size_and_damping_potentiometers_layout);
+    reverb_settings_layoput->addLayout(reverb_wet_and_dry_level_potentiometers_layout);
+
+
+
+
+
+    // -------- Delay settings
+
+    m_delay_time_potentiometer->setMaximum(100);
+    m_delay_feedback_potentiometer->setMaximum(100);
+    m_delay_mix_potentiometer->setMaximum(100);
+    m_delay_output_volume_potentiometer->setMaximum(100);
+
+    //  Delay labels
+
+    QLabel* delay_time_label = new QLabel("delay time", this);
+    delay_time_label->setAlignment(Qt::AlignCenter);
+
+    QLabel* delay_feedback_label = new QLabel("feedback", this);
+    delay_feedback_label->setAlignment(Qt::AlignCenter);
+
+    QLabel* delay_mix_label = new QLabel("mix", this);
+    delay_mix_label->setAlignment(Qt::AlignCenter);
+
+    QLabel* delay_output_volume_label = new QLabel("volume", this);
+    delay_output_volume_label->setAlignment(Qt::AlignCenter);
+
+
+    // Delay potentiometers + labels
+    QVBoxLayout* delay_time_layout = new QVBoxLayout();
+    delay_time_layout->addWidget(m_delay_time_potentiometer);
+    delay_time_layout->addWidget(delay_time_label);
+    delay_time_layout->setAlignment(Qt::AlignHCenter);
+
+    QVBoxLayout* delay_feedback_layout = new QVBoxLayout();
+    delay_feedback_layout->addWidget(m_delay_feedback_potentiometer);
+    delay_feedback_layout->addWidget(delay_feedback_label);
+    delay_feedback_layout->setAlignment(Qt::AlignHCenter);
+
+    QVBoxLayout* delay_mix_layout = new QVBoxLayout();
+    delay_mix_layout->addWidget(m_delay_mix_potentiometer);
+    delay_mix_layout->addWidget(delay_mix_label);
+    delay_mix_layout->setAlignment(Qt::AlignHCenter);
+
+    QVBoxLayout* delay_output_volume_layout = new QVBoxLayout();
+    delay_output_volume_layout->addWidget(m_delay_output_volume_potentiometer);
+    delay_output_volume_layout->addWidget(delay_output_volume_label);
+    delay_output_volume_layout->setAlignment(Qt::AlignHCenter);
+
+
+
+    QHBoxLayout* delay_volume_and_mix_potentiometers_layout = new QHBoxLayout();
+    delay_volume_and_mix_potentiometers_layout->addStretch(1);
+    delay_volume_and_mix_potentiometers_layout->addLayout(delay_output_volume_layout);
+    delay_volume_and_mix_potentiometers_layout->addStretch(2);
+    delay_volume_and_mix_potentiometers_layout->addLayout(delay_mix_layout);
+    delay_volume_and_mix_potentiometers_layout->addStretch(1);
+
+    QHBoxLayout* delay_feedback_and_delay_time_potentiometers_layout = new QHBoxLayout();
+    delay_feedback_and_delay_time_potentiometers_layout->addStretch();
+    delay_feedback_and_delay_time_potentiometers_layout->addLayout(delay_feedback_layout);
+    delay_feedback_and_delay_time_potentiometers_layout->addSpacing(spacing_between_potentiometers);
+    delay_feedback_and_delay_time_potentiometers_layout->addLayout(delay_time_layout);
+    delay_feedback_and_delay_time_potentiometers_layout->addStretch();
+
+
+    QWidget* delay_settings_widget = new QWidget(this);
+    QVBoxLayout* delay_settings_layoput = new QVBoxLayout(delay_settings_widget);
+    delay_settings_layoput->addLayout(delay_volume_and_mix_potentiometers_layout);
+    delay_settings_layoput->addLayout(delay_feedback_and_delay_time_potentiometers_layout);
+
+
+
+    // -------- Chorus settings
+
+    m_chorus_rate_potentiometer->setMaximum(100);
+    m_chorus_depth_potentiometer->setMaximum(100);
+    m_chorus_center_delay_potentiometer->setMaximum(100);
+    m_chorus_feedback_potentiometer->setMaximum(100);
+    m_chorus_mix_potentiometer->setMaximum(100);
+    m_chorus_output_volume_potentiometer->setMaximum(100);
+
+
+    //  Chorus labels
+
+    QLabel* chorus_rate_label = new QLabel("rate", this);
+    chorus_rate_label->setAlignment(Qt::AlignCenter);
+
+    QLabel* chorus_depth_label = new QLabel("depth", this);
+    chorus_depth_label->setAlignment(Qt::AlignCenter);
+
+    QLabel* chorus_center_delay_label = new QLabel("center delay", this);
+    chorus_center_delay_label->setAlignment(Qt::AlignCenter);
+
+    QLabel* chorus_feedback_label = new QLabel("feedback", this);
+    chorus_feedback_label->setAlignment(Qt::AlignCenter);
+
+    QLabel* chorus_mix_label = new QLabel("mix", this);
+    chorus_mix_label->setAlignment(Qt::AlignCenter);
+
+    QLabel* chorus_output_volume_label = new QLabel("volume", this);
+    chorus_output_volume_label->setAlignment(Qt::AlignCenter);
+
+
+    // Chorus potentiometers + labels
+
+    QVBoxLayout* chorus_rate_layout = new QVBoxLayout();
+    chorus_rate_layout->addWidget(m_chorus_rate_potentiometer);
+    chorus_rate_layout->addWidget(chorus_rate_label);
+    chorus_rate_layout->setAlignment(Qt::AlignHCenter);
+
+    QVBoxLayout* chorus_depth_layout = new QVBoxLayout();
+    chorus_depth_layout->addWidget(m_chorus_depth_potentiometer);
+    chorus_depth_layout->addWidget(chorus_depth_label);
+    chorus_depth_layout->setAlignment(Qt::AlignHCenter);
+
+    QVBoxLayout* chorus_center_delay_layout = new QVBoxLayout();
+    chorus_center_delay_layout->addWidget(m_chorus_center_delay_potentiometer);
+    chorus_center_delay_layout->addWidget(chorus_center_delay_label);
+    chorus_center_delay_layout->setAlignment(Qt::AlignHCenter);
+
+    QVBoxLayout* chorus_feedback_layout = new QVBoxLayout();
+    chorus_feedback_layout->addWidget(m_chorus_feedback_potentiometer);
+    chorus_feedback_layout->addWidget(chorus_feedback_label);
+    chorus_feedback_layout->setAlignment(Qt::AlignHCenter);
+
+    QVBoxLayout* chorus_mix_layout = new QVBoxLayout();
+    chorus_mix_layout->addWidget(m_chorus_mix_potentiometer);
+    chorus_mix_layout->addWidget(chorus_mix_label);
+    chorus_mix_layout->setAlignment(Qt::AlignHCenter);
+
+    QVBoxLayout* chorus_output_volume_layout = new QVBoxLayout();
+    chorus_output_volume_layout->addWidget(m_chorus_output_volume_potentiometer);
+    chorus_output_volume_layout->addWidget(chorus_output_volume_label);
+    chorus_output_volume_layout->setAlignment(Qt::AlignHCenter);
+
+
+    QHBoxLayout* chorus_volume_and_rate_and_feedback_potentiometers_layout = new QHBoxLayout();
+    chorus_volume_and_rate_and_feedback_potentiometers_layout->addStretch();
+    chorus_volume_and_rate_and_feedback_potentiometers_layout->addLayout(chorus_output_volume_layout);
+    chorus_volume_and_rate_and_feedback_potentiometers_layout->addSpacing(spacing_between_potentiometers);
+    chorus_volume_and_rate_and_feedback_potentiometers_layout->addLayout(chorus_rate_layout);
+    chorus_volume_and_rate_and_feedback_potentiometers_layout->addSpacing(spacing_between_potentiometers);
+    chorus_volume_and_rate_and_feedback_potentiometers_layout->addLayout(chorus_feedback_layout);
+    chorus_volume_and_rate_and_feedback_potentiometers_layout->addStretch();
+
+    QHBoxLayout* chorus_depth_and_center_delay_and_mix_potentiometers_layout = new QHBoxLayout();
+    chorus_depth_and_center_delay_and_mix_potentiometers_layout->addStretch();
+    chorus_depth_and_center_delay_and_mix_potentiometers_layout->addLayout(chorus_depth_layout);
+    chorus_depth_and_center_delay_and_mix_potentiometers_layout->addSpacing(spacing_between_potentiometers);
+    chorus_depth_and_center_delay_and_mix_potentiometers_layout->addLayout(chorus_center_delay_layout);
+    chorus_depth_and_center_delay_and_mix_potentiometers_layout->addSpacing(spacing_between_potentiometers);
+    chorus_depth_and_center_delay_and_mix_potentiometers_layout->addLayout(chorus_mix_layout);
+    chorus_depth_and_center_delay_and_mix_potentiometers_layout->addStretch();
+
+    QWidget* chorus_settings_widget = new QWidget(this);
+    QVBoxLayout* chorus_settings_layoput = new QVBoxLayout(chorus_settings_widget);
+    chorus_settings_layoput->addLayout(chorus_volume_and_rate_and_feedback_potentiometers_layout);
+    chorus_settings_layoput->addLayout(chorus_depth_and_center_delay_and_mix_potentiometers_layout);
+
+
+
+    // -------- Distortion settings
+
+    m_distortion_drive_potentiometer->setMaximum(100);
+    m_distortion_mix_potentiometer->setMaximum(100);
+    m_distortion_output_volume_potentiometer->setMaximum(100);
+
+
+    //  Chorus labels
+
+    QLabel* distortion_drive_label = new QLabel("drive", this);
+    distortion_drive_label->setAlignment(Qt::AlignCenter);
+
+    QLabel* distortion_mix_label = new QLabel("mix", this);
+    distortion_mix_label->setAlignment(Qt::AlignCenter);
+
+    QLabel* distortion_output_volume_label = new QLabel("volume", this);
+    distortion_output_volume_label->setAlignment(Qt::AlignCenter);
+
+
+    // Chorus potentiometers + labels
+
+    QVBoxLayout* distortion_drive_layout = new QVBoxLayout();
+    distortion_drive_layout->addWidget(m_distortion_drive_potentiometer);
+    distortion_drive_layout->addWidget(distortion_drive_label);
+    distortion_drive_layout->setAlignment(Qt::AlignHCenter);
+
+    QVBoxLayout* distortion_mix_layout = new QVBoxLayout();
+    distortion_mix_layout->addWidget(m_distortion_mix_potentiometer);
+    distortion_mix_layout->addWidget(distortion_mix_label);
+    distortion_mix_layout->setAlignment(Qt::AlignHCenter);
+
+    QVBoxLayout* distortion_output_volume_layout = new QVBoxLayout();
+    distortion_output_volume_layout->addWidget(m_distortion_output_volume_potentiometer);
+    distortion_output_volume_layout->addWidget(distortion_output_volume_label);
+    distortion_output_volume_layout->setAlignment(Qt::AlignHCenter);
+
+
+    QHBoxLayout* distortion_volume_and_mix_potentiometers_layout = new QHBoxLayout();
+    distortion_volume_and_mix_potentiometers_layout->addStretch(1);
+    distortion_volume_and_mix_potentiometers_layout->addLayout(distortion_output_volume_layout);
+    distortion_volume_and_mix_potentiometers_layout->addStretch(2);
+    distortion_volume_and_mix_potentiometers_layout->addLayout(distortion_mix_layout);
+    distortion_volume_and_mix_potentiometers_layout->addStretch(1);
+
+    QHBoxLayout* distortion_drive_potentiometers_layout = new QHBoxLayout();
+    distortion_drive_potentiometers_layout->addLayout(distortion_drive_layout);
+    distortion_drive_potentiometers_layout->setAlignment(Qt::AlignHCenter);
+
+    QWidget* distortion_settings_widget = new QWidget(this);
+    QVBoxLayout* distortion_settings_layoput = new QVBoxLayout(distortion_settings_widget);
+    distortion_settings_layoput->addLayout(distortion_volume_and_mix_potentiometers_layout);
+    distortion_settings_layoput->addLayout(distortion_drive_potentiometers_layout);
+
+
+    // -------- Effects settings stack
+
+    m_effects_settings_stack_widget->setFixedSize(300, 200);
+    m_effects_settings_stack_widget->insertWidget(0, off_settings_widget);
+    m_effects_settings_stack_widget->insertWidget(1, reverb_settings_widget);
+    m_effects_settings_stack_widget->insertWidget(2, delay_settings_widget);
+    m_effects_settings_stack_widget->insertWidget(3, chorus_settings_widget);
+    m_effects_settings_stack_widget->insertWidget(4, distortion_settings_widget);
+
+
+    QVBoxLayout* effects_settings_layout = new QVBoxLayout();
     effects_settings_layout->setObjectName("effects_settings_layout");
     effects_settings_layout->addWidget(effect_settings_label);
-    effects_settings_layout->addWidget(effects_settings);
+    effects_settings_layout->addLayout(effect_value_display_layout);
+    effects_settings_layout->addWidget(m_effects_settings_stack_widget);
 
+
+
+
+    // -------- Effects connects
+
+    connectEffectsPotentiometersWithDisplay();
 
 
 
@@ -377,9 +742,6 @@ TrackSettings::TrackSettings(quint8 volume_percent, bool is_loop, const std::arr
 
 
 
-
-
-
     // -------------------- Main Layout --------------------
 
     QHBoxLayout* main_layout = new QHBoxLayout(this);
@@ -387,6 +749,135 @@ TrackSettings::TrackSettings(quint8 volume_percent, bool is_loop, const std::arr
     main_layout->addLayout(trackColors_loopButton_16thBeats_effectSwitcher_RECButton_layout);
     main_layout->addLayout(lag_duration_effectsSettings_inputConnector_layout);
     main_layout->setSpacing(10);
+}
+
+
+
+
+
+void TrackSettings::connectEffectsPotentiometersWithDisplay(){
+
+    // Reverb
+
+    connect(m_reverb_room_size_potentiometer, &QDial::valueChanged, m_effect_value_display, [this](int new_value){
+        m_effect_value_display->setValue(new_value);
+        emit changedReverbRoomSize(new_value);
+    });
+
+    connect(m_reverb_damping_potentiometer, &QDial::valueChanged, m_effect_value_display, [this](int new_value){
+        m_effect_value_display->setValue(new_value);
+        emit changedReverbDamping(new_value);
+    });
+
+    connect(m_reverb_wet_level_potentiometer, &QDial::valueChanged, m_effect_value_display, [this](int new_value){
+        m_effect_value_display->setValue(new_value);
+        emit changedReverbWetLevel(new_value);
+    });
+
+    connect(m_reverb_dry_level_potentiometer, &QDial::valueChanged, m_effect_value_display, [this](int new_value){
+        m_effect_value_display->setValue(new_value);
+        emit changedReverbDryLevel(new_value);
+    });
+
+    connect(m_reverb_output_volume_potentiometer, &QDial::valueChanged, m_effect_value_display, [this](int new_value){
+        m_effect_value_display->setValue(new_value);
+        emit changedReverbOutputVolume(new_value);
+    });
+
+
+    connect(m_reverb_room_size_potentiometer, &Potentiometer::entered, m_effect_value_display, &LCDDisplay::setValue);
+    connect(m_reverb_damping_potentiometer, &Potentiometer::entered, m_effect_value_display, &LCDDisplay::setValue);
+    connect(m_reverb_wet_level_potentiometer, &Potentiometer::entered, m_effect_value_display, &LCDDisplay::setValue);
+    connect(m_reverb_dry_level_potentiometer, &Potentiometer::entered, m_effect_value_display, &LCDDisplay::setValue);
+    connect(m_reverb_output_volume_potentiometer, &Potentiometer::entered, m_effect_value_display, &LCDDisplay::setValue);
+
+
+    // Delay
+
+    connect(m_delay_time_potentiometer, &QDial::valueChanged, m_effect_value_display, [this](int new_value){
+        m_effect_value_display->setValue(new_value);
+        emit changedDelayTime(new_value);
+    });
+
+    connect(m_delay_feedback_potentiometer, &QDial::valueChanged, m_effect_value_display, [this](int new_value){
+        m_effect_value_display->setValue(new_value);
+        emit changedDelayFeedback(new_value);
+    });
+    connect(m_delay_mix_potentiometer, &QDial::valueChanged, m_effect_value_display, [this](int new_value){
+        m_effect_value_display->setValue(new_value);
+        emit changedDelayMix(new_value);
+    });
+    connect(m_delay_output_volume_potentiometer, &QDial::valueChanged, m_effect_value_display, [this](int new_value){
+        m_effect_value_display->setValue(new_value);
+        emit changedDelayOutputVolume(new_value);
+    });
+
+    connect(m_delay_time_potentiometer, &Potentiometer::entered, m_effect_value_display, &LCDDisplay::setValue);
+    connect(m_delay_feedback_potentiometer, &Potentiometer::entered, m_effect_value_display, &LCDDisplay::setValue);
+    connect(m_delay_mix_potentiometer, &Potentiometer::entered, m_effect_value_display, &LCDDisplay::setValue);
+    connect(m_delay_output_volume_potentiometer, &Potentiometer::entered, m_effect_value_display, &LCDDisplay::setValue);
+
+
+    // Chorus
+
+    connect(m_chorus_rate_potentiometer, &QDial::valueChanged, m_effect_value_display, [this](int new_value){
+        m_effect_value_display->setValue(new_value);
+        emit changedChorusRate(new_value);
+    });
+
+    connect(m_chorus_depth_potentiometer, &QDial::valueChanged, m_effect_value_display, [this](int new_value){
+        m_effect_value_display->setValue(new_value);
+        emit changedChorusDepth(new_value);
+    });
+
+    connect(m_chorus_center_delay_potentiometer, &QDial::valueChanged, m_effect_value_display, [this](int new_value){
+        m_effect_value_display->setValue(new_value);
+        emit changedChorusCenterDelay(new_value);
+    });
+
+    connect(m_chorus_feedback_potentiometer, &QDial::valueChanged, m_effect_value_display, [this](int new_value){
+        m_effect_value_display->setValue(new_value);
+        emit changedChorusFeedback(new_value);
+    });
+
+    connect(m_chorus_mix_potentiometer, &QDial::valueChanged, m_effect_value_display, [this](int new_value){
+        m_effect_value_display->setValue(new_value);
+        emit changedChorusMix(new_value);
+    });
+
+    connect(m_chorus_output_volume_potentiometer, &QDial::valueChanged, m_effect_value_display, [this](int new_value){
+        m_effect_value_display->setValue(new_value);
+        emit changedChorusOutputVolume(new_value);
+    });
+
+    connect(m_chorus_rate_potentiometer, &Potentiometer::entered, m_effect_value_display, &LCDDisplay::setValue);
+    connect(m_chorus_depth_potentiometer, &Potentiometer::entered, m_effect_value_display, &LCDDisplay::setValue);
+    connect(m_chorus_center_delay_potentiometer, &Potentiometer::entered, m_effect_value_display, &LCDDisplay::setValue);
+    connect(m_chorus_feedback_potentiometer, &Potentiometer::entered, m_effect_value_display, &LCDDisplay::setValue);
+    connect(m_chorus_mix_potentiometer, &Potentiometer::entered, m_effect_value_display, &LCDDisplay::setValue);
+    connect(m_chorus_output_volume_potentiometer, &Potentiometer::entered, m_effect_value_display, &LCDDisplay::setValue);
+
+
+
+    // Distortion
+
+    connect(m_distortion_drive_potentiometer, &QDial::valueChanged, m_effect_value_display, [this](int new_value){
+        m_effect_value_display->setValue(new_value);
+        emit changedDistortionDrive(new_value);
+    });
+
+    connect(m_distortion_mix_potentiometer, &QDial::valueChanged, m_effect_value_display, [this](int new_value){
+        m_effect_value_display->setValue(new_value);
+        emit changedDistortionMix(new_value);
+    });
+    connect(m_distortion_output_volume_potentiometer, &QDial::valueChanged, m_effect_value_display, [this](int new_value){
+        m_effect_value_display->setValue(new_value);
+        emit changedDistortionOutputVolume(new_value);
+    });
+
+    connect(m_distortion_drive_potentiometer, &Potentiometer::entered, m_effect_value_display, &LCDDisplay::setValue);
+    connect(m_distortion_mix_potentiometer, &Potentiometer::entered, m_effect_value_display, &LCDDisplay::setValue);
+    connect(m_distortion_output_volume_potentiometer, &Potentiometer::entered, m_effect_value_display, &LCDDisplay::setValue);
 }
 
 

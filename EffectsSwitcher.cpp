@@ -5,6 +5,7 @@
 EffectsSwitcher::EffectsSwitcher(uint radius, QWidget *parent)
     : QDial(parent), m_dragging(false)
 {
+    //setInvertedAppearance(true);
     setRange(0, 100); // Діапазон від 0 до 100
     setValue(50);     // Початкове значення
     setWrapping(true);
@@ -18,7 +19,7 @@ void EffectsSwitcher::paintEvent(QPaintEvent *event)
 
     // Визначаємо розміри
     int widget_size = qMin(width(), height()); // Беремо мінімальний розмір віджета
-    int diameter = widget_size - 85; // Діаметр основи на 20 пікселів менший за розмір віджета
+    int diameter = widget_size - 85; // Діаметр основи на 85 пікселів менший за розмір віджета
     int center_x = width() / 2;
     int center_y = height() / 2;
     int radius = diameter / 2;
@@ -41,15 +42,33 @@ void EffectsSwitcher::paintEvent(QPaintEvent *event)
     font.setPointSize(12); // Збільшуємо розмір шрифту для видимості
     painter.setFont(font);
 
-    // Масив кутів для поділок: 90° (1 - зверху), 0° (2 - праворуч), 270° (3 - знизу), 180° (4 - ліворуч)
-    qreal angles[] = {90.0, 0.0, 270.0, 180.0};
+    // Масив кутів для 5 поділок (починаючи зверху, за годинниковою стрілкою):
+    // 90° (вгору), 18° (праворуч-вгору), 306° (праворуч-вниз), 234° (ліворуч-вниз), 162° (ліворуч-вгору)
+    qreal angles[] = {90.0, 18.0, 306.0, 234.0, 162.0}; // Варіант 1: математичні кути
+    QString labels[] = {"0", "1", "2", "3", "4"};
+
+    for (int i = 0; i < 5; ++i) {
+        qreal angleRad = qDegreesToRadians(angles[i]);
+        // Координати для початку і кінця поділки
+        qreal x1 = center_x + tick_radius * qCos(angleRad);
+        qreal y1 = center_y - tick_radius * qSin(angleRad);
+        qreal x2 = center_x + (tick_radius - tick_length) * qCos(angleRad);
+        qreal y2 = center_y - (tick_radius - tick_length) * qSin(angleRad);
+
+        // Малюємо поділку
+        painter.drawLine(QPointF(x1, y1), QPointF(x2, y2));
+
+        // Малюємо мітку (число)
+        qreal label_x = center_x + (tick_radius + label_offset) * qCos(angleRad);
+        qreal label_y = center_y - (tick_radius + label_offset) * qSin(angleRad);
+        QRectF label_rect(label_x - 10, label_y - 10, 20, 20); // Прямокутник для центрування тексту
+        painter.drawText(label_rect, Qt::AlignCenter, labels[i]);
+    }
 
 
     // Малюємо стрілку як прямокутник
-    int value = this->value();
-    int min_value = minimum();
-    int maxValue = maximum();
-    qreal angle = 360.0 * (value - min_value) / (maxValue - min_value) + 90; // Від 0 до 360 градусів, 0° угорі
+    int val = QDial::value();
+    qreal angle = 360.0 * (val - minimum()) / (maximum() - minimum());
 
     // Параметри прямокутника (стрілки)
     int arrow_length = radius + 10; // Довжина стрілки
@@ -58,7 +77,8 @@ void EffectsSwitcher::paintEvent(QPaintEvent *event)
     // Зберігаємо стан painter перед обертанням
     painter.save();
     painter.translate(center_x, center_y); // Переміщаємо центр координат у центр потенціометра
-    painter.rotate(angle);               // Обертаємо систему координат
+   // painter.rotate(angle);               // Обертаємо систему координат
+    painter.rotate(angle - 90);               // Обертаємо систему координат
 
     // Малюємо прямокутник (стрілку) із заокругленими кутами
     QRectF arrow_rect(-3, -arrow_width / 2, arrow_length, arrow_width); // Прямокутник від центру до краю
@@ -74,92 +94,29 @@ void EffectsSwitcher::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
         m_dragging = true;
-        // Обчислюємо кут до курсора
-        int center_x = width() / 2;
-        int center_y = height() / 2;
-        int dx = event->x() - center_x;
-        int dy = event->y() - center_y;
-        qreal angle = qRadiansToDegrees(qAtan2(-dy, dx)); // Кут у градусах (від -180 до 180)
-
-        // Переводимо кут у діапазон 0-360 і враховуємо, що 0° угорі
-        angle -= 90.0; // Зсув на -90°, щоб узгодити з paintEvent
-        if (angle < 0) {
-            angle += 360.0;
-        }
-
-        // Конвертуємо кут у значення (0-100)
-        int new_value = (angle / 360.0) * (maximum() - minimum());
-        setValue(new_value);
-        if (new_value > 88 || new_value < 14) {
-
-            emit(settedFirstQuarter());
-        } else if (new_value > 13 && new_value < 38) {
-            emit(settedFourthQuarter());
-        }
-        else if (new_value > 37 && new_value < 68) {
-            emit(settedThirdQuarter());
-        }
-        else {
-            emit(settedSecondQuarter());
-        }
-
-        update(); // Оновлюємо відображення
+        updateClockHand(event);
+        update();
     }
-    QDial::mousePressEvent(event);
+    //QDial::mousePressEvent(event);
 }
 
 void EffectsSwitcher::mouseMoveEvent(QMouseEvent *event)
 {
     if (m_dragging) {
-        // Обчислюємо кут до курсора
-        int center_x = width() / 2;
-        int center_y = height() / 2;
-        int dx = event->x() - center_x;
-        int dy = event->y() - center_y;
-        qreal angle = qRadiansToDegrees(qAtan2(-dy, dx)); // Кут у градусах (від -180 до 180)
-
-        // Переводимо кут у діапазон 0-360 і враховуємо, що 0° угорі
-        angle -= 90.0; // Зсув на -90°, щоб узгодити з paintEvent
-        if (angle < 0) {
-            angle += 360.0;
-        }
-
-        // Конвертуємо кут у значення (0-100)
-        int new_value = (angle / 360.0) * (maximum() - minimum());
-        setValue(new_value);
-        if (new_value > 88 || new_value < 14) {
-            emit(settedFirstQuarter());
-        } else if (new_value > 13 && new_value < 38) {
-            emit(settedFourthQuarter());
-        }
-        else if (new_value > 37 && new_value < 68) {
-            emit(settedThirdQuarter());
-        }
-        else {
-            emit(settedSecondQuarter());
-        }
-        update(); // Оновлюємо відображення
+        updateClockHand(event);
+        update();
     }
-    QDial::mouseMoveEvent(event);
+    //QDial::mouseMoveEvent(event);
 }
 
 void EffectsSwitcher::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
-        int new_value = value();
-        if (new_value > 88 || new_value < 14) {
-            setValue(0);
-        } else if (new_value > 13 && new_value < 38) {
-            setValue(25);
-        }
-        else if (new_value > 37 && new_value < 68) {
-            setValue(50);
-        }
-        else {
-            setValue(75);
-        }
+        m_dragging = false;
+        emitPosSignal(QDial::value());
+        update();
     }
-    event->accept();
+    event->accept();  // поглинаємо подію, щоб QDial не втрутився
 }
 
 bool EffectsSwitcher::event(QEvent *event)
@@ -172,3 +129,81 @@ bool EffectsSwitcher::event(QEvent *event)
     }
     return QDial::event(event);
 }
+
+
+void EffectsSwitcher::updateClockHand(QMouseEvent *event) {
+    int center_x = width() / 2;
+    int center_y = height() / 2;
+
+    // Різниця координат
+    double dx = event->position().x() - center_x;
+    double dy = event->position().y() - center_y;
+
+    // Отримуємо кут в радіанах (0 - це "схід"/праворуч)
+    qreal angleRad = qAtan2(dy, dx);
+    qreal angleDeg = qRadiansToDegrees(angleRad);
+
+    // Коригуємо, щоб 0 градусів був ВГОРІ (North)
+    // Додаємо 90, бо в математичній системі 0 - це праворуч, а нам треба верх.
+    angleDeg += 90.0;
+
+    // Нормалізуємо в діапазон [0, 360]
+    while (angleDeg < 0) angleDeg += 360.0;
+    while (angleDeg >= 360.0) angleDeg -= 360.0;
+
+    // Розрахунок значення (0-100)
+    int range = maximum() - minimum();
+    int new_value = minimum() + qRound((angleDeg / 360.0) * range);
+
+    // ВАЖЛИВО: Використовуємо QDial::setValue безпосередньо
+    QDial::setValue(new_value);
+    update();
+}
+
+void EffectsSwitcher::emitPosSignal(int value){
+    if (value > 10 && value < 31) {
+        emit(settedFirstPos());
+        setValue(20);
+
+    }
+    else if (value > 30 && value < 51) {
+        emit(settedSecondPos());
+        setValue(40);
+
+    }
+    else if (value > 50 && value < 71) {
+        emit(settedThirdPos());
+        setValue(60);
+
+    }
+    else if (value > 70 && value < 91) {
+        emit(settedFourthPos());
+        setValue(80);
+
+    }
+    else{
+        emit(settedZeroPos());
+        setValue(0);
+    }
+}
+
+
+
+void EffectsSwitcher::setZeroPos(){
+    emitPosSignal(0);
+}
+void EffectsSwitcher::setFirstPos(){
+    emitPosSignal(20);
+}
+void EffectsSwitcher::setSecondPos(){
+    emitPosSignal(40);
+}
+void EffectsSwitcher::setThirdPos(){
+    emitPosSignal(60);
+}
+void EffectsSwitcher::setFourthPos(){
+    emitPosSignal(80);
+}
+
+
+

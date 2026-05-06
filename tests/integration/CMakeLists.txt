@@ -75,7 +75,8 @@ ${SRC_DIR}/LCDDisplay.cpp;\
 ${SRC_DIR}/DigitalClockFace.cpp;\
 ${SRC_DIR}/MetronomeSettings.cpp;\
 ${SRC_DIR}/JUCETrackPlayer.cpp;\
-${SRC_DIR}/JUCEMetronomePlayer.cpp"
+${SRC_DIR}/JUCEMetronomePlayer.cpp;\
+${SRC_DIR}/Potentiometer.cpp"
 )
  
 # ── test_projectmanager ───────────────────────────────────────────────────────
@@ -108,6 +109,7 @@ ${SRC_DIR}/ProjectSettings.cpp;\
 ${SRC_DIR}/JUCETrackPlayer.cpp;\
 ${SRC_DIR}/JUCEMetronomePlayer.cpp;\
 ${SRC_DIR}/JUCEAudioEngine.cpp;\
-${SRC_DIR}/JUCERecorder.cpp"
+${SRC_DIR}/JUCERecorder.cpp;\
+${SRC_DIR}/Potentiometer.cpp"
 )
  

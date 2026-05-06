@@ -88,7 +88,7 @@ public:
     void setBeatState(quint8 index, bool state);
 
     // Effect type methods
-    void setEffectType(EffectType type);
+    void setCurrentEffectType(EffectType type);
     EffectType getEffectType() const;
 
     // Reverb settings methods
