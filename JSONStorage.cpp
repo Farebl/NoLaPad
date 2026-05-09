@@ -150,7 +150,17 @@ ProjectSaveParameters JSONStorage::getProjectData(const QString& path)
 
 
 
-void JSONStorage::deleteProject(const QString& path){}
+void JSONStorage::deleteProject(const QString& path)
+{
+    QFile file(path);
+    if (file.exists()) {
+        if (!file.remove()) {
+            qWarning() << "[JSONStorage] Failed to delete project file:" << path;
+        }
+    } else {
+        qWarning() << "[JSONStorage] Project file not found:" << path;
+    }
+}
 
 
 
@@ -175,17 +185,16 @@ QVector<ProjectView*> JSONStorage::loadProjectsViews() {
     file.close();
 
 
-
-
     ProjectView* current_view = nullptr;
     QPixmap* preview_icon = nullptr;
 
     for (const auto& j : jArray) {
         current_view = new ProjectView(
             ICON_SIZE,
+            j.at("project_bpm").get<quint16>(),
+            j.at("seconds_of_last_use").get<qint64>(),
             QString::fromStdString(j.at("project_name").get<std::string>()),
             QString::fromStdString(j.at("project_path").get<std::string>()),
-            QString::fromStdString(j.at("date_of_last_use").get<std::string>()),
             QString::fromStdString(j.at("description").get<std::string>()),
             nullptr
         );
@@ -222,10 +231,11 @@ bool JSONStorage::saveProjectView(ProjectView* project_view){
 
     // 2. Додаємо новий запис
     nlohmann::json j = {
-        { "project_name",      project_view->getProjectName()     },
-        { "project_path",      project_view->getPathToProject()   },
-        { "date_of_last_use",  project_view->getDateOfLastUse()   },
-        { "description",       project_view->getDescription()     },
+        { "project_name",      project_view->getProjectName()         },
+        { "project_path",      project_view->getPathToProject()       },
+        { "seconds_of_last_use",  project_view->getSecondsOfLastUse() },
+        { "project_bpm",      project_view->getProjectBPM()           },
+        { "description",       project_view->getDescription()         },
     };
     jArray.push_back(j);
 
@@ -261,4 +271,51 @@ QString JSONStorage::getPreviewIconPath(const QString& project_name) const{
 
 
 
-void JSONStorage::deleteProjectView(const QString& project_name) {}
+
+void JSONStorage::deleteProjectView(const QString& project_name)
+{
+    // 1. Видаляємо preview іконку
+    QString icon_path = getPreviewIconPath(project_name);
+    QFile icon_file(icon_path);
+    if (icon_file.exists()) {
+        if (!icon_file.remove()) {
+            qWarning() << "[JSONStorage] Failed to delete preview icon:" << icon_path;
+        }
+    }
+
+    // 2. Читаємо JSON-масив
+    QString views_path = getProjectsViewsFilePath();
+    QFile file(views_path);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning() << "[JSONStorage] Cannot open for reading:" << views_path;
+        return;
+    }
+
+    nlohmann::json jArray;
+    try {
+        jArray = nlohmann::json::parse(file.readAll().constData());
+    } catch (...) {
+        qWarning() << "[JSONStorage] Parse error in deleteProjectView";
+        file.close();
+        return;
+    }
+    file.close();
+
+    if (!jArray.is_array()) return;
+
+    // 3. Фільтруємо — видаляємо запис з відповідним project_name
+    const std::string target = project_name.toStdString();
+    auto new_end = std::remove_if(jArray.begin(), jArray.end(), [&](const nlohmann::json& j) {
+        return j.contains("project_name") && j.at("project_name").get<std::string>() == target;
+    });
+    jArray.erase(new_end, jArray.end());
+
+    // 4. Записуємо оновлений масив
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) {
+        qWarning() << "[JSONStorage] Cannot open for writing:" << views_path;
+        return;
+    }
+    const std::string dump = jArray.dump(4);
+    file.write(dump.c_str(), static_cast<qint64>(dump.size()));
+    file.close();
+}

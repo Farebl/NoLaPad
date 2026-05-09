@@ -575,6 +575,13 @@ RecorderButton* Project::getRecordingButton() const{
 
 
 
+QPixmap* Project::getPreviewIcon(){
+    QPixmap* preview_icon = new QPixmap(size());    // Создаем пустой пиксельмап размером с виджет
+    m_table_widget->render(preview_icon);
+    return preview_icon;
+}
+
+
 
 void Project::toggleMaximize()
 {
@@ -630,5 +637,9 @@ void Project::closeEvent(QCloseEvent *event) {
     emit closed();
     event->accept();
 }
+
+
+
+
 
 

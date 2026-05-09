@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.22)
 
 
-project(NoLaPad VERSION 0.1 LANGUAGES CXX)
+project(NoLaPad VERSION 2.1 LANGUAGES CXX)
 
 enable_testing()
 find_program(CCACHE_PROGRAM ccache)
@@ -12,7 +12,7 @@ if(CCACHE_PROGRAM)
     set(CMAKE_C_COMPILER_LAUNCHER   "${CCACHE_PROGRAM}")
 endif()
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)

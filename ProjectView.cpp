@@ -5,15 +5,28 @@
 #include <QMenu>
 #include <QVBoxLayout>
 #include <QLabel>
-#include <QTextEdit>
-
+#include <QDateTime>
 
 class ProjectView::PreviewButton : public QPushButton {
+    Q_OBJECT
 public:
+    QMenu* m_menu;
     std::unique_ptr<QPixmap> m_preview_icon;
     explicit PreviewButton(QPixmap* preview_icon = nullptr, QWidget* parent = nullptr)
-        : QPushButton(parent)
-    {setPreviewIcon(preview_icon);}
+        : QPushButton(parent), m_menu(new QMenu(this))
+    {
+
+        m_menu->setStyleSheet("font-size: 14px;");
+        QAction* delete_action = new QAction("delete");
+        m_menu->addAction(delete_action);
+
+        connect(delete_action, &QAction::triggered, this, [this](){
+            emit rightClicked();
+        });
+
+
+        setPreviewIcon(preview_icon);
+    }
 
 public:
     void paintEvent(QPaintEvent*) override {
@@ -26,6 +39,20 @@ public:
             }
         }
     }
+
+    void mouseDoubleClickEvent(QMouseEvent *event) override{
+        emit doubleClicked();
+    }
+
+    void mousePressEvent(QMouseEvent *event) override
+    {
+        if (event->button() == Qt::RightButton) {
+            m_menu->exec(event->globalPos());
+        } else {
+            QPushButton::mousePressEvent(event); // ← передаємо базовому класу
+        }
+    }
+
     void setPreviewIcon(QPixmap* preview_icon){
         m_preview_icon.reset(preview_icon);
         update();
@@ -33,36 +60,41 @@ public:
     QPixmap* getPreviewIcon() const{
         return m_preview_icon.get();
     }
+signals:
+    void rightClicked();
+    void doubleClicked();
 };
-
 
 
 
 ProjectView::ProjectView(
     quint16 width,
+    quint16 project_bpm,
+    qint64 seconds_of_last_use,
     const QString& project_name,
     const QString& path_to_project,
-    const QString& date_of_last_use,
     const QString& description,
     QPixmap* preview_icon,
     QWidget* parent
     )
     : QWidget(parent)
-    , m_project_name(project_name)
+    , m_seconds_of_last_use(seconds_of_last_use)
     , m_path_to_project(path_to_project)
-    , m_date_of_last_use(date_of_last_use)
     , m_description(description)
-    , m_menu(new QMenu(this))
+    , m_project_name_label(new QLabel(project_name, this))
+    , m_project_bpm_label(new QLabel(QString::number(project_bpm), this))
+    , m_date_of_last_use_label(new QLabel(this))
     , m_preview_icon_button(new PreviewButton(nullptr, this))
 {
 
-    connect(m_preview_icon_button, &PreviewButton::clicked, this, [this](){
-        emit doubleClicked(getPathToProject());
+    connect(m_preview_icon_button, &PreviewButton::doubleClicked, this, [this](){
+        emit doubleClicked();
     });
+    connect(m_preview_icon_button, &PreviewButton::rightClicked, this, &ProjectView::rightClicked);
 
     // ---------------------- title
 
-    quint16 title_bar_heigh = 20;
+    quint16 title_bar_heigh = 30;
     setFixedSize(width, width + title_bar_heigh);
 
 
@@ -75,30 +107,32 @@ ProjectView::ProjectView(
         "border-top-right-radius: 5px;"
     );
 
-    QLabel* date_of_last_use_label = new QLabel(date_of_last_use, m_title_bar);
-    date_of_last_use_label->setStyleSheet(QString("color: #5a5a5a; font-size: %1px;").arg(m_title_bar->height() - 4));
+    QLabel* project_bpm_prefix_label = new QLabel("bpm: ", this);
+    project_bpm_prefix_label->setStyleSheet(QString("color: #5a5a5a; font-size: %1px;").arg(m_title_bar->height() - 4));
+    m_project_bpm_label->setStyleSheet(QString("color: #5a5a5a; font-size: %1px;").arg(m_title_bar->height() - 4));
+    m_project_name_label->setStyleSheet(QString("color: #5a5a5a; font-size: %1px;").arg(m_title_bar->height() - 4));
+
+    QString date_str = QDateTime::fromSecsSinceEpoch(m_seconds_of_last_use).toString("yyyy:MM:dd-hh:mm:ss");
+    m_date_of_last_use_label->setText(date_str);
+    m_date_of_last_use_label->setStyleSheet(QString("color: #5a5a5a; font-size: %1px;").arg(m_title_bar->height() - 4));
+
+
 
     QPushButton* descriprion_button = new QPushButton("🗩", this);
     descriprion_button->setStyleSheet(QString("color: #5a5a5a; font-size: %1px;").arg(m_title_bar->height() - 4));
 
-    QTextEdit* descriptionWindow = new QTextEdit(this);
-    descriptionWindow->setWindowTitle("Project description");
-    descriptionWindow->setReadOnly(true); // Только для чтения
-    descriptionWindow->setText(m_description); // Твой текст
-    descriptionWindow->resize(400, 300); // Начальный размер
-
-    // Автоматическое удаление памяти при закрытии окна
-    descriptionWindow->setAttribute(Qt::WA_DeleteOnClose);
+    connect(descriprion_button, &QPushButton::clicked, this, &ProjectView::descriptionButtonClicked);
 
 
-    connect(descriprion_button, &QPushButton::clicked, descriptionWindow, &QTextEdit::show);
 
 
     QHBoxLayout* title_layout = new QHBoxLayout(m_title_bar);
     title_layout->setContentsMargins(2, 2, 2, 2);
-    title_layout->addStretch(100);
-    title_layout->addWidget(date_of_last_use_label);
-    title_layout->addStretch(100);
+    title_layout->addWidget(m_project_name_label);
+    title_layout->addStretch(1);
+    title_layout->addWidget(project_bpm_prefix_label);
+    title_layout->addWidget(m_project_bpm_label);
+    title_layout->addStretch(1);
     title_layout->addWidget(descriprion_button);
     title_layout->setStretchFactor(descriprion_button, 0);
 
@@ -121,17 +155,6 @@ ProjectView::ProjectView(
     main_layout->addWidget(m_preview_icon_button);
     main_layout->setContentsMargins(0,0,0,0);
 
-
-
-
-    QAction* delete_action = new QAction("delete");
-    m_menu->addAction(delete_action);
-
-    connect(delete_action, &QAction::triggered, this,[this](){
-        emit deleteTriggered(getPathToProject());
-    });
-
-
 }
 
 
@@ -139,21 +162,11 @@ ProjectView::~ProjectView(){}
 
 
 
-
-void ProjectView::mousePressEvent(QMouseEvent *event)
-{
-    if (event->button() == Qt::RightButton) {
-        m_menu->exec(event->globalPos());
-    }
-}
-
-
-
 void ProjectView::setProjectName(const QString& project_name){
-    m_project_name = project_name;
+    m_project_name_label->setText(project_name);
 }
 QString ProjectView::getProjectName() const{
-    return m_project_name;
+    return m_project_name_label->text();
 }
 
 
@@ -165,11 +178,23 @@ QString ProjectView::getPathToProject() const{
 }
 
 
-void ProjectView::setDateOfLastUse(const QString& date_of_last_use){
-    m_date_of_last_use = date_of_last_use;
+void ProjectView::setSecondsOfLastUse(qint64 seconds_of_last_use){
+    m_seconds_of_last_use = seconds_of_last_use;
+    QString date_str = QDateTime::fromSecsSinceEpoch(m_seconds_of_last_use).toString("yyyy:MM:dd-hh:mm:ss");
+    m_date_of_last_use_label->setText(date_str);
 }
-QString ProjectView::getDateOfLastUse() const{
-    return m_date_of_last_use;
+
+
+qint64 ProjectView::getSecondsOfLastUse() const{
+    return m_seconds_of_last_use;
+}
+
+
+void ProjectView::setProjectBPM(quint16 value){
+    m_project_bpm_label->setText(QString::number(value));
+}
+quint16 ProjectView::getProjectBPM() const{
+    return m_project_bpm_label->text().toUShort();
 }
 
 
@@ -183,10 +208,12 @@ QString ProjectView::getDescription() const{
 
 void ProjectView::setPreviewIcon(QPixmap* preview_icon){
     m_preview_icon_button->setPreviewIcon(preview_icon);
+    update();
 }
+
 QPixmap* ProjectView::getPreviewIcon() const{
     return m_preview_icon_button->getPreviewIcon();
 }
 
 
-
+#include "ProjectView.moc"

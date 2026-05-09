@@ -6,8 +6,11 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QFileDialog>
+#include <QMessageBox>
 
-ProjectSettings::ProjectSettings(QWidget* parent)
+#include "ProjectView.h"
+
+ProjectSettings::ProjectSettings(QVector<ProjectView*>& projects_views_collection, QWidget* parent)
     : QDialog(parent)
     , m_name_line_edit(new QLineEdit(this))
     , m_rows_count_spin_box(new QSpinBox(this))
@@ -17,6 +20,7 @@ ProjectSettings::ProjectSettings(QWidget* parent)
     , m_description_text_edit(new QTextEdit(this))
     , m_apply_button(new QPushButton("Apply", this))
     , m_close_after_accept_state(false)
+    , m_projects_views_collection(projects_views_collection)
 {
     setWindowTitle("Project settings");
     setWindowFlags(Qt::Dialog);
@@ -98,10 +102,66 @@ ProjectSettings::ProjectSettings(QWidget* parent)
         this->hide();
     });
     connect(m_apply_button, &QPushButton::clicked, this, [this](){
-        emit changedName(m_name_line_edit->text());
+
+        QString project_name = m_name_line_edit->text();
+        if (project_name == ""){
+            qDebug()<<"err1";
+            QMessageBox::information(this, "Error", "Назва проєкту не може бути порожньою");
+            return;
+        }
+
+        auto it = std::ranges::find_if(
+            m_projects_views_collection,
+            [project_name](ProjectView* view){return view->getProjectName() == project_name;}
+        );
+        if (it != m_projects_views_collection.end()){
+            qDebug()<<"err2";
+            QMessageBox::information(this, "Error", "Проєкт з такою назвою вже існує");
+            return;
+        }
+
+
+        QString project_save_dir = m_project_save_dir_path_line_edit->text();
+        QFileInfo checkPath(project_save_dir);
+
+        if (checkPath.exists() && checkPath.isDir()) {
+            if (!checkPath.isWritable()) {
+                qDebug()<<"err3";
+                QMessageBox::information(this, "Error", "Вказана директорія збереження проєкту недоступна через недостатні права доступу");
+                return;
+            }
+        }
+        else {
+            QMessageBox::information(this, "Error", "Вказана директорія збереження проєкту не існує");
+            return;
+        }
+
+        QString records_save_dir = m_project_save_dir_path_line_edit->text();
+        checkPath.setFile(project_save_dir);
+
+        if (checkPath.exists() && checkPath.isDir()) {
+            if (!checkPath.isWritable()) {
+                qDebug()<<"err4";
+                QMessageBox::information(this, "Error", "Вказана директорія збереження записів недоступна через недостатні права доступу");
+                return;
+            }
+            else{
+                qDebug()<<"err5";
+            }
+        }
+        else {
+            qDebug()<<"err6";
+            QMessageBox::information(this, "Error", "Вказана директорія збереження записів не існує");
+            return;
+        }
+
+
+
+
+        emit changedName(project_name);
         emit changedSize(QSize(m_columns_count_spin_box->value(), m_rows_count_spin_box->value()));
-        emit changedProjectSaveDirPath(m_project_save_dir_path_line_edit->text());
-        emit changedRectordsSaveDirPath(m_records_save_dir_path_line_edit->text());
+        emit changedProjectSaveDirPath(project_save_dir);
+        emit changedRectordsSaveDirPath(records_save_dir);
         emit changedDescription(m_description_text_edit->toPlainText());
         emit confirmed();
         if (m_close_after_accept_state){
@@ -155,6 +215,11 @@ void ProjectSettings::setSingleClosingByApply(bool state){
     m_close_after_accept_state = state;
 }
 
+
+
+void ProjectSettings::closeEvent(QCloseEvent *event){
+    emit closed();
+}
 
 
 

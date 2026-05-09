@@ -127,6 +127,8 @@ public:
 
     RecorderButton* getRecordingButton() const;
 
+    QPixmap* getPreviewIcon();
+
 signals:
     void closed();
     void settingsTriggered(Project* project);

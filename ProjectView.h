@@ -4,31 +4,31 @@
 #include <QPushButton>
 #include <QPixmap>
 
-
+class QLabel;
 
 class ProjectView : public QWidget
 {
     Q_OBJECT
 
 private:
-    QString m_project_name;
+    qint64 m_seconds_of_last_use;
     QString m_path_to_project;
-    QString m_date_of_last_use;
     QString m_description;
-    QMenu* m_menu;
+
+    QLabel* m_project_name_label;
+    QLabel* m_project_bpm_label;
+    QLabel* m_date_of_last_use_label;
 
     class PreviewButton;
     PreviewButton* m_preview_icon_button;
 
-    void mousePressEvent(QMouseEvent *event) override;
-
 public:
-
     explicit ProjectView(
         quint16 width,
+        quint16 project_bpm,
+        qint64 seconds_of_last_use,
         const QString& project_name,
         const QString& path_to_project,
-        const QString& date_of_last_use,
         const QString& description,
         QPixmap* preview_icon = nullptr,
         QWidget* parent = nullptr
@@ -43,8 +43,11 @@ public:
     void setPathToProject(const QString& path_to_project);
     QString getPathToProject() const;
 
-    void setDateOfLastUse(const QString& date_of_last_use);
-    QString getDateOfLastUse() const;
+    void setSecondsOfLastUse(qint64 seconds_of_last_use);
+    qint64 getSecondsOfLastUse() const;
+
+    void setProjectBPM(quint16 value);
+    quint16 getProjectBPM() const;
 
     void setDescription(const QString& description);
     QString getDescription() const;
@@ -53,8 +56,9 @@ public:
     QPixmap* getPreviewIcon() const;
 
 signals:
-    void doubleClicked(const QString& path_to_project);
-    void deleteTriggered(const QString& path_to_project);
+    void doubleClicked();
+    void rightClicked();
+    void descriptionButtonClicked();
 };
 
 

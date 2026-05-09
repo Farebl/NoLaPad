@@ -9,8 +9,11 @@
 #include "JSONStorage.h"
 #include "JUCETrackPlayer.h"
 
+#include <ranges>
+#include <QMenu>
+#include <QTextEdit>
 
-extern const qsizetype ICON_SIZE = 450;
+extern const qsizetype ICON_SIZE = 600;
 
 ProjectManager::ProjectManager(IStorage* storage, IAudioEngine* audio_engine, ITrackPlayer*(*track_players_fabric)(), QWidget* parent)
     : QMainWindow(parent)
@@ -30,12 +33,11 @@ ProjectManager::ProjectManager(IStorage* storage, IAudioEngine* audio_engine, IT
           )
                   )
     , m_track_settings_window(new TrackSettings(100, false, {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, Qt::gray, Qt::darkGray))
-    , m_project_settings_window(new ProjectSettings(this))
-    , m_curent_project(nullptr)
+    , m_project_settings_window(new ProjectSettings(m_projects_views, this))
+    , m_current_project(nullptr)
     , m_track_players_fabric(track_players_fabric)
     , m_dragging(false)
     , m_title_bar(new QWidget(this))
-    , m_table_widget(new QTableWidget(this))
     , m_columns_of_views_count(2)
     , m_current_project_view(nullptr)
 {
@@ -56,8 +58,8 @@ ProjectManager::ProjectManager(IStorage* storage, IAudioEngine* audio_engine, IT
 
     setWindowFlags(Qt::FramelessWindowHint | Qt::Window);
     setAttribute(Qt::WA_TranslucentBackground);
-    qsizetype window_side = 900;
-    resize(window_side+50, window_side);
+    qsizetype window_side = ICON_SIZE*2;
+    resize(window_side+50, window_side+50);
 
 
     // ----------------------------------------------- top zone
@@ -116,49 +118,43 @@ ProjectManager::ProjectManager(IStorage* storage, IAudioEngine* audio_engine, IT
     // -------------------------   central widget
 
 
-    m_table_widget->setShowGrid(false);
-    m_table_widget->horizontalHeader()->setVisible(false);
-    m_table_widget->verticalHeader()->setVisible(false);
-    m_table_widget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-
-    m_table_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    //m_table_widget->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-
-    m_table_widget->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-    m_table_widget->verticalHeader()->setDefaultSectionSize(ICON_SIZE);
+    m_views_container = new QWidget();
+    m_views_container->setStyleSheet("background: transparent;");
+    m_views_layout = new QGridLayout(m_views_container);
+    m_views_layout->setSpacing(10);
+    m_views_layout->setContentsMargins(10, 10, 10, 10);
+    m_views_layout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
 
-    m_table_widget->setStyleSheet(R"(
-        QTableWidget {
-            background: transparent;
-            border: none;
-            outline: none;
-        }
-        QTableWidget::item {
-            /* Убираем отступы внутри ячейки, если нужно */
-            padding: 0px;
-        }
-        QTableWidget::item:selected {
-            background: transparent;
-            border: none;
-        }
-    )");
 
 
     // ------------   load views
+
     m_projects_views = m_storage->loadProjectsViews();
     for (auto view : m_projects_views){
         view->setFixedSize(window_side/m_columns_of_views_count, window_side/m_columns_of_views_count);
-        connect(view, &ProjectView::doubleClicked, this, [this](const QString& path){
+
+        connect(view, &ProjectView::doubleClicked, this, [this](){
             m_current_project_view = qobject_cast<ProjectView*>(sender());
-            initProject(path);
+            initProject(m_current_project_view->getPathToProject());
         });
-        connect(view, &ProjectView::deleteTriggered, this, [this](const QString& path){
+        connect(view, &ProjectView::rightClicked, this, [this](){
             m_current_project_view = qobject_cast<ProjectView*>(sender());
-            deleteProject(path);
+            deleteProject(m_current_project_view);
+        });
+
+        QTextEdit* description_window = new QTextEdit();
+        description_window->setWindowTitle("Project description");
+        description_window->setReadOnly(true); // Только для чтения
+        description_window->setText(view->getDescription()); // Твой текст
+        description_window->resize(400, 300); // Начальный размер
+
+
+        connect(view, &ProjectView::descriptionButtonClicked, description_window, [description_window](){
+            qDebug()<<"Show description";
+            description_window->show();
         });
     }
-
 
     updateViewsTable();
 
@@ -167,7 +163,7 @@ ProjectManager::ProjectManager(IStorage* storage, IAudioEngine* audio_engine, IT
     // ------------   central area
 
     QScrollArea* scroll_area = new QScrollArea();
-    scroll_area->setWidget(m_table_widget);
+    scroll_area->setWidget(m_views_container);
     scroll_area->setWidgetResizable(true);
     scroll_area->setStyleSheet("QScrollArea { background: transparent; border: none; }");
     scroll_area->viewport()->setStyleSheet("background: transparent;");
@@ -221,30 +217,32 @@ ProjectManager::~ProjectManager(){
         m_audio_engine->removePlayer(m_metronome->getPlayer());
     }
 
-    m_curent_project.reset();
+    m_current_project.reset();
     m_audio_engine.reset();
 }
 
 
+
+
 void ProjectManager::initProject(const QString& path_to_project){
-    if (path_to_project.isEmpty() && m_current_project_view == nullptr) {
-        m_curent_project.reset(
+    if (path_to_project.isEmpty()) {
+        m_current_project.reset(
             new Project(
                 m_audio_engine.get(),
                 m_track_players_fabric,
                 &m_timer, m_metronome,
                 m_track_settings_window,
-                "Project1",
-                "../../projects",
-                "../../records",
-                "...haha",
+                "Project " + QString::number(m_projects_views.size() + 1),
+                "",
+                "",
+                "",
                 0,
                 0,
                 this
             )
         );
-        openProjectSettings(m_curent_project.get(), ProjectSettingMode::CreatingNewProject);
-        if (m_curent_project == nullptr){
+        openProjectSettings(m_current_project.get(), ProjectSettingMode::CreatingNewProject);
+        if (m_current_project == nullptr){
             return;
         }
     }
@@ -253,7 +251,7 @@ void ProjectManager::initProject(const QString& path_to_project){
         m_metronome->setBPM(data.metronome_info.bpm);
         m_metronome->setVolume(data.metronome_info.volume);
 
-        m_curent_project.reset(
+        m_current_project.reset(
             new Project(
                 m_audio_engine.get(),
                 m_track_players_fabric,
@@ -265,36 +263,55 @@ void ProjectManager::initProject(const QString& path_to_project){
         );
     }
 
-    this->hide();
-    m_curent_project->show();
-    m_curent_project->raise();
-    m_curent_project->activateWindow();
+    hideThisWindow();
 
-    connect(m_curent_project.get(), &Project::settingsTriggered, this, [this](Project* project){
+    m_current_project->show();
+    m_current_project->raise();
+    m_current_project->activateWindow();
+
+    connect(m_current_project.get(), &Project::settingsTriggered, this, [this](Project* project){
         openProjectSettings(project, ProjectSettingMode::OpeningExistedProject);
     });
 
-    connect(m_curent_project.get(), &Project::saveTriggered, this, &ProjectManager::saveCurrentProject);
+    connect(m_current_project.get(), &Project::saveTriggered, this, &ProjectManager::saveCurrentProject);
 
-    connect(m_curent_project.get(), &Project::closed, this, [this](){
-        this->show();
+    connect(m_current_project.get(), &Project::closed, this, [this](){
+        if (m_current_project_view != nullptr){
+            qint64 seconds_of_last_use = QDateTime::currentDateTime().toSecsSinceEpoch();
+            m_current_project_view->setSecondsOfLastUse(seconds_of_last_use);
+            sortProjectsViews(m_projects_views);
+        }
+        updateViewsTable();
+        QMetaObject::invokeMethod(this, &ProjectManager::showThisWindow, Qt::QueuedConnection);
+        //showThisWindow();
     });
 }
 
 
 
 
-void ProjectManager::deleteProject(const QString& path_to_project){
+void ProjectManager::deleteProject(ProjectView* project_view){
     qDebug()<<"ProjectManager::deleteProject";
-    //m_storage->deleteProject();
-    //m_storage->deleteProjectView();
-}
+    m_storage->deleteProject(project_view->getPathToProject());
+    m_storage->deleteProjectView(project_view->getProjectName());
 
+    auto it = std::ranges::remove_if(
+        m_projects_views,
+        [name = project_view->getProjectName()](ProjectView* v){
+            return v->getProjectName() == name;
+        }
+        );
+    m_projects_views.erase(it.begin(), m_projects_views.end());
+
+    updateViewsTable();
+    project_view->deleteLater();
+    m_current_project_view = nullptr;
+}
 
 
 void ProjectManager::saveCurrentProject(){
     // saving project
-    ProjectSaveParameters current_project_save_data = m_curent_project->getSaveParameters();
+    ProjectSaveParameters current_project_save_data = m_current_project->getSaveParameters();
 
     QString save_path = m_storage->saveProject(current_project_save_data);
     if (save_path.isEmpty()){
@@ -303,27 +320,41 @@ void ProjectManager::saveCurrentProject(){
     }
 
     // create & saving view
-    QString date_of_last_use = QDateTime::currentDateTime().toString("yyyy:MM:dd-hh:mm:ss");
+    qint64 seconds_of_last_use = QDateTime::currentDateTime().toSecsSinceEpoch();
 
-    QPixmap* preview_icon = new QPixmap(m_curent_project->size());    // Создаем пустой пиксельмап размером с виджет
-    m_curent_project->render(preview_icon);
+    QPixmap* preview_icon = nullptr;
+    if (QPixmap* src = m_current_project->getPreviewIcon(); src && !src->isNull()) {
+        preview_icon = new QPixmap(*src);  // копія, PreviewButton стане власником
+    }
 
     if (m_current_project_view == nullptr) {
-        m_current_project_view = new ProjectView(
+        ProjectView* new_view = new ProjectView(
             ICON_SIZE,
+            current_project_save_data.metronome_info.bpm,
+            seconds_of_last_use,
             current_project_save_data.name,
             save_path,
-            date_of_last_use,
             current_project_save_data.description,
             preview_icon,
-            this
+            nullptr
         );
-        m_projects_views.push_back(m_current_project_view);
+        m_projects_views.push_back(new_view);
+        connect(new_view, &ProjectView::doubleClicked, this, [this](){
+            m_current_project_view = qobject_cast<ProjectView*>(sender());
+            initProject(m_current_project_view->getPathToProject());
+        });
+        connect(new_view, &ProjectView::rightClicked, this, [this](){
+            m_current_project_view = qobject_cast<ProjectView*>(sender());
+            deleteProject(m_current_project_view);
+        });
+
+        m_current_project_view = new_view;
     }
     else{
         m_current_project_view->setProjectName(current_project_save_data.name);
         m_current_project_view->setPathToProject(save_path);
-        m_current_project_view->setDateOfLastUse(date_of_last_use);
+        m_current_project_view->setSecondsOfLastUse(seconds_of_last_use);
+        m_current_project_view->setProjectBPM(current_project_save_data.metronome_info.bpm);
         m_current_project_view->setDescription(current_project_save_data.description);
         m_current_project_view->setPreviewIcon(preview_icon);
     }
@@ -339,17 +370,27 @@ void ProjectManager::saveCurrentProject(){
 
 
 void ProjectManager::updateViewsTable(){
-    m_table_widget->setColumnCount(m_columns_of_views_count);
-    qsizetype rows_count = (m_projects_views.size() + m_columns_of_views_count - 1)/m_columns_of_views_count;
-    m_table_widget->setRowCount((m_projects_views.size() + m_columns_of_views_count - 1)/m_columns_of_views_count);
+    // Явно знімаємо всі cell widgets щоб таблиця не тримала dangling ptr
+    while (m_views_layout->count()) {
+        QLayoutItem* item = m_views_layout->takeAt(0);
+        delete item;   // видаляємо лише обгортку QLayoutItem, не сам QWidget
+    }
 
-    qsizetype index = 0;
+
+    sortProjectsViews(m_projects_views);
+    for (auto el : m_projects_views){
+        qDebug()<<el->getProjectName() << ", ";
+    }
+
     qsizetype views_count = m_projects_views.size();
+
+    qsizetype rows_count = (m_projects_views.size() + m_columns_of_views_count - 1) / m_columns_of_views_count;
+    qsizetype index = 0;
+    const int cols = m_columns_of_views_count;
     for (int r = 0; r < rows_count; ++r) {
-        m_table_widget->setRowHeight(r, ICON_SIZE);
         for (int c = 0; (c < m_columns_of_views_count) && (index < views_count); ++c, ++index) {
-            m_table_widget->setCellWidget(r, c, m_projects_views[index]);
-            m_projects_views[index]->setContentsMargins(10, 10, 10, 10);
+            m_views_layout->addWidget(m_projects_views[index], r, c);
+            m_projects_views[index]->show();
         }
     }
 }
@@ -359,7 +400,7 @@ void ProjectManager::updateViewsTable(){
 
 void ProjectManager::openProjectSettings(Project* project, ProjectSettingMode mode)
 {
-    qDebug()<< project->getProjectSaveDirPath();
+    disconnect(m_project_settings_window, nullptr, this, nullptr);
 
     m_project_settings_window->setName(project->getName());
     m_project_settings_window->setSize(project->getSize());
@@ -382,16 +423,34 @@ void ProjectManager::openProjectSettings(Project* project, ProjectSettingMode mo
         });
         connect(m_project_settings_window, &ProjectSettings::canceled, this, [this](){
             m_project_settings_window->hide();
-            m_curent_project.reset();
+            m_current_project.reset(nullptr);
+        });
+        connect(m_project_settings_window, &ProjectSettings::closed, this, [this](){
+            m_current_project.reset(nullptr);
         });
 
-        m_project_settings_window->exec();
 
+        m_project_settings_window->exec();
     }
     else if (mode == ProjectSettingMode::OpeningExistedProject){
         m_project_settings_window->show();
     }
 }
+
+
+
+
+
+
+void ProjectManager::sortProjectsViews(QVector<ProjectView*>& projects_views){
+    std::ranges::sort(projects_views, [](ProjectView* lhs, ProjectView* rhs){
+        return lhs->getSecondsOfLastUse() > rhs->getSecondsOfLastUse();
+    });
+}
+
+
+
+
 
 
 
@@ -444,13 +503,16 @@ void ProjectManager::closeEvent(QCloseEvent *event) {
 
 
 
+void ProjectManager::showThisWindow(){
+    this->show();
+    this->raise();
+    this->activateWindow();
+}
 
-
-
-
-
-
-
+// Сховати менеджер проєктів (коли відкривається проєкт)
+void ProjectManager::hideThisWindow(){
+    this->hide();
+}
 
 
 // ── Методи для тестування (testHook_*) ───────────────────────────────────
@@ -478,7 +540,7 @@ void ProjectManager::testHook_createProject(const QString& name) {
         t.is_recording = false;
         t._16th_beats  = {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
     }
-    m_curent_project.reset(
+    m_current_project.reset(
         new Project(
             m_audio_engine.get(),
             m_track_players_fabric,
@@ -493,13 +555,13 @@ void ProjectManager::testHook_createProject(const QString& name) {
 
 // Зберігає поточний проєкт (викликає saveCurrentProject)
 void ProjectManager::testHook_save() {
-    if (m_curent_project)
+    if (m_current_project)
         saveCurrentProject();
 }
 
 // Закриває поточний проєкт і знімає всі його плеєри з engine
 void ProjectManager::testHook_closeProject() {
-    m_curent_project.reset();
+    m_current_project.reset();
     m_current_project_view = nullptr;
 }
 

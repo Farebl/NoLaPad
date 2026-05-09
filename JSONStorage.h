@@ -23,6 +23,7 @@ public:
     virtual QVector<ProjectView*> loadProjectsViews() override;
     virtual bool saveProjectView(ProjectView* project_view) override;
     virtual void deleteProjectView(const QString& project_name) override;
+
 };
 
 #endif // JSONSTORAGE_H

@@ -68,9 +68,10 @@ void TestJSONStorage::testSaveViewCreatesFile() {
     // Створюємо ProjectView
     ProjectView view(
         64,
+        120,
+        1'777'334'400, // "2026-04-28",
         "MyProject",
         "/tmp/MyProject.json",
-        "2026-04-28",
         "Test description",
         nullptr
     );

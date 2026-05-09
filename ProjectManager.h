@@ -36,31 +36,33 @@ private:
     TrackSettings* m_track_settings_window;
     ProjectSettings* m_project_settings_window;
 
-    std::unique_ptr<Project> m_curent_project;
+    std::unique_ptr<Project> m_current_project;
     QVector<ProjectView*> m_projects_views;
     ProjectView* m_current_project_view;
 
-
     ITrackPlayer*(*m_track_players_fabric)();
-
 
     bool m_dragging;
     QPoint m_drag_position;
 
     QWidget* m_title_bar;
-    QTableWidget* m_table_widget;
+    QWidget*      m_views_container;
+    QGridLayout*  m_views_layout;
 
     quint8 m_columns_of_views_count;
 
 
+
     void initProject(const QString& path_to_project);
-    void deleteProject(const QString& path_to_project);
-
+    void deleteProject(ProjectView* project_view);
     void openProjectSettings(Project* project, ProjectSettingMode mode);
-
     void saveCurrentProject();
     void updateViewsTable();
 
+    void sortProjectsViews(QVector<ProjectView*>& projects_views);
+
+    void showThisWindow();
+    void hideThisWindow();
 
     void toggleMaximize();
     void mousePressEvent(QMouseEvent* event) override;

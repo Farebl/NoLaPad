@@ -6,6 +6,7 @@
 class QLineEdit;
 class QSpinBox;
 class QTextEdit;
+class ProjectView;
 
 class ProjectSettings : public QDialog
 {
@@ -21,8 +22,14 @@ private:
     QPushButton* m_apply_button;
     bool m_close_after_accept_state;
 
+    QVector<ProjectView*>& m_projects_views_collection;
+
+    bool isUniqueProjectName(QVector<ProjectView*> projects_views);
+
+    void closeEvent(QCloseEvent *event) override;
+
 public:
-    ProjectSettings(QWidget* parent = nullptr);
+    ProjectSettings(QVector<ProjectView*>& projects_views_collection, QWidget* parent = nullptr);
     ~ProjectSettings() override;
 
     void setName(const QString& name);
@@ -44,6 +51,7 @@ signals:
 
     void canceled();
     void confirmed();
+    void closed();
 };
 
 #endif // PROJECTSETTINGS_H
