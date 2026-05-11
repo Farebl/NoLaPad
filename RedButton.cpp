@@ -1,14 +1,14 @@
 #include "RedButton.h"
 
-RedButton::RedButton(bool is_pressed, quint16 size, QWidget* parent):
+RedButton::RedButton(bool is_pressed, int width, int height, QWidget* parent):
     QPushButton(parent)
     , m_is_pressed(is_pressed)
 {
-    setFixedSize(size, size);
+    setFixedSize(width, height);
     setStyleSheet("background-color: #cdcdcd; border-radius: 3px;");
 }
 
-void RedButton::setLooptState(bool state){
+void RedButton::setPressed(bool state){
     m_is_pressed = state;
     if (m_is_pressed){
         setStyleSheet("background-color: #ff5050; border-radius: 3px;");
@@ -18,6 +18,9 @@ void RedButton::setLooptState(bool state){
     }
 }
 
+bool RedButton::isPressed(){
+    return m_is_pressed;
+}
 
 
 void RedButton::mousePressEvent(QMouseEvent *event){

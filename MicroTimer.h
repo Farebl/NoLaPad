@@ -15,6 +15,23 @@ private:
     quint8 m_tick_order;
     volatile bool m_running;
 
+    Q_SIGNAL void tick0();
+    Q_SIGNAL void tick1();
+    Q_SIGNAL void tick2();
+    Q_SIGNAL void tick3();
+    Q_SIGNAL void tick4();
+    Q_SIGNAL void tick5();
+    Q_SIGNAL void tick6();
+    Q_SIGNAL void tick7();
+    Q_SIGNAL void tick8();
+    Q_SIGNAL void tick9();
+    Q_SIGNAL void tick10();
+    Q_SIGNAL void tick11();
+    Q_SIGNAL void tick12();
+    Q_SIGNAL void tick13();
+    Q_SIGNAL void tick14();
+    Q_SIGNAL void tick15();
+
 public:
     explicit MicroTimer(quint32 interval_in_nanoseconds = 1'000'000'000, QObject* parent = nullptr);
     ~MicroTimer();
@@ -28,23 +45,6 @@ public slots:
     void start();
     void stop();
 
-signals:
-    void tick0();
-    void tick1();
-    void tick2();
-    void tick3();
-    void tick4();
-    void tick5();
-    void tick6();
-    void tick7();
-    void tick8();
-    void tick9();
-    void tick10();
-    void tick11();
-    void tick12();
-    void tick13();
-    void tick14();
-    void tick15();
 };
 
 #endif // MICROTIMER_H

@@ -24,8 +24,8 @@ private:
 
 public:
     explicit ProjectView(
-        quint16 width,
-        quint16 project_bpm,
+        int width,
+        int project_bpm,
         qint64 seconds_of_last_use,
         const QString& project_name,
         const QString& path_to_project,

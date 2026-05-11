@@ -20,13 +20,11 @@ TrackSettings::TrackSettings(quint8 volume_percent, bool is_loop, const std::arr
     , m_volume_fader(new Fader("..//..//images//fader_track.png", "..//..//images//fader_handle.png", "..//..//images//fader_measures.png", this))
 
     , m_select_track_colors_button(new TrackColorButtons(80, Qt::gray, Qt::darkGray, this))
-    , m_loop_button(new RedButton(false, 80, this))
+    , m_loop_button(new RedButton(false, 80, 80, this))
     , m_16th_matrix(new QTableWidget(4, 4, this))
-
-    , m_lag_whole_takts_setter(new LCDCounter("whole takts"))
-    , m_lag_16_th_setter(new LCDCounter("1/16 of takt"))
-    , m_duration_whole_takts_setter(new LCDCounter("whole takts"))
-    , m_duration_16_th_setter(new LCDCounter("1/16 of takt"))
+    , m_recording_button(new RedButton(false, 80, 40, this))
+    , m_whole_takts_lag_setter(new LCDCounter("whole takts"))
+    , m_whole_takts_duration_setter(new LCDCounter("whole takts"))
     , m_effects_switcher(new EffectsSwitcher(140, this))
     , m_audio_input_connector(new AudioSampleSelector("..//..//images//audio_in_plugged.png", "..//..//images//audio_in_unplugged.png", this))
     , m_beats_per_measure(beats_per_measure)
@@ -59,6 +57,7 @@ TrackSettings::TrackSettings(quint8 volume_percent, bool is_loop, const std::arr
     setWindowFlags(Qt::Dialog);
     setFixedSize(600, 770);
     setStyleSheet("background-color: #8e8e8e;");
+    setWindowModality(Qt::ApplicationModal);
 
 
 
@@ -70,6 +69,7 @@ TrackSettings::TrackSettings(quint8 volume_percent, bool is_loop, const std::arr
 
     QLabel* volume_label = new QLabel("volume");
     volume_label->setStyleSheet("color: #ebebeb");
+    volume_label->setAlignment(Qt::AlignCenter);
 
     // -------------------- Volume fader
 
@@ -99,37 +99,14 @@ TrackSettings::TrackSettings(quint8 volume_percent, bool is_loop, const std::arr
 
 
 
-    // --------------------  (Set track color button & Loop button) & 16th beats & Effects Switcher & REC button -----------------------------
+    // --------------------  Loop button & 16th beats & Effects Switcher & Emptiness -----------------------------
 
 
-    // -------------------- (Set track color button & Loop button) layout
-
-
-    // --------- Track color label
-
-    QLabel* select_track_color_label = new QLabel("track colors");
-    select_track_color_label->setStyleSheet("color: #ebebeb");
-
-
-    // --------- Track color button
-    connect(m_select_track_colors_button, &TrackColorButtons::changedInnerColor, this, &TrackSettings::changedInnerActiveBackgroundColor);
-    connect(m_select_track_colors_button, &TrackColorButtons::changedOuterColor, this, &TrackSettings::changedOuterBackgroundColor);
-
-    QVBoxLayout* select_track_colors_layout = new QVBoxLayout();
-    select_track_colors_layout->setObjectName("select_track_colors_layout");
-    select_track_colors_layout->addWidget(select_track_color_label);
-    select_track_colors_layout->addWidget(m_select_track_colors_button);
-    select_track_colors_layout->setAlignment(Qt::AlignCenter);
-    select_track_colors_layout->setSpacing(5);
-
-    connect(m_loop_button, &RedButton::changedState, this, &TrackSettings::changedLoopState);
-
-
-
-    // --------- Loop button
+    // --------------- Loop button
 
     QLabel* loop_label = new QLabel("loop");
     loop_label->setStyleSheet("color: #ebebeb");
+    loop_label->setAlignment(Qt::AlignCenter);
 
     QVBoxLayout* loop_layout = new QVBoxLayout();
     loop_layout->setObjectName("loop_layout");
@@ -140,17 +117,18 @@ TrackSettings::TrackSettings(quint8 volume_percent, bool is_loop, const std::arr
 
 
 
-    // --------- Layout (Track color button + Loop button)
 
-    QHBoxLayout* color_button_and_loop_layout = new QHBoxLayout();
-    color_button_and_loop_layout->addLayout(select_track_colors_layout);
-    color_button_and_loop_layout->addLayout(loop_layout);
+    // -------------- 16th beats
+
+    // ------ label
+
+    QLabel* beats_label = new QLabel("1/16ths of takt");
+    beats_label->setStyleSheet("color: #ebebeb");
+    beats_label->setAlignment(Qt::AlignCenter);
 
 
 
-
-    // --------------------  16th beats
-
+    // ------ matrix
 
     m_16th_matrix->setShowGrid(false);
     m_16th_matrix->setFrameShape(QFrame::NoFrame);
@@ -197,26 +175,19 @@ TrackSettings::TrackSettings(quint8 volume_percent, bool is_loop, const std::arr
 
 
 
-    //beats_line_0_layout->setSpacing(25);
-
-
-
-
-    QLabel* beats_label = new QLabel("1/16ths of takt");
-    beats_label->setStyleSheet("color: #ebebeb");
-
     QVBoxLayout* beats_layout = new QVBoxLayout();
     beats_layout->setObjectName("beats_layout");
-    beats_layout->addWidget(beats_label);
-    beats_layout->addWidget(m_16th_matrix);
     beats_layout->setSpacing(10);
     beats_layout->setContentsMargins(0, 0, 0, 0);
     beats_layout->setAlignment(Qt::AlignHCenter);
+    beats_layout->addWidget(beats_label);
+    beats_layout->addWidget(m_16th_matrix);
 
 
 
 
-    // --------------------  Effects Switcher
+
+    // ----------  Effects Switcher
 
     m_effects_switcher->setValue(0);
 
@@ -284,33 +255,34 @@ TrackSettings::TrackSettings(quint8 volume_percent, bool is_loop, const std::arr
     });
 
 
-    QWidget::connect(effect_off_label, &ClickableLabel::clicked, this, [=](){
+    QWidget::connect(effect_off_label, &ClickableLabel::clicked, this, [this](){
         m_effects_switcher->setZeroPos();
     });
-    QWidget::connect(effect_reverb_label, &ClickableLabel::clicked, this, [=](){
+    QWidget::connect(effect_reverb_label, &ClickableLabel::clicked, this, [this](){
         m_effects_switcher->setFirstPos();
     });
-    QWidget::connect(effect_delay_label, &ClickableLabel::clicked, this, [=](){
+    QWidget::connect(effect_delay_label, &ClickableLabel::clicked, this, [this](){
         m_effects_switcher->setSecondPos();
     });
-    QWidget::connect(effect_chorus_label, &ClickableLabel::clicked, this, [=](){
+    QWidget::connect(effect_chorus_label, &ClickableLabel::clicked, this, [this](){
         m_effects_switcher->setThirdPos();
     });
-    QWidget::connect(effect_distortion_label, &ClickableLabel::clicked, this, [=](){
+    QWidget::connect(effect_distortion_label, &ClickableLabel::clicked, this, [this](){
         m_effects_switcher->setFourthPos();
     });
 
 
     QVBoxLayout* effects_labels_layout = new QVBoxLayout();
     effects_labels_layout->setObjectName("effects_labels_layout");
+    effects_labels_layout->setAlignment(Qt::AlignCenter);
+    effects_labels_layout->setSpacing(10);
     effects_labels_layout->addWidget(effect_off_label);
     effects_labels_layout->addWidget(effect_reverb_label);
     effects_labels_layout->addWidget(effect_delay_label);
     effects_labels_layout->addWidget(effect_chorus_label);
     effects_labels_layout->addWidget(effect_distortion_label);
-    effects_labels_layout->setAlignment(Qt::AlignCenter);
-    effects_labels_layout->setSpacing(0);
-    effects_labels_layout->setContentsMargins(0, -20, 0 ,-20);
+
+
 
 
     QVBoxLayout* effects_switcher_and_labels_layout = new QVBoxLayout();
@@ -318,77 +290,115 @@ TrackSettings::TrackSettings(quint8 volume_percent, bool is_loop, const std::arr
     effects_switcher_and_labels_layout->addWidget(m_effects_switcher);
     effects_switcher_and_labels_layout->addLayout(effects_labels_layout);
     effects_switcher_and_labels_layout->setAlignment(Qt::AlignCenter);
-    effects_switcher_and_labels_layout->setSpacing(90);
-
-
-
-
-    // -------------------- REC button
-
-    m_recording_checkbox = new QCheckBox("Enable Recording", this);
-    m_recording_checkbox->setChecked(false);
-
-    connect(m_recording_checkbox, &QCheckBox::toggled, this, [this](bool checked) {
-        emit changedRecordingEnabled(checked);
-    });
-
-
-
-
-
-    // -------------------- (Track_color_button + Loop_button + 16th_beats) layout
-
-    QVBoxLayout* trackColors_loopButton_16thBeats_effectSwitcher_RECButton_layout = new QVBoxLayout();
-    trackColors_loopButton_16thBeats_effectSwitcher_RECButton_layout->setObjectName("trackColors_loopButton_16thBeats_effectSwitcher_RECButton_layout");
-    trackColors_loopButton_16thBeats_effectSwitcher_RECButton_layout->addLayout(color_button_and_loop_layout);
-    trackColors_loopButton_16thBeats_effectSwitcher_RECButton_layout->addLayout(beats_layout);
-    trackColors_loopButton_16thBeats_effectSwitcher_RECButton_layout->addLayout(effects_switcher_and_labels_layout);
-    trackColors_loopButton_16thBeats_effectSwitcher_RECButton_layout->addWidget(m_recording_checkbox);
-    trackColors_loopButton_16thBeats_effectSwitcher_RECButton_layout->setAlignment(Qt::AlignHCenter);
-    trackColors_loopButton_16thBeats_effectSwitcher_RECButton_layout->setSpacing(5);
+    effects_switcher_and_labels_layout->setSpacing(20);
 
 
 
 
 
 
-    // --------------------  Timers & effects settings & input connector -------------------------------------------------
+    // -------------------- (Loop_button + 16th_beats) layout
+
+    QVBoxLayout* loopButton_16thBeats_effectSwitcher_emptyness_layout = new QVBoxLayout();
+    loopButton_16thBeats_effectSwitcher_emptyness_layout->setObjectName("loopButton_16thBeats_effectSwitcher_emptyness_layout");
+    loopButton_16thBeats_effectSwitcher_emptyness_layout->setAlignment(Qt::AlignHCenter);
+    loopButton_16thBeats_effectSwitcher_emptyness_layout->setSpacing(10);
+    loopButton_16thBeats_effectSwitcher_emptyness_layout->addLayout(loop_layout);
+    loopButton_16thBeats_effectSwitcher_emptyness_layout->addLayout(beats_layout);
+    loopButton_16thBeats_effectSwitcher_emptyness_layout->addLayout(effects_switcher_and_labels_layout);
+    loopButton_16thBeats_effectSwitcher_emptyness_layout->addSpacing(50);
+
+
+
+
+
+    // --------------------  Timers & Track colors button & REC button & effects settings & input connector -------------------------------------------------
 
 
 
     // -------------------- Timers
+    int setter_height = 100;
+    m_whole_takts_lag_setter->setFixedHeight(setter_height);
+    m_whole_takts_duration_setter->setFixedHeight(setter_height);
+    m_whole_takts_duration_setter->setRange(1, 999);
 
 
-    QHBoxLayout* lag_section_layout = new QHBoxLayout();
-    lag_section_layout->addWidget(m_lag_whole_takts_setter);
-    lag_section_layout->addWidget(m_lag_16_th_setter);
+    QHBoxLayout* lag_and_duration_setters_layout = new QHBoxLayout();
+    lag_and_duration_setters_layout->addWidget(m_whole_takts_lag_setter);
+    lag_and_duration_setters_layout->addWidget(m_whole_takts_duration_setter);
 
 
-    QHBoxLayout* duration_section_layout = new QHBoxLayout();
-    duration_section_layout->addWidget(m_duration_whole_takts_setter);
-    duration_section_layout->addWidget(m_duration_16_th_setter);
+    connect(m_whole_takts_lag_setter, &LCDCounter::changedValue, this, &TrackSettings::changedWholeTacktLag);
+    connect(m_whole_takts_duration_setter, &LCDCounter::changedValue, this, &TrackSettings::changedWholeTacktDuration);
 
 
 
 
-    // -------------------- effects settings
+    // ------------------------ Track color & REC
+
+    // ------------ Track color
+
+    // ---- Track color label
+
+    QLabel* select_track_color_label = new QLabel("track colors");
+    select_track_color_label->setStyleSheet("color: #ebebeb");
+    select_track_color_label->setAlignment(Qt::AlignCenter);
+
+    // ---- Track color button
+    connect(m_select_track_colors_button, &TrackColorButtons::changedInnerColor, this, &TrackSettings::changedInnerActiveBackgroundColor);
+    connect(m_select_track_colors_button, &TrackColorButtons::changedOuterColor, this, &TrackSettings::changedOuterBackgroundColor);
+
+    QVBoxLayout* track_colors_layout = new QVBoxLayout();
+    track_colors_layout->setObjectName("track_colors_layout");
+    track_colors_layout->addWidget(select_track_color_label);
+    track_colors_layout->addWidget(m_select_track_colors_button);
+    track_colors_layout->setAlignment(Qt::AlignCenter);
+    track_colors_layout->setSpacing(5);
+
+    connect(m_loop_button, &RedButton::changedState, this, &TrackSettings::changedLoopState);
+
+
+    // ----------- REC button
+
+    QLabel* rec_button_label = new QLabel("Recording");
+    rec_button_label->setStyleSheet("color: #ebebeb");
+    rec_button_label->setAlignment(Qt::AlignCenter);
+
+    QVBoxLayout* rec_button_and_label_layout = new QVBoxLayout();
+    rec_button_and_label_layout->addWidget(rec_button_label);
+    rec_button_and_label_layout->addWidget(m_recording_button);
+
+    connect(m_recording_button, &RedButton::changedState, this, &TrackSettings::changedRecordingEnabled);
+
+
+
+    // ----------- (Track color + REC button)  layout
+
+    QHBoxLayout* track_colors_and_rec_button_layout = new QHBoxLayout();
+    track_colors_and_rec_button_layout->addLayout(track_colors_layout);
+    track_colors_and_rec_button_layout->addSpacing(20);
+    track_colors_and_rec_button_layout->addLayout(rec_button_and_label_layout);
+
+
+
+    // ---------------------- effects settings
 
 
     QLabel* effect_settings_label = new QLabel("Effect settings");
     effect_settings_label->setStyleSheet("color: #ebebeb");
-
+    effect_settings_label->setAlignment(Qt::AlignCenter);
 
     // --------- LCD display
-    m_effect_value_display->setMaximum(100);
+    m_effect_value_display->setRange(0, 100);
+    m_effect_value_display->setFixedSize(140, 80);
+
     QHBoxLayout* effect_value_display_layout = new QHBoxLayout();
     effect_value_display_layout->addWidget(m_effect_value_display, Qt::AlignHCenter);
 
 
+    // --------- potentiometers
 
-
-
-
-    quint16 spacing_between_potentiometers = 25;
+    int spacing_between_potentiometers = 25;
 
 
     // -------- Off settings
@@ -698,7 +708,7 @@ TrackSettings::TrackSettings(quint8 volume_percent, bool is_loop, const std::arr
     effects_settings_layout->addWidget(effect_settings_label);
     effects_settings_layout->addLayout(effect_value_display_layout);
     effects_settings_layout->addWidget(m_effects_settings_stack_widget);
-
+    effects_settings_layout->addSpacing(20);
 
 
 
@@ -713,32 +723,32 @@ TrackSettings::TrackSettings(quint8 volume_percent, bool is_loop, const std::arr
 
     QLabel* audio_input_connector_label = new QLabel("audio in");
     audio_input_connector_label->setStyleSheet("color: #ebebeb");
+    audio_input_connector_label->setAlignment(Qt::AlignCenter);
 
     connect(m_audio_input_connector, &AudioSampleSelector::selectedAudioSample, this, &TrackSettings::changedAudioSamplePath);
 
 
     QVBoxLayout* audio_input_layout = new QVBoxLayout();
     audio_input_layout->setObjectName("audio_input_layout");
+    audio_input_layout->setAlignment(Qt::AlignHCenter);
     audio_input_layout->addWidget(audio_input_connector_label);
     audio_input_layout->addWidget(m_audio_input_connector);
 
-    audio_input_layout->setAlignment(Qt::AlignCenter);
-    audio_input_layout->setSpacing(5);
 
 
 
 
-    // -------------------- Layout (Timers + effects settings + input connector)
+    // -------------------- Layout (Timers + Track colors + REC + effects settings + input connector)
 
-    QVBoxLayout* lag_duration_effectsSettings_inputConnector_layout = new QVBoxLayout();
-    lag_duration_effectsSettings_inputConnector_layout->setObjectName("lag_duration_effectsSettings_inputConnector_layout");
-    lag_duration_effectsSettings_inputConnector_layout->addLayout(lag_section_layout);
-    lag_duration_effectsSettings_inputConnector_layout->addLayout(duration_section_layout);
-    lag_duration_effectsSettings_inputConnector_layout->addLayout(effects_settings_layout);
-    lag_duration_effectsSettings_inputConnector_layout->addLayout(audio_input_layout);
-    lag_duration_effectsSettings_inputConnector_layout->setAlignment(Qt::AlignCenter);
-    lag_duration_effectsSettings_inputConnector_layout->setSpacing(5);
-
+    QVBoxLayout* lag_duration_colors_rec_effectsSettings_inputConnector_layout = new QVBoxLayout();
+    lag_duration_colors_rec_effectsSettings_inputConnector_layout->setObjectName("lag_duration_colors_rec_effectsSettings_inputConnector_layout");
+    lag_duration_colors_rec_effectsSettings_inputConnector_layout->addLayout(lag_and_duration_setters_layout);
+    lag_duration_colors_rec_effectsSettings_inputConnector_layout->addSpacing(20);
+    lag_duration_colors_rec_effectsSettings_inputConnector_layout->addLayout(track_colors_and_rec_button_layout);
+    lag_duration_colors_rec_effectsSettings_inputConnector_layout->addSpacing(20);
+    lag_duration_colors_rec_effectsSettings_inputConnector_layout->addLayout(effects_settings_layout);
+    lag_duration_colors_rec_effectsSettings_inputConnector_layout->addSpacing(20);
+    lag_duration_colors_rec_effectsSettings_inputConnector_layout->addLayout(audio_input_layout);
 
 
 
@@ -746,10 +756,16 @@ TrackSettings::TrackSettings(quint8 volume_percent, bool is_loop, const std::arr
 
     QHBoxLayout* main_layout = new QHBoxLayout(this);
     main_layout->addLayout(volume_label_display_fader_layout);
-    main_layout->addLayout(trackColors_loopButton_16thBeats_effectSwitcher_RECButton_layout);
-    main_layout->addLayout(lag_duration_effectsSettings_inputConnector_layout);
-    main_layout->setSpacing(10);
+    main_layout->addLayout(loopButton_16thBeats_effectSwitcher_emptyness_layout);
+    main_layout->addLayout(lag_duration_colors_rec_effectsSettings_inputConnector_layout);
 }
+
+
+
+
+
+
+
 
 
 
@@ -857,8 +873,6 @@ void TrackSettings::connectEffectsPotentiometersWithDisplay(){
     connect(m_chorus_mix_potentiometer, &Potentiometer::entered, m_effect_value_display, &LCDDisplay::setValue);
     connect(m_chorus_output_volume_potentiometer, &Potentiometer::entered, m_effect_value_display, &LCDDisplay::setValue);
 
-
-
     // Distortion
 
     connect(m_distortion_drive_potentiometer, &QDial::valueChanged, m_effect_value_display, [this](int new_value){
@@ -894,8 +908,21 @@ void TrackSettings::setVolume(float volume){
 }
 
 
+void TrackSettings::setWholeTacktLag(qint16 value)
+{
+    m_whole_takts_lag_setter->setValue(value);
+}
+
+
+void TrackSettings::setWholeTacktDuration(qint16 value)
+{
+    m_whole_takts_duration_setter->setValue(value);
+}
+
+
+
 void TrackSettings::setLoopState(bool state){
-    m_loop_button->setLooptState(state);
+    m_loop_button->setPressed(state);
 }
 
 
@@ -926,12 +953,7 @@ void TrackSettings::setIsAudioSampleSelectedState(bool state){
 
 void TrackSettings::setRecordingEnabled(bool enabled)
 {
-    m_recording_checkbox->setChecked(enabled);
-}
-
-bool TrackSettings::getRecordingEnabled() const
-{
-    return m_recording_checkbox->isChecked();
+    m_recording_button->setPressed(enabled);
 }
 
 

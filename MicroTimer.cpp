@@ -36,6 +36,7 @@ MicroTimer::~MicroTimer() {
 }
 
 void MicroTimer::stop() {
+    qDebug()<<"MicroTimer::stop() ";
     m_running = false;
 }
 
@@ -54,6 +55,7 @@ quint32 MicroTimer::getInterval() const{
 }
 
 void MicroTimer::start() {
+    qDebug()<<"MicroTimer::start() ";
     QElapsedTimer timer;
     timer.start();
     m_running = true;

@@ -29,10 +29,12 @@ MetronomeSettings::MetronomeSettings(quint8 volume_percent, QWidget *parent)
 
     connect(m_volume_slider, &QSlider::valueChanged, this, [this](int value) {
         m_volume_display->setValue(value);
+        emit changedVolume(value);
     });
 
     connect(m_volume_display, &QSpinBox::valueChanged, this, [this](int value) {
         m_volume_slider->setValue(value);
+        emit changedVolume(value);
     });
 
     QHBoxLayout *volumeLayout = new QHBoxLayout();
@@ -40,10 +42,7 @@ MetronomeSettings::MetronomeSettings(quint8 volume_percent, QWidget *parent)
     volumeLayout->addWidget(m_volume_display);
 
     QFormLayout *layout_with_settings  = new QFormLayout(this);
-    layout_with_settings->addRow("volum", volumeLayout);
-
-
-    connect(m_volume_slider, &QSlider::valueChanged, this, &MetronomeSettings::changedVolume);
+    layout_with_settings->addRow("volume", volumeLayout);
 }
 
 void MetronomeSettings::closeEvent(QCloseEvent *event) {
@@ -51,6 +50,9 @@ void MetronomeSettings::closeEvent(QCloseEvent *event) {
     this->hide();
 }
 
+void MetronomeSettings::setVolume(int value){
+    m_volume_slider->setValue(value);
+}
 
 
 

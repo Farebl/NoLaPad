@@ -13,6 +13,7 @@ class ProjectSettings : public QDialog
     Q_OBJECT
 
 private:
+    QString m_project_name; // name of project for whom it settings_window was opend
     QLineEdit* m_name_line_edit;
     QSpinBox* m_rows_count_spin_box;
     QSpinBox* m_columns_count_spin_box;
@@ -20,11 +21,9 @@ private:
     QLineEdit* m_records_save_dir_path_line_edit;
     QTextEdit* m_description_text_edit;
     QPushButton* m_apply_button;
-    bool m_close_after_accept_state;
+    bool m_is_creating_new_project_mode;
 
     QVector<ProjectView*>& m_projects_views_collection;
-
-    bool isUniqueProjectName(QVector<ProjectView*> projects_views);
 
     void closeEvent(QCloseEvent *event) override;
 
@@ -38,7 +37,7 @@ public:
     void setRectordsSaveDirPath(const QString& path);
     void setDescription(const QString& text);
 
-    void setSingleClosingByApply(bool state);
+    void setCreatingNewProjectMode(bool is_creating);
 
 
 

@@ -15,6 +15,15 @@ public:
     explicit PreviewButton(QPixmap* preview_icon = nullptr, QWidget* parent = nullptr)
         : QPushButton(parent), m_menu(new QMenu(this))
     {
+        setFlat(true);
+        setFocusPolicy(Qt::NoFocus);
+        setAttribute(Qt::WA_OpaquePaintEvent); // ← ми самі малюємо всі пікселі
+        setStyleSheet(
+            "QPushButton         { border: none; padding: 0px; margin: 0px; background: #3f3f3f; }"
+            "QPushButton:hover   { background: #3f3f3f; }"
+            "QPushButton:pressed { background: #3f3f3f; }"
+            "QPushButton:focus   { outline: none; border: none; }"
+            );
 
         m_menu->setStyleSheet("font-size: 14px;");
         QAction* delete_action = new QAction("delete");
@@ -30,13 +39,12 @@ public:
 
 public:
     void paintEvent(QPaintEvent*) override {
-        if(m_preview_icon){
-            if (!m_preview_icon->isNull()) {
-                QPainter painter(this);
-                painter.fillRect(rect(), Qt::black); // явний фон
-                painter.setRenderHint(QPainter::SmoothPixmapTransform);
-                painter.drawPixmap(rect(), *m_preview_icon.get());
-            }
+        QPainter painter(this);
+        // Завжди заповнюємо фон, щоб не було прозорих артефактів
+        painter.fillRect(rect(), QColor(0x3f, 0x3f, 0x3f));
+        if (m_preview_icon && !m_preview_icon->isNull()) {
+            painter.setRenderHint(QPainter::SmoothPixmapTransform);
+            painter.drawPixmap(rect(), *m_preview_icon.get());
         }
     }
 
@@ -68,8 +76,8 @@ signals:
 
 
 ProjectView::ProjectView(
-    quint16 width,
-    quint16 project_bpm,
+    int width,
+    int project_bpm,
     qint64 seconds_of_last_use,
     const QString& project_name,
     const QString& path_to_project,
@@ -94,7 +102,7 @@ ProjectView::ProjectView(
 
     // ---------------------- title
 
-    quint16 title_bar_heigh = 30;
+    int title_bar_heigh = 30;
     setFixedSize(width, width + title_bar_heigh);
 
 
@@ -143,9 +151,6 @@ ProjectView::ProjectView(
     setPreviewIcon(preview_icon);
     m_preview_icon_button->setFixedSize(this->width(), this->width());
     m_preview_icon_button->setAutoFillBackground(false);
-
-
-
 
 
     QVBoxLayout* main_layout = new QVBoxLayout(this);

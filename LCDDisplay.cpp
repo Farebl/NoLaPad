@@ -28,10 +28,8 @@ LCDDisplay::LCDDisplay(QWidget* parent)
         "    qproperty-alignment: AlignCenter;"
         "}";
 
-    setRange(0, 999);
     setValue(0);
     setFont(lcd_font);
-    setFixedSize(100, 70);
     setButtonSymbols(QAbstractSpinBox::NoButtons);
     setStyleSheet(LCD_DisplayStyle);
 }

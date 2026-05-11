@@ -5,7 +5,7 @@
 AudioSampleSelector::AudioSampleSelector(QString active_state_image_path, QString inactive_state_image_path, QWidget *parent)
     : QWidget(parent), m_is_active(false)
 {
-    setMinimumSize(100, 100); // Встановлюємо мінімальний розмір, щоб віджет був видимим
+
     m_active_state_image = QPixmap(active_state_image_path);
     if (m_active_state_image.isNull()) {
         qDebug() << "Failed to load activeState image from:" << active_state_image_path;
@@ -19,9 +19,12 @@ AudioSampleSelector::AudioSampleSelector(QString active_state_image_path, QStrin
         qDebug() << "Failed to load inactiveState image from:" << inactive_state_image_path;
     } else {
         m_inactive_state_image = m_inactive_state_image.scaled(m_inactive_state_image.width(), m_active_state_image.height() + 8, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-        setMinimumSize(m_inactive_state_image.width(), m_inactive_state_image.height()); // Адаптуємо розмір віджета
+        setMinimumSize(m_inactive_state_image.width(), m_inactive_state_image.height()/2); // Адаптуємо розмір віджета
     }
 
+    if (!m_active_state_image.isNull()) {
+        setFixedSize(m_active_state_image.width(), m_active_state_image.height());
+    }
     update();
 }
 
@@ -38,9 +41,9 @@ void AudioSampleSelector::paintEvent(QPaintEvent *event)
 
     // Малюємо зображення залежно від стану
     if (m_is_active && !m_active_state_image.isNull()) {
-        painter.drawPixmap(0, 0, m_active_state_image);
+        painter.drawPixmap(0, 30, m_active_state_image);
     } else if (!m_is_active && !m_inactive_state_image.isNull()) {
-        painter.drawPixmap(0, 0, m_inactive_state_image);
+        painter.drawPixmap(0, 30, m_inactive_state_image);
     } else {
         painter.fillRect(rect(), Qt::gray); // Показуємо сірий фон, якщо зображення не завантажено
     }

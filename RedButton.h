@@ -18,8 +18,9 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
 
 public:
-    explicit RedButton(bool is_pressed = false, quint16 size = 100, QWidget* parent = nullptr);
-    void setLooptState(bool state);
+    explicit RedButton(bool is_pressed = false, int width = 100, int height = 100, QWidget* parent = nullptr);
+    void setPressed(bool state);
+    bool isPressed();
 
 signals:
     void changedState(bool new_state);

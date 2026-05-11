@@ -14,6 +14,8 @@ struct TrackInfo{
     ushort index;
     bool is_loop;
     bool is_recording;
+    qint16 whole_tackt_lag;
+    qint16 whole_tackt_duration;
     QString audio_sample_path;
     QColor outer_color;
     QColor inner_color;

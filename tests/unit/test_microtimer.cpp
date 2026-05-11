@@ -21,8 +21,8 @@ void TestMicroTimer::testInvalidIntervalDefault() {
 
 void TestMicroTimer::testStartEmitsTicks() {
     MicroTimer t(10000);                   // 10 мс
-    QSignalSpy spy0(&t, &MicroTimer::tick0);
-    QSignalSpy spy1(&t, &MicroTimer::tick1);
+    QSignalSpy spy0(&t, t.m_signals[0]);
+    QSignalSpy spy1(&t, t.m_signals[1]);
 
     QThread th;
     t.moveToThread(&th);
@@ -39,7 +39,7 @@ void TestMicroTimer::testStartEmitsTicks() {
 
 void TestMicroTimer::testStopHaltsTicks() {
     MicroTimer t(10000);
-    QSignalSpy spy(&t, &MicroTimer::tick0);
+    QSignalSpy spy(&t, t.m_signals[0]);
 
     QThread th;
     t.moveToThread(&th);
@@ -58,8 +58,8 @@ void TestMicroTimer::testTickOrderCycles() {
     // 16 сигналів tick0..tick15 чергуються по колу
     MicroTimer t(5000);
     QVector<QSignalSpy*> spies;
-    spies << new QSignalSpy(&t, &MicroTimer::tick0)
-          << new QSignalSpy(&t, &MicroTimer::tick15);
+    spies << new QSignalSpy(&t, t.m_signals[0])
+          << new QSignalSpy(&t, t.m_signals[15]);
 
     QThread th; t.moveToThread(&th);
     connect(&th, &QThread::started, &t, &MicroTimer::start);

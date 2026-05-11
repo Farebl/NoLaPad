@@ -132,6 +132,8 @@ void JUCEMetronomePlayer::setVolume(float volume) {
     m_transport_3.setGain(volume);
 }
 
+
+
 float JUCEMetronomePlayer::getVolume() const {
     return m_transport_0.getGain();
 }
@@ -143,6 +145,7 @@ bool JUCEMetronomePlayer::isRecordingEnabled() const {
     //return m_is_recording_enabled.load();
     return false;
 }
+
 
 void JUCEMetronomePlayer::play() {
     switch (m_current_measure){

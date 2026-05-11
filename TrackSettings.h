@@ -50,10 +50,9 @@ private:
     RedButton* m_loop_button;
     QTableWidget* m_16th_matrix;
 
-    LCDCounter* m_lag_whole_takts_setter;
-    LCDCounter* m_lag_16_th_setter;
-    LCDCounter* m_duration_whole_takts_setter;
-    LCDCounter* m_duration_16_th_setter;
+    LCDCounter* m_whole_takts_lag_setter;
+    LCDCounter* m_whole_takts_duration_setter;
+
 
     EffectsSwitcher* m_effects_switcher;
 
@@ -61,7 +60,7 @@ private:
     std::array<bool, 16> m_beats_per_measure;
     std::vector<QMetaObject::Connection> m_current_connections;
 
-    QCheckBox* m_recording_checkbox;
+    RedButton* m_recording_button;
 
     QStackedWidget* m_effects_settings_stack_widget;
     LCDDisplay* m_effect_value_display;
@@ -97,13 +96,14 @@ public:
 
     void setLoopState(bool state);
     void setVolume(float volume);
+    void setWholeTacktLag(qint16 value);
+    void setWholeTacktDuration(qint16 value);
     void setEffectVolume(int volum_percent);
     void setInnerActiveBackgroundColor(QColor color);
     void setOuterBackgroundColor(QColor color);
     void setBeats(std::array<bool, 16> beats_per_measure);
     void setIsAudioSampleSelectedState(bool state);
     void setRecordingEnabled(bool enabled);
-    bool getRecordingEnabled() const;
 
 
 private slots:
@@ -112,6 +112,8 @@ private slots:
 signals:
     void changedLoopState(bool state);
     void changedVolume(float volum_percent);
+    void changedWholeTacktLag(qint16 value);
+    void changedWholeTacktDuration(qint16 value);
     void changedInnerActiveBackgroundColor(QColor color);
     void changedOuterBackgroundColor(QColor color);
     void changedAudioSamplePath(QString path);

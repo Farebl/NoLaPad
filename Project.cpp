@@ -35,8 +35,6 @@ Project::Project(
     , m_track_settings_window(track_settings_window)
     , m_track_players_fabric(track_players_fabric)
 {
-
-    qDebug()<<"Project delegate(): "<< this;
     /////////////////////////////// GUI building //////////////////////////////
 
 
@@ -204,8 +202,19 @@ Project::Project(
     m_table_widget->horizontalHeader()->setVisible(false);
     m_table_widget->verticalHeader()->setVisible(false);
     m_table_widget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    m_table_widget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_table_widget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_table_widget->setRowCount(0);
     m_table_widget->setColumnCount(0);
+
+    m_table_widget->setSelectionMode(QAbstractItemView::NoSelection);
+    m_table_widget->setFocusPolicy(Qt::NoFocus);
+    m_table_widget->setStyleSheet(
+        "QTableWidget         { background: transparent; border: none; outline: none; }"
+        "QTableWidget::item   { background: transparent; border: none; }"
+        "QTableWidget::item:selected { background: transparent; border: none; }"
+        "QTableWidget::item:focus    { background: transparent; outline: 0; }"
+        );
 
 
 
@@ -301,6 +310,8 @@ Project::Project(
                 data.tracks_info[index].volume,
                 data.tracks_info[index].is_loop,
                 data.tracks_info[index].is_recording,
+                0,
+                0,
                 data.tracks_info[index]._16th_beats,
                 data.tracks_info[index].audio_sample_path,
                 data.tracks_info[index].outer_color,
@@ -321,21 +332,19 @@ Project::Project(
 
 Project::~Project()
 {
-    qDebug()<<"~Project(): "<< this;
-    m_metronome->setParent(this->parentWidget());
-    m_audio_engine->stop();
+    m_metronome->mute();
+    // НЕ викликати m_audio_engine->stop() — рушій належить ProjectManager
+    // НЕ зупиняти m_timer — він також належить ProjectManager і потрібен метроному
     if (m_audio_engine) {
         for (Track* track : m_tracks) {
             m_audio_engine->removePlayer(track->getPlayer());
+            // Відключаємо всі сигнали таймера від цього треку
             m_timer->disconnect(track);
         }
     }
-
-    QMetaObject::invokeMethod(m_timer, "stop", Qt::QueuedConnection);
-
+    // Даємо аудіопотоку час завершити поточний блок перед знищенням плеєрів
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
 }
-
 
 
 void Project::updateTracksTable(){
@@ -358,6 +367,8 @@ void Project::updateTracksTable(){
                         0.80,
                         false,
                         false,
+                        0,
+                        0,
                         {
                             1, 0, 0, 0,
                             0, 0, 0, 0,
@@ -415,6 +426,8 @@ void Project::openTrackSettings(Track* track)
     last_opend_track = track;
 
     m_track_settings_window->setVolume(track->getVolume());
+    m_track_settings_window->setWholeTacktLag(track->getWholeTacktLag());
+    m_track_settings_window->setWholeTacktDuration(track->getWholeTacktDuration());
     m_track_settings_window->setLoopState(track->getLoopState());
     m_track_settings_window->setInnerActiveBackgroundColor(track->getInnerActiveBackgroundColor());
     m_track_settings_window->setOuterBackgroundColor(track->getOuterBackgroundColor());
@@ -424,6 +437,8 @@ void Project::openTrackSettings(Track* track)
 
 
     connect(m_track_settings_window, &TrackSettings::changedVolume, track, &Track::setVolume);
+    connect(m_track_settings_window, &TrackSettings::changedWholeTacktLag, track, &Track::setWholeTacktLag);
+    connect(m_track_settings_window, &TrackSettings::changedWholeTacktDuration, track, &Track::setWholeTacktDuration);
     connect(m_track_settings_window, &TrackSettings::changedLoopState, track, &Track::setLoopState);
     connect(m_track_settings_window, &TrackSettings::changedInnerActiveBackgroundColor, track, &Track::setInnerActiveBackgroundColor);
     connect(m_track_settings_window, &TrackSettings::changedOuterBackgroundColor, track, &Track::setOuterBackgroundColor);
@@ -480,6 +495,8 @@ ProjectSaveParameters Project::getSaveParameters() {
             track->objectName().toUShort(),
             track->getLoopState(),
             track->getRecordingState(),
+            track->getWholeTacktLag(),
+            track->getWholeTacktDuration(),
             track->getAudioSamplePath(),
             track->getOuterBackgroundColor(),
             track->getInnerActiveBackgroundColor(),
@@ -576,12 +593,12 @@ RecorderButton* Project::getRecordingButton() const{
 
 
 QPixmap* Project::getPreviewIcon(){
-    QPixmap* preview_icon = new QPixmap(size());    // Создаем пустой пиксельмап размером с виджет
-    m_table_widget->render(preview_icon);
+    QWidget* vp = m_table_widget->viewport(); // реальна область контенту, без рамки/скролбарів
+    QPixmap* preview_icon = new QPixmap(vp->size());
+    preview_icon->fill(QColor(0x3f, 0x3f, 0x3f));
+    vp->render(preview_icon);
     return preview_icon;
 }
-
-
 
 void Project::toggleMaximize()
 {

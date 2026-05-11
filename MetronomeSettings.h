@@ -24,6 +24,7 @@ protected:
 
 public:
     MetronomeSettings(quint8 volume_percent = 100, QWidget *parent = nullptr);
+    void setVolume(int value);
 
 signals:
     void changedVolume(int volum_percent);

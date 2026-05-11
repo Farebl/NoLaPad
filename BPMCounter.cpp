@@ -89,14 +89,11 @@ BPMCounter::BPMCounter(MicroTimer *timer, quint16 bpm_value, QWidget *parent)
 
 
     connect(m_up_button, &QPushButton::clicked, this, [this]() {
-        if (m_display->value() < MAX_BMP) {
-            m_display->setValue(m_display->value() + 1);
-        }
+        m_display->setValue(m_display->value() + 1);
+
     });
     connect(m_down_button, &QPushButton::clicked, this, [this]() {
-        if (m_display->value() > 1) {
-            m_display->setValue(m_display->value() - 1);
-        }
+        m_display->setValue(m_display->value() - 1);
     });
 
     // Обновление таймера при изменении значения

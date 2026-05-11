@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.22)
 
 
-project(NoLaPad VERSION 2.1 LANGUAGES CXX)
+project(NoLaPad VERSION 3.0 LANGUAGES CXX)
 
 enable_testing()
 find_program(CCACHE_PROGRAM ccache)

@@ -9,14 +9,18 @@
 #include "LCDDisplay.h"
 
 LCDCounter::LCDCounter(QString text, QWidget* parent)
-    : QSpinBox(parent)
+    : QWidget(parent)
     , m_title(new QLabel(text))
     , m_lcd_display(new LCDDisplay(this))
-    , m_down_button(new QPushButton("◀", this))
-    , m_up_button(new QPushButton("▶", this))
+    , m_left_button(new QPushButton("◀", this))
+    , m_right_button(new QPushButton("▶", this))
 {
+    setWindowFlags(Qt::FramelessWindowHint);
+    setAttribute(Qt::WA_TranslucentBackground);
+    setStyleSheet("background-color: transparent;");
     m_title->setStyleSheet("color: #ebebeb");
 
+    m_lcd_display->setRange(0, 999);
 
     // lag whoole takts buttons
     const QString lag_and_duration_buttons_style =
@@ -32,37 +36,58 @@ LCDCounter::LCDCounter(QString text, QWidget* parent)
         "    background-color: #FFFFFF;"
         "}";
 
+    m_left_button->setFixedSize(25, 16);
+    m_left_button->setStyleSheet(lag_and_duration_buttons_style);
 
-    m_up_button->setFixedSize(25, 16);
-    m_down_button->setStyleSheet(lag_and_duration_buttons_style);
-
-    m_down_button->setFixedSize(25, 16);
-    m_down_button->setStyleSheet(lag_and_duration_buttons_style);
+    m_right_button->setFixedSize(25, 16);
+    m_right_button->setStyleSheet(lag_and_duration_buttons_style);
 
 
-    connect(m_up_button, &QPushButton::clicked, this, [this]() {
-        setValue(value() + 1);
-    });
-    connect(m_down_button, &QPushButton::clicked, this, [this]() {
-        if (value() > 0) {
-            setValue(value() - 1);
-        }
+    connect(m_left_button, &QPushButton::clicked, this, [this]() {
+        m_lcd_display->setValue(m_lcd_display->value() - 1);
     });
 
-    QHBoxLayout* lag_whole_takts_buttons = new QHBoxLayout();
-    lag_whole_takts_buttons->addWidget(m_down_button);
-    lag_whole_takts_buttons->addWidget(m_up_button);
+    connect(m_right_button, &QPushButton::clicked, this, [this]() {
+        m_lcd_display->setValue(m_lcd_display->value() + 1);
+    });
 
 
-    QVBoxLayout* lag_whole_takts_with_title_display_and_buttons = new QVBoxLayout();
-    lag_whole_takts_with_title_display_and_buttons->setObjectName("lag_whole_takts_with_title_display_and_buttons");
-    lag_whole_takts_with_title_display_and_buttons->addWidget(m_title);
-    lag_whole_takts_with_title_display_and_buttons->addWidget(m_lcd_display);
-    lag_whole_takts_with_title_display_and_buttons->addLayout(lag_whole_takts_buttons); // buttons
-    lag_whole_takts_with_title_display_and_buttons->setAlignment(Qt::AlignHCenter);
-    lag_whole_takts_with_title_display_and_buttons->setSpacing(5);
+    connect(m_lcd_display, &LCDDisplay::valueChanged, this, &LCDCounter::changedValue);
+
+    QHBoxLayout* left_right_buttons = new QHBoxLayout();
+    left_right_buttons->addStretch(1);
+    left_right_buttons->addWidget(m_left_button);
+    left_right_buttons->addStretch(2);
+    left_right_buttons->addWidget(m_right_button);
+    left_right_buttons->addStretch(1);
+
+    m_title->setAlignment(Qt::AlignCenter);
+
+    QVBoxLayout* title_display_and_buttons = new QVBoxLayout(this);
+    title_display_and_buttons->setObjectName("title_display_and_buttons");
+    title_display_and_buttons->setSpacing(5);        // ← один раз, на початку
+    title_display_and_buttons->setContentsMargins(0, 4, 0, 4); // опційно
+    title_display_and_buttons->setAlignment(Qt::AlignHCenter);
+    title_display_and_buttons->addWidget(m_title);
+    title_display_and_buttons->addWidget(m_lcd_display);
+    title_display_and_buttons->addLayout(left_right_buttons); // buttons
 }
+
+
+void LCDCounter::setRange(qint16 min, qint16 max){
+    m_lcd_display->setRange(min, max);
+}
+
 
 void LCDCounter::setTitleText(QString text){
     m_title->setText(text);
+}
+
+
+void LCDCounter::setValue(qint16 value){
+    m_lcd_display->setValue(value);
+}
+
+qint16 LCDCounter::value() const{
+    return m_lcd_display->value();
 }

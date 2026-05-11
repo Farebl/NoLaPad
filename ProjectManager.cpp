@@ -31,7 +31,7 @@ ProjectManager::ProjectManager(IStorage* storage, IAudioEngine* audio_engine, IT
           60,
           this
           )
-                  )
+    )
     , m_track_settings_window(new TrackSettings(100, false, {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, Qt::gray, Qt::darkGray))
     , m_project_settings_window(new ProjectSettings(m_projects_views, this))
     , m_current_project(nullptr)
@@ -47,6 +47,7 @@ ProjectManager::ProjectManager(IStorage* storage, IAudioEngine* audio_engine, IT
     connect(m_timer_thread, &QThread::started, &m_timer, &MicroTimer::start);
     m_timer_thread->start();
 
+    m_metronome->clearFocus();
     m_audio_engine->addPlayer(m_metronome->getPlayer());
 
 
@@ -263,6 +264,8 @@ void ProjectManager::initProject(const QString& path_to_project){
         );
     }
 
+    m_metronome->mute();
+
     hideThisWindow();
 
     m_current_project->show();
@@ -326,7 +329,7 @@ void ProjectManager::saveCurrentProject(){
     if (QPixmap* src = m_current_project->getPreviewIcon(); src && !src->isNull()) {
         preview_icon = new QPixmap(*src);  // копія, PreviewButton стане власником
     }
-
+    qDebug()<<"m_current_project_view: "<< (m_current_project_view ? "exists":"noexists");
     if (m_current_project_view == nullptr) {
         ProjectView* new_view = new ProjectView(
             ICON_SIZE,
@@ -378,9 +381,6 @@ void ProjectManager::updateViewsTable(){
 
 
     sortProjectsViews(m_projects_views);
-    for (auto el : m_projects_views){
-        qDebug()<<el->getProjectName() << ", ";
-    }
 
     qsizetype views_count = m_projects_views.size();
 

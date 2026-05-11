@@ -73,7 +73,8 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DistortionSettings,
 
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TrackInfo,
-                                   index, is_loop, is_recording, audio_sample_path,
+                                   index, is_loop, is_recording, whole_tackt_lag,
+                                   whole_tackt_duration, audio_sample_path,
                                    outer_color, inner_color, _16th_beats, volume,
                                    current_effect_type, reverb_settings, delay_settings,
                                    chorus_settings, distortion_settings)
@@ -231,13 +232,26 @@ bool JSONStorage::saveProjectView(ProjectView* project_view){
 
     // 2. Додаємо новий запис
     nlohmann::json j = {
-        { "project_name",      project_view->getProjectName()         },
-        { "project_path",      project_view->getPathToProject()       },
-        { "seconds_of_last_use",  project_view->getSecondsOfLastUse() },
-        { "project_bpm",      project_view->getProjectBPM()           },
-        { "description",       project_view->getDescription()         },
+        { "project_name",        project_view->getProjectName().toStdString()   },
+        { "project_path",        project_view->getPathToProject().toStdString() },
+        { "seconds_of_last_use", project_view->getSecondsOfLastUse()            },
+        { "project_bpm",         project_view->getProjectBPM()                  },
+        { "description",         project_view->getDescription().toStdString()   },
     };
-    jArray.push_back(j);
+    const std::string target_name = project_view->getProjectName().toStdString();
+    bool found = false;
+    for (auto& entry : jArray) {
+        if (entry.contains("project_name") &&
+            entry.at("project_name").get<std::string>() == target_name)
+        {
+            entry = j;   // оновлюємо існуючий запис на місці
+            found = true;
+            break;
+        }
+    }
+    if (!found) {
+        jArray.push_back(j);  // тільки якщо запису ще немає
+    }
 
     // 3. Записуємо назад
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {

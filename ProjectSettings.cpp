@@ -19,7 +19,7 @@ ProjectSettings::ProjectSettings(QVector<ProjectView*>& projects_views_collectio
     , m_records_save_dir_path_line_edit(new QLineEdit(this))
     , m_description_text_edit(new QTextEdit(this))
     , m_apply_button(new QPushButton("Apply", this))
-    , m_close_after_accept_state(false)
+    , m_is_creating_new_project_mode(false)
     , m_projects_views_collection(projects_views_collection)
 {
     setWindowTitle("Project settings");
@@ -27,10 +27,8 @@ ProjectSettings::ProjectSettings(QVector<ProjectView*>& projects_views_collectio
     setFixedSize(400, 500);
     setStyleSheet("background-color: #8e8e8e;");
 
-    m_rows_count_spin_box->setMinimum(1);
-    m_rows_count_spin_box->setMaximum(8);
-    m_columns_count_spin_box->setMinimum(1);
-    m_columns_count_spin_box->setMaximum(8);
+    m_rows_count_spin_box->setRange(1, 8);
+    m_columns_count_spin_box->setRange(1, 8);
 
     QHBoxLayout* row_and_column_spin_box_layout = new QHBoxLayout();
     row_and_column_spin_box_layout->addWidget(m_rows_count_spin_box);
@@ -110,14 +108,17 @@ ProjectSettings::ProjectSettings(QVector<ProjectView*>& projects_views_collectio
             return;
         }
 
-        auto it = std::ranges::find_if(
-            m_projects_views_collection,
-            [project_name](ProjectView* view){return view->getProjectName() == project_name;}
-        );
-        if (it != m_projects_views_collection.end()){
-            qDebug()<<"err2";
-            QMessageBox::information(this, "Error", "Проєкт з такою назвою вже існує");
-            return;
+        //  new name must be unique        || if we don't changed name of existed project --> we donn`t need to check name uniqueness
+        if (m_is_creating_new_project_mode || project_name != m_project_name){
+            auto it = std::ranges::find_if(
+                m_projects_views_collection,
+                [project_name](ProjectView* view){return view->getProjectName() == project_name;}
+            );
+            if (it != m_projects_views_collection.end()){
+                qDebug()<<"err2";
+                QMessageBox::information(this, "Error", "Проєкт з такою назвою вже існує");
+                return;
+            }
         }
 
 
@@ -155,18 +156,15 @@ ProjectSettings::ProjectSettings(QVector<ProjectView*>& projects_views_collectio
             return;
         }
 
-
-
-
         emit changedName(project_name);
         emit changedSize(QSize(m_columns_count_spin_box->value(), m_rows_count_spin_box->value()));
         emit changedProjectSaveDirPath(project_save_dir);
         emit changedRectordsSaveDirPath(records_save_dir);
         emit changedDescription(m_description_text_edit->toPlainText());
         emit confirmed();
-        if (m_close_after_accept_state){
+        if (m_is_creating_new_project_mode){
             this->hide();
-            m_close_after_accept_state = false;
+            m_is_creating_new_project_mode = false;
         }
     });
 
@@ -189,7 +187,8 @@ ProjectSettings::~ProjectSettings(){
 
 
 void ProjectSettings::setName(const QString& name){
-    m_name_line_edit->setText(name);
+    m_project_name = name;
+    m_name_line_edit->setText(m_project_name);
 }
 
 
@@ -211,18 +210,11 @@ void ProjectSettings::setDescription(const QString& text){
 }
 
 
-void ProjectSettings::setSingleClosingByApply(bool state){
-    m_close_after_accept_state = state;
+void ProjectSettings::setCreatingNewProjectMode(bool is_creating){
+    m_is_creating_new_project_mode = is_creating;
 }
-
 
 
 void ProjectSettings::closeEvent(QCloseEvent *event){
     emit closed();
 }
-
-
-
-
-
-

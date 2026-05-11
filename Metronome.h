@@ -21,11 +21,15 @@ class Metronome : public QWidget
     Q_OBJECT
 
 private:
+    bool m_is_muted;
+    float m_volume;
     std::unique_ptr<IMetronomePlayer> m_player;
     MicroTimer* m_timer;
     MetronomeSettings* m_settings_window;
     QPushButton* m_play_button;
     BPMCounter* m_bpm_counter;
+
+    void play();
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
@@ -43,7 +47,10 @@ public:
     );
 
     ~Metronome();
-    void play();
+    void mute();
+    void unmute();
+
+    bool isMuted();
 
     void setVolume(float volume);
     float getVolume() const;

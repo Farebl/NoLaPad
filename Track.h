@@ -22,24 +22,37 @@
 
 #include "ITrackPlayer.h"
 
-class Track : public QPushButton//, public juce::AudioSource
+class Track : public QPushButton
 {
     Q_OBJECT
 
 private:
+    bool m_is_active;
+    bool m_is_loop;
+    bool m_is_recording;
+    bool m_is_ready;
+
+    qint16 m_whole_tackt_lag;
+    qint16 m_whole_tackt_lag_fixed;
+    qint16 m_whole_tackt_duration;
+    qint16 m_whole_tackt_duration_fixed;
+
+    QString m_audio_sample_path;
+    QString m_style;
+
+    QColor m_outer_color;
+    QColor m_inner_color;
+
+    MicroTimer* m_timer;
 
     std::unique_ptr<ITrackPlayer> m_player;
 
-    bool m_is_active;
-    bool m_is_loop;
-    bool m_is_recording;  // Новий флаг для запису
-    QString m_audio_sample_path;
-    QString m_style;
-    QColor m_outer_color;
-    QColor m_inner_color;
-    MicroTimer* m_timer;
     std::array<bool, 16> m_beats_per_measure;
 
+
+
+    void lagCountdownPlayConnect();
+    void durationCountdownPlay();
 
     void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
@@ -54,6 +67,8 @@ public:
         float volume = 1.0,
         bool is_loop = false,
         bool is_recording = false,
+        qint16 whole_tackt_lag = 0,
+        qint16 whole_tackt_duration = 0,
         std::array<bool, 16> beats_per_measure = {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
         const QString& sound_path = "",
         const QColor& outer_background_color = Qt::gray,
@@ -62,6 +77,17 @@ public:
     );
 
     ~Track();
+
+    void play();
+    void stop();
+
+    void setWholeTacktLag(qint16 value);
+    qint16 getWholeTacktLag() const;
+
+    void setWholeTacktDuration(qint16 value);
+    qint16 getWholeTacktDuration() const;
+
+
 
     // Volume methods
     void setVolume(float volume);
@@ -137,9 +163,6 @@ public:
     void setDistortionOutputVolume(float volume);
     float getDistortionOutputVolume() const;
 
-
-    void play() const;
-    void stop() const;
 
     ITrackPlayer* getPlayer() const;
 

@@ -120,7 +120,7 @@ static Track* makeTrack(
 
     // 2. Передаємо в Track (тут конвертація Mock* -> ITrackPlayer* безпечна і автоматична)
     return new Track(
-        out_player, timer, volume, is_loop, is_recording,
+        out_player, timer, volume, is_loop, is_recording, 0, 0,
         beats, path, Qt::gray, Qt::red, nullptr
     );
 }
