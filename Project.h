@@ -17,13 +17,14 @@
 #include "IAudioEngine.h"
 #include "ProjectSaveParameters.h"
 
+class ElidedLabel;
 
 class Project : public QMainWindow
 {
     Q_OBJECT
 
-private:    
-    QString m_name;
+private:
+    ElidedLabel* m_project_name_label;
     QString m_project_save_dir_path;
     QString m_records_save_dir_path;
     QString m_description;

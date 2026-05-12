@@ -103,7 +103,6 @@ ProjectSettings::ProjectSettings(QVector<ProjectView*>& projects_views_collectio
 
         QString project_name = m_name_line_edit->text();
         if (project_name == ""){
-            qDebug()<<"err1";
             QMessageBox::information(this, "Error", "Назва проєкту не може бути порожньою");
             return;
         }
@@ -115,7 +114,6 @@ ProjectSettings::ProjectSettings(QVector<ProjectView*>& projects_views_collectio
                 [project_name](ProjectView* view){return view->getProjectName() == project_name;}
             );
             if (it != m_projects_views_collection.end()){
-                qDebug()<<"err2";
                 QMessageBox::information(this, "Error", "Проєкт з такою назвою вже існує");
                 return;
             }
@@ -127,7 +125,6 @@ ProjectSettings::ProjectSettings(QVector<ProjectView*>& projects_views_collectio
 
         if (checkPath.exists() && checkPath.isDir()) {
             if (!checkPath.isWritable()) {
-                qDebug()<<"err3";
                 QMessageBox::information(this, "Error", "Вказана директорія збереження проєкту недоступна через недостатні права доступу");
                 return;
             }
@@ -137,21 +134,16 @@ ProjectSettings::ProjectSettings(QVector<ProjectView*>& projects_views_collectio
             return;
         }
 
-        QString records_save_dir = m_project_save_dir_path_line_edit->text();
-        checkPath.setFile(project_save_dir);
+        QString records_save_dir = m_records_save_dir_path_line_edit->text();
+        checkPath.setFile(records_save_dir);
 
         if (checkPath.exists() && checkPath.isDir()) {
             if (!checkPath.isWritable()) {
-                qDebug()<<"err4";
                 QMessageBox::information(this, "Error", "Вказана директорія збереження записів недоступна через недостатні права доступу");
                 return;
             }
-            else{
-                qDebug()<<"err5";
-            }
         }
         else {
-            qDebug()<<"err6";
             QMessageBox::information(this, "Error", "Вказана директорія збереження записів не існує");
             return;
         }

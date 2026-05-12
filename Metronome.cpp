@@ -23,23 +23,38 @@ Metronome::Metronome(
     , m_play_button(new QPushButton(this))
 
 {
-    m_play_button->setFixedSize(30, 25);
-    m_play_button->setText("▶");
+    QString unmute_style = QString(
+                               "QPushButton {"
+                               "    background-color: #b0b0b0;"
+                               "    color: #ebebeb;"
+                               "    border: none;"
+                               "    border-radius: 3px;"
+                               "    font-size: %1px;"
+                               "    padding: 0px;"
+                               "}"
+                               "QPushButton:hover {"
+                               "    background-color: #b3b3b3;"
+                               "}"
+                               ).arg(m_play_button->height()-10);
+
+    QString mute_style = QString(
+                                 "QPushButton {"
+                                 "    background-color: #fb1e22;"
+                                 "    color: #ebebeb;"
+                                 "    border: none;"
+                                 "    border-radius: 3px;"
+                                 "    font-size: %1px;"
+                                 "    padding: 0px;"
+                                 "}"
+                                 "QPushButton:hover {"
+                                 "    background-color: #ff3b3e;"
+                                 "}"
+                                 ).arg(m_play_button->height()-10);
+
+
+    m_play_button->setFixedSize(55, 30);
+    m_play_button->setText("mute");
     m_play_button->setCheckable(true);
-    m_play_button->setChecked(false);
-    m_play_button->setStyleSheet(
-        "QPushButton {"
-        "    background-color: #28963c;"
-        "    color: #FFFFFF;"
-        "    border: none;"
-        "    border-radius: 3px;"
-        "    font-size: 26px;"
-        "    padding: 0px;"
-        "}"
-        "QPushButton:hover {"
-        "    background-color: #46be5a;"
-        "}"
-    );
 
     QHBoxLayout* layout = new QHBoxLayout(this);
     m_bpm_counter->setFixedHeight(35);
@@ -54,48 +69,26 @@ Metronome::Metronome(
         setVolume(value/100.0f);
     });
 
-    mute();
     connect(m_timer, m_timer->m_signals[0], this, &Metronome::play);
     connect(m_timer, m_timer->m_signals[4], this, &Metronome::play);
     connect(m_timer, m_timer->m_signals[8], this, &Metronome::play);
     connect(m_timer, m_timer->m_signals[12], this, &Metronome::play);
 
-    connect(m_play_button, &QPushButton::toggled, this, [this](bool checked){
+    connect(m_play_button, &QPushButton::toggled, this, [this, mute_style, unmute_style](bool checked){
         if (checked){
             unmute();
-            m_play_button->setStyleSheet(
-                "QPushButton {"
-                "    background-color: #c82828;"
-                "    color: #FFFFFF;"
-                "    border: none;"
-                "    border-radius: 3px;"
-                "    font-size: 14px;"
-                "    padding: 0px;"
-                "}"
-                "QPushButton:hover {"
-                "    background-color: #dc3c3c;"
-                "}"
-            );
-            m_play_button->setText("| |");
+            m_play_button->setStyleSheet(unmute_style);
         }
         else{
             mute();
-            m_play_button->setText("▶");
-            m_play_button->setStyleSheet(
-                "QPushButton {"
-                "    background-color: #28963c;"
-                "    color: #FFFFFF;"
-                "    border: none;"
-                "    border-radius: 3px;"
-                "    font-size: 26px;"
-                "    padding: 0px;"
-                "}"
-                "QPushButton:hover {"
-                "    background-color: #46be5a;" // Изменение цвета при наведении
-                "}"
-            );
+            m_play_button->setStyleSheet(mute_style);
         }
     });
+
+    m_play_button->blockSignals(true);
+    m_play_button->setChecked(true);
+    m_play_button->blockSignals(false);
+    mute();
 }
 
 
@@ -121,18 +114,16 @@ void Metronome::play(){
 }
 
 void Metronome::mute(){
-    qDebug()<<"mute_start: "<<m_volume;
     m_is_muted = true;
     m_player->setVolume(0);
     m_play_button->setChecked(false);
-    qDebug()<<"mute_end: "<<m_volume;
 }
+
 void Metronome::unmute(){
     qDebug()<<"Unmute_start: "<<m_volume;
     m_is_muted = false;
     m_player->setVolume(m_volume);
     m_play_button->setChecked(true);
-    qDebug()<<"Unmute_end: "<<m_volume;
 }
 
 bool Metronome::isMuted(){return m_is_muted;}

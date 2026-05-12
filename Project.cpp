@@ -8,8 +8,10 @@
 #include <QFontDatabase>
 #include <QMenu>
 #include <QAction>
+#include <QDesktopServices>
 #include "RecorderButton.h"
 #include "IMetronomePlayer.h"
+#include "ElidedLabel.h"
 
 
 
@@ -22,6 +24,7 @@ Project::Project(
     QWidget *parent
     )
     : QMainWindow(parent)
+    , m_project_name_label(new ElidedLabel(this))
     , m_dragging(false)
     , m_resizing(false)
     , m_recording_button( new RecorderButton(25, this))
@@ -101,15 +104,21 @@ Project::Project(
     m_recording_button->setChecked(false);
 
     QLabel* digital_clock_face = new QLabel(this);
-    digital_clock_face ->setStyleSheet(QString("color: #5a5a5a; font-size: %1px; height: %1px").arg(25));
-    digital_clock_face ->setText("00:00:00:0");
-    digital_clock_face ->setAlignment(Qt::AlignCenter);
+    digital_clock_face->setStyleSheet(QString("color: #5a5a5a; font-size: %1px; height: %1px").arg(25));
+    digital_clock_face->setText("00:00:00:0");
+    digital_clock_face->setAlignment(Qt::AlignCenter);
+
+    QPushButton* show_rec_dir_button = new QPushButton("📁", this);
+    show_rec_dir_button->setStyleSheet(QString("font-size: %1px; height: %1px").arg(25));
+    connect(show_rec_dir_button, &QPushButton::clicked, this, [this](){
+        QDesktopServices::openUrl(QUrl::fromLocalFile(m_records_save_dir_path));
+    });
 
 
     QHBoxLayout* rec_layout = new QHBoxLayout();
     rec_layout->addWidget(m_recording_button);
-    rec_layout->addWidget(digital_clock_face );
-
+    rec_layout->addWidget(digital_clock_face);
+    rec_layout->addWidget(show_rec_dir_button);
 
     connect(m_recording_button, &RecorderButton::toggled, this, [this, digital_clock_face](bool checked) {
         if (checked) {
@@ -148,7 +157,6 @@ Project::Project(
 
 
 
-
     // ------------- Window control buttons
 
 
@@ -170,18 +178,21 @@ Project::Project(
     connect(maximize_button, &QPushButton::clicked, this, &Project::toggleMaximize);
 
 
+    m_project_name_label->setStyleSheet(QString("color: #5a5a5a; font-size: %1px; height: %1px").arg(23));
+    m_project_name_label->setAlignment(Qt::AlignCenter);
 
     QHBoxLayout* title_layout = new QHBoxLayout(m_title_bar);
     title_layout->setContentsMargins(10, 0, 10, 0);
     title_layout->addWidget(action_selector);
     title_layout->addLayout(rec_layout);
-    title_layout->addStretch();
+    title_layout->addStretch(2);
+    title_layout->addWidget(m_project_name_label);
+    title_layout->addStretch(2);
     title_layout->addWidget(m_metronome);
-    title_layout->addStretch();
+    title_layout->addStretch(1);
     title_layout->addWidget(minimize_button);
     title_layout->addWidget(maximize_button);
     title_layout->addWidget(close_button);
-
 
 
 
@@ -265,7 +276,7 @@ Project::Project(
     )
     : Project(audio_engine, track_players_fabric, timer, metronome, track_settings_window, parent)
 {
-    m_name = name;
+    setName(name);
     m_project_save_dir_path = save_project_dir_path;
     m_records_save_dir_path = save_records_dir_path;
     m_description = description;
@@ -284,7 +295,7 @@ Project::Project(
     QWidget* parent
     ) : Project(audio_engine, track_players_fabric, timer, metronome, track_settings_window, parent)
 {
-    m_name = data.name;
+    setName(data.name);
 
     m_project_save_dir_path = data.project_save_dir_path;
     m_records_save_dir_path = data.records_save_dir_path;
@@ -511,7 +522,7 @@ ProjectSaveParameters Project::getSaveParameters() {
     }
 
     ProjectSaveParameters save_data{
-        m_name,
+        m_project_name_label->text(),
         m_project_save_dir_path,
         m_records_save_dir_path,
         m_description,
@@ -532,10 +543,11 @@ ProjectSaveParameters Project::getSaveParameters() {
 
 
 void Project::setName(const QString& name){
-    m_name = name;
+    m_project_name_label->setText(name);
+
 }
 QString Project::getName() const{
-    return m_name;
+    return m_project_name_label->text();
 }
 
 

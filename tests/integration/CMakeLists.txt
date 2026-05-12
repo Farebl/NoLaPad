@@ -66,6 +66,7 @@ ${SRC_DIR}/BPMCounter.cpp;\
 ${SRC_DIR}/BeatCheckBox.cpp;\
 ${SRC_DIR}/Fader.cpp;\
 ${SRC_DIR}/EffectsSwitcher.cpp;\
+${SRC_DIR}/ElidedLabel.cpp;\
 ${SRC_DIR}/RedButton.cpp;\
 ${SRC_DIR}/TrackColorButtons.cpp;\
 ${SRC_DIR}/ClickableLabel.cpp;\
@@ -97,6 +98,7 @@ ${SRC_DIR}/BPMCounter.cpp;\
 ${SRC_DIR}/BeatCheckBox.cpp;\
 ${SRC_DIR}/Fader.cpp;\
 ${SRC_DIR}/EffectsSwitcher.cpp;\
+${SRC_DIR}/ElidedLabel.cpp;\
 ${SRC_DIR}/RedButton.cpp;\
 ${SRC_DIR}/TrackColorButtons.cpp;\
 ${SRC_DIR}/ClickableLabel.cpp;\

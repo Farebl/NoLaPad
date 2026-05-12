@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.22)
 
 
-project(NoLaPad VERSION 3.0 LANGUAGES CXX)
+project(NoLaPad VERSION 3.1 LANGUAGES CXX)
 
 enable_testing()
 find_program(CCACHE_PROGRAM ccache)
@@ -72,7 +72,6 @@ set(PROJECT_SOURCES
     ClickableLabel.h ClickableLabel.cpp
     AudioSampleSelector.h AudioSampleSelector.cpp
     DigitalClockFace.h DigitalClockFace.cpp
-
 )
 
 qt_add_executable(NoLaPad
@@ -97,6 +96,7 @@ qt_add_executable(NoLaPad
     Effects.h
     ProjectSettings.h ProjectSettings.cpp
     Potentiometer.h Potentiometer.cpp
+    ElidedLabel.h ElidedLabel.cpp
 )
 
 target_compile_options(NoLaPad PRIVATE -g -O0)  # Додано прапори для налагодження
