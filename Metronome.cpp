@@ -4,6 +4,14 @@
 #include "MicroTimer.h"
 #include "MetronomeSettings.h"
 
+#include <QPushButton>
+#include <QMouseEvent>
+#include <QHBoxLayout>
+#include <QFile>
+#include <QFileInfo>
+#include <QDir>
+#include <QTemporaryFile>
+
 Metronome::Metronome(
     MicroTimer* timer,
     const QString& first_measure_sound_path,
@@ -16,13 +24,23 @@ Metronome::Metronome(
     : QWidget(parent)
     , m_is_muted(true)
     , m_volume(volume)
-    , m_player(new JUCEMetronomePlayer(first_measure_sound_path, second_measure_sound_path, third_measure_sound_path, fourth_measure_sound_path, volume))
+    , m_player(nullptr)
     , m_timer(timer)
     , m_settings_window(new MetronomeSettings(100, this))
     , m_bpm_counter(new BPMCounter(m_timer, bpm_value, this))
     , m_play_button(new QPushButton(this))
 
 {
+
+    m_player.reset(new JUCEMetronomePlayer(
+        resolveAudioPath(first_measure_sound_path),
+        resolveAudioPath(second_measure_sound_path),
+        resolveAudioPath(third_measure_sound_path),
+        resolveAudioPath(fourth_measure_sound_path),
+        volume
+        )
+    );
+
     QString unmute_style = QString(
                                "QPushButton {"
                                "    background-color: #b0b0b0;"
@@ -95,6 +113,35 @@ Metronome::Metronome(
 Metronome::~Metronome() {
     qDebug()<<"Metronome::~Metronome() ";
 }
+
+
+
+QString Metronome::resolveAudioPath(const QString& path)
+{
+    if (!path.startsWith(":/"))
+        return path;
+    QFile qrc_file(path);
+    if (!qrc_file.open(QIODevice::ReadOnly)) {
+        qWarning() << "Metronome: cannot open QRC resource:" << path;
+        return path;
+    }
+    // Визначаємо суфікс з оригінального імені
+    QString suffix = QFileInfo(path).suffix();
+    auto temp = std::make_unique<QTemporaryFile>(
+        QDir::tempPath() + "/metronome_XXXXXX." + suffix);
+    temp->setAutoRemove(true);
+    if (!temp->open()) {
+        qWarning() << "Metronome: cannot create temp file for:" << path;
+        return path;
+    }
+    temp->write(qrc_file.readAll());
+    temp->flush();
+    QString real_path = temp->fileName();
+    temp->close(); // закриваємо але не видаляємо (autoRemove при деструкторі)
+    m_temp_audio_files.push_back(std::move(temp));
+    return real_path;
+}
+
 
 
 

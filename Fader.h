@@ -2,9 +2,8 @@
 #define FADER_H
 
 #include <QSlider>
-#include <QPainter>
 #include <QPixmap>
-#include <QMouseEvent>
+
 
 class Fader : public QSlider
 {
@@ -31,7 +30,7 @@ protected:
     bool event(QEvent *event) override;
 
 public:
-    explicit Fader(QString track_image_path = "..//..//images//fader_track.png", QString handle_image_path = "..//..//images//fader_handle.png", QString measures_image_path = "..//..//images//fader_meaures.png", QWidget *parent = nullptr);
+    explicit Fader(QString track_image_path, QString handle_image_path, QString measures_image_path, QWidget *parent = nullptr);
 
 };
 

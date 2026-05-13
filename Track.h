@@ -2,12 +2,6 @@
 #define Track_H
 
 #include <QPushButton>
-#include <QTimer>
-#include <QPainter>
-#include <QMouseEvent>
-#include <QThread>
-#include <QMessageBox>
-#include "MicroTimer.h"
 
 #include <juce_dsp/juce_dsp.h>
 #include <juce_audio_devices/juce_audio_devices.h>
@@ -15,12 +9,13 @@
 #include <juce_audio_basics/juce_audio_basics.h>
 #include <juce_core/juce_core.h>
 
-#include <mutex>
-#include <atomic>
+
 #include <array>
 
 
 #include "ITrackPlayer.h"
+
+class MicroTimer;
 
 class Track : public QPushButton
 {
@@ -32,10 +27,10 @@ private:
     bool m_is_recording;
     bool m_is_ready;
 
-    qint16 m_whole_tackt_lag;
-    qint16 m_whole_tackt_lag_fixed;
-    qint16 m_whole_tackt_duration;
-    qint16 m_whole_tackt_duration_fixed;
+    qint16 m_whole_tact_lag;
+    qint16 m_whole_tact_lag_fixed;
+    qint16 m_whole_tact_duration;
+    qint16 m_whole_tact_duration_fixed;
 
     QString m_audio_sample_path;
     QString m_style;
@@ -50,7 +45,6 @@ private:
     std::array<bool, 16> m_beats_per_measure;
 
 
-
     void lagCountdownPlayConnect();
     void durationCountdownPlay();
 
@@ -63,12 +57,12 @@ public:
 
     explicit Track(
         ITrackPlayer* player,
-        MicroTimer* timer = nullptr,
+        MicroTimer* timer,
         float volume = 1.0,
         bool is_loop = false,
         bool is_recording = false,
-        qint16 whole_tackt_lag = 0,
-        qint16 whole_tackt_duration = 0,
+        qint16 whole_tact_lag = 0,
+        qint16 whole_tact_duration = 0,
         std::array<bool, 16> beats_per_measure = {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
         const QString& sound_path = "",
         const QColor& outer_background_color = Qt::gray,

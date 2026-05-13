@@ -6,7 +6,7 @@ LCDDisplay::LCDDisplay(QWidget* parent)
     QSpinBox(parent)
 {
 
-    int font_id = QFontDatabase::addApplicationFont("../../fonts/dseg7-classic-latin-400-italic.ttf");
+    int font_id = QFontDatabase::addApplicationFont(":/fonts/dseg7-classic-latin-400-italic.ttf");
 
     QFont lcd_font;
     QStringList families = QFontDatabase::applicationFontFamilies(font_id);

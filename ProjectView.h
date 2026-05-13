@@ -1,10 +1,12 @@
 #ifndef PROJECTVIEW_H
 #define PROJECTVIEW_H
 
-#include <QPushButton>
-#include <QPixmap>
+#include <QWidget>
+
 
 class QLabel;
+class QPixmap;
+
 
 class ProjectView : public QWidget
 {

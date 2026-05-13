@@ -6,6 +6,7 @@
 #include "MicroTimer.h"
 #include "Metronome.h"
 #include "TrackSettings.h"
+#include "RecorderButton.h"
 
 class TestProject : public QObject {
     Q_OBJECT

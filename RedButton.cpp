@@ -1,5 +1,9 @@
 #include "RedButton.h"
 
+#include <QPainter>
+#include <QMouseEvent>
+#include <QPalette>
+
 RedButton::RedButton(bool is_pressed, int width, int height, QWidget* parent):
     QPushButton(parent)
     , m_is_pressed(is_pressed)

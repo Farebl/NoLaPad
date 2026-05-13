@@ -5,7 +5,6 @@
 
 class Potentiometer : public QDial
 {
-
     Q_OBJECT
 
 private:

@@ -3,9 +3,7 @@
 
 #include <QWidget>
 #include <QColor>
-#include <QColorDialog>
-#include <QMouseEvent>
-#include <QTimer>
+
 
 class TrackColorButtons : public QWidget
 {

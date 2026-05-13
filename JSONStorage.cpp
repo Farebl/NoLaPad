@@ -8,9 +8,9 @@
 #include <QSaveFile>
 #include <QDebug>
 #include <QMessageBox>
+#include <QDir>
+#include <QCoreApplication>
 
-#include "Track.h"
-#include "Metronome.h"
 #include "ProjectView.h"
 
 extern const qsizetype ICON_SIZE;
@@ -21,7 +21,23 @@ JSONStorage::JSONStorage(const QString& project_views_save_dir_path, const QStri
     : m_projects_views_save_dir_path(project_views_save_dir_path)
     , m_projects_views_file_name(project_views_file_name)
     , m_project_view_preview_icon_save_format(project_view_preview_icon_save_format)
-{}
+{
+
+    // 1. Собираем полный путь к папке рядом с .exe
+    QString baseDir = QCoreApplication::applicationDirPath();
+    QString fullDirPath = baseDir + "/" + m_projects_views_save_dir_path;
+
+    // 2. Создаем папки (если их нет)
+    QDir().mkpath(fullDirPath);
+
+    // 3. Создаем файл внутри этой папки
+    QString fullFilePath = fullDirPath + "/" + m_projects_views_file_name;
+    QFile file(fullFilePath);
+
+    if (file.open(QIODevice::WriteOnly)) {
+        file.close(); // Файл создан (или перезаписан пустым)
+    }
+}
 
 
 JSONStorage::~JSONStorage(){}
@@ -73,8 +89,8 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DistortionSettings,
 
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TrackInfo,
-                                   index, is_loop, is_recording, whole_tackt_lag,
-                                   whole_tackt_duration, audio_sample_path,
+                                   index, is_loop, is_recording, whole_tact_lag,
+                                   whole_tact_duration, audio_sample_path,
                                    outer_color, inner_color, _16th_beats, volume,
                                    current_effect_type, reverb_settings, delay_settings,
                                    chorus_settings, distortion_settings)

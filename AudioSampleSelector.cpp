@@ -1,10 +1,18 @@
 #include "AudioSampleSelector.h"
 #include <QFileDialog>
+#include <QMouseEvent>
+#include <QPainter>
+
 
 
 AudioSampleSelector::AudioSampleSelector(QString active_state_image_path, QString inactive_state_image_path, QWidget *parent)
     : QWidget(parent), m_is_active(false)
 {
+    QString appDir = QCoreApplication::applicationDirPath(); // Путь к папке с .exe
+    QDir dir(appDir);
+
+    dir.cdUp(); // Переходим на один уровень вверх
+    m_path_to_music = dir.absolutePath() + "/music";
 
     m_active_state_image = QPixmap(active_state_image_path);
     if (m_active_state_image.isNull()) {
@@ -56,7 +64,8 @@ void AudioSampleSelector::mousePressEvent(QMouseEvent *event) {
             emit selectedAudioSample("");
             update();
         } else {
-            QFileDialog dialog(this, "Choose MP3 file", "../../music", "Audio Files (*.mp3 *.wav)");;
+
+            QFileDialog dialog(this, "Choose MP3 file", m_path_to_music, "Audio Files (*.mp3 *.wav)");;
             dialog.setFileMode(QFileDialog::ExistingFile);
             dialog.setOption(QFileDialog::DontUseNativeDialog); // Вимикаємо нативний діалог
             if (dialog.exec() == QDialog::Accepted) {

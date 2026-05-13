@@ -1,8 +1,7 @@
 #ifndef LCDCOUNTER_H
 #define LCDCOUNTER_H
 
-#include <QObject>
-#include <QSpinBox>
+#include <QWidget>
 
 class LCDDisplay;
 class QLabel;

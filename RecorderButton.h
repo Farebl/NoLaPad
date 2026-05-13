@@ -2,7 +2,6 @@
 #define RECORDERBUTTON_H
 
 #include <QPushButton>
-#include <QPainter>
 
 class RecorderButton : public QPushButton
 {

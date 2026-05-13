@@ -1,4 +1,5 @@
 #include "ClickableLabel.h"
+#include <QMouseEvent>
 
 ClickableLabel::ClickableLabel(QString text, QWidget *parent)
     : QLabel(parent)

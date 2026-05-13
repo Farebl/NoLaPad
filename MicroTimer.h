@@ -1,9 +1,10 @@
 #ifndef MICROTIMER_H
 #define MICROTIMER_H
 
-#include <QThread>
-#include <QElapsedTimer>
 
+#include <QObject>
+
+class QThread;
 
 class MicroTimer : public QObject
 {

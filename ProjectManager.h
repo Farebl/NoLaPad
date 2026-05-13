@@ -2,10 +2,7 @@
 #define PROJECTMANAGER_H
 
 #include <QMainWindow>
-#include "MicroTimer.h"
-#include "TrackSettings.h"
-#include "ProjectSettings.h"
-#include "Metronome.h"
+
 
 
 class IStorage;
@@ -13,6 +10,11 @@ class IAudioEngine;
 class ITrackPlayer;
 class Project;
 class ProjectView;
+class Metronome;
+class MicroTimer;
+class TrackSettings;
+class ProjectSettings;
+class QGridLayout;
 
 
 enum class ProjectSettingMode : bool{
@@ -30,7 +32,7 @@ private:
     std::unique_ptr<IAudioEngine> m_audio_engine;
 
     QThread* m_timer_thread;
-    MicroTimer m_timer;
+    MicroTimer* m_timer;
     Metronome* m_metronome;
 
     TrackSettings* m_track_settings_window;

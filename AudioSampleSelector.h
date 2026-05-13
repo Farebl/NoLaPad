@@ -3,25 +3,22 @@
 
 #include <QWidget>
 #include <QPixmap>
-#include <QMouseEvent>
-#include <QPainter>
-#include <QTimer>
-#include <QApplication>
 
 class AudioSampleSelector : public QWidget
 {
     Q_OBJECT
 private:
+    bool m_is_active; // Ініціалізуємо як false
+    QString m_path_to_music;
     QPixmap m_active_state_image;
     QPixmap m_inactive_state_image;
-    bool m_is_active; // Ініціалізуємо як false
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
 
 public:
-    explicit AudioSampleSelector(QString active_state_image_path = "..//..//images//audio_in_plugged.png", QString inactive_state_image_path  = "..//..//images//audio_in_unplugged.png", QWidget *parent = nullptr);
+    explicit AudioSampleSelector(QString active_state_image_path, QString inactive_state_image_path, QWidget *parent = nullptr);
     void setIsAudioSampleSelectedState(bool state);
 
 signals:

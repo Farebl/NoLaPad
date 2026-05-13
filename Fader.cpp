@@ -1,5 +1,8 @@
 #include "Fader.h"
 
+#include <QPainter>
+#include <QMouseEvent>
+
 Fader::Fader(QString track_image_path, QString handle_image_path, QString measures_image_path, QWidget *parent)
     : QSlider(Qt::Vertical, parent)
     , m_handle_width(20)

@@ -1,5 +1,6 @@
 #include "RecorderButton.h"
 
+#include <QPainter>
 
 RecorderButton::RecorderButton(uint diameter, QWidget *parent)
     : QPushButton(parent){

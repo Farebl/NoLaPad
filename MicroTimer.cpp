@@ -1,5 +1,6 @@
 #include "MicroTimer.h"
 #include <QDebug>
+#include <QElapsedTimer>
 
 MicroTimer::MicroTimer(quint32 interval_in_nanosecond, QObject* parent)
     :  QObject(parent)

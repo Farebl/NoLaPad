@@ -2,9 +2,7 @@
 #define DIGITALCLOCKFACE_H
 
 #include <QLabel>
-#include <QTime>
-#include <QTimer>
-#include <QElapsedTimer>
+class QElapsedTimer;
 
 class DigitalClockFace : public QLabel
 {

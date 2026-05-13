@@ -1,15 +1,10 @@
 #ifndef METRONOMESETTINGS_H
 #define METRONOMESETTINGS_H
 
-#include <QWidget>
+#include <QDialog>
 
-#include <QCloseEvent>
-#include <QMessageBox>
-
-#include <QHBoxLayout>
-#include <QFormLayout>
-#include <QSlider>
-#include <QSpinBox>
+class QSlider;
+class QSpinBox;
 
 class MetronomeSettings : public QDialog
 {

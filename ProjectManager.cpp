@@ -1,32 +1,49 @@
+#include "ProjectManager.h"
+
 #include <QHeaderView>
 #include <QGraphicsDropShadowEffect>
 #include <QScrollArea>
+#include <QPushButton>
+#include <QHBoxLayout>
+#include <QCoreApplication>
+#include <QDateTime>
+#include <QMessageBox>
+#include <QMouseEvent>
+#include <QMenu>
+#include <QTextEdit>
+#include <QThread>
+#include <QWindow>
 
-#include "ProjectManager.h"
+#include <ranges>
+
 #include "JUCEAudioEngine.h"
 #include "Project.h"
 #include "ProjectView.h"
 #include "JSONStorage.h"
 #include "JUCETrackPlayer.h"
 
-#include <ranges>
-#include <QMenu>
-#include <QTextEdit>
+#include "MicroTimer.h"
+#include "TrackSettings.h"
+#include "ProjectSettings.h"
+#include "Metronome.h"
+
 
 extern const qsizetype ICON_SIZE = 600;
+
+
 
 ProjectManager::ProjectManager(IStorage* storage, IAudioEngine* audio_engine, ITrackPlayer*(*track_players_fabric)(), QWidget* parent)
     : QMainWindow(parent)
     , m_storage(storage)
     , m_audio_engine(audio_engine)
     , m_timer_thread(new QThread(this))
-    , m_timer(static_cast<quint32>(60.0/(120*4)*1'000'000), nullptr)
+    , m_timer(new MicroTimer(static_cast<quint32>(60.0/(120*4)*1'000'000), nullptr))
     , m_metronome( new Metronome(
-          &m_timer,
-          "../../music/metronome/strong_measure.wav",
-          "../../music/metronome/weak_measure.wav",
-          "../../music/metronome/weak_measure.wav",
-          "../../music/metronome/weak_measure.wav",
+          m_timer,
+          ":/music/metronome/strong_measure.wav",
+          ":/music/metronome/weak_measure.wav",
+          ":/music/metronome/weak_measure.wav",
+          ":/music/metronome/weak_measure.wav",
           1.0,
           60,
           this
@@ -43,8 +60,8 @@ ProjectManager::ProjectManager(IStorage* storage, IAudioEngine* audio_engine, IT
 {
     m_audio_engine->start();
 
-    m_timer.moveToThread(m_timer_thread);
-    connect(m_timer_thread, &QThread::started, &m_timer, &MicroTimer::start);
+    m_timer->moveToThread(m_timer_thread);
+    connect(m_timer_thread, &QThread::started, m_timer, &MicroTimer::start);
     m_timer_thread->start();
 
     m_metronome->clearFocus();
@@ -204,12 +221,12 @@ ProjectManager::ProjectManager(IStorage* storage, IAudioEngine* audio_engine, IT
 
 
 ProjectManager::ProjectManager(QWidget *parent)
-    : ProjectManager(new JSONStorage("../../projectsViews", "views.json", "PNG"), new JUCEAudioEngine(), []() -> ITrackPlayer* {return new JUCETrackPlayer();}, parent)
+    : ProjectManager(new JSONStorage(QCoreApplication::applicationDirPath()+"/projectsViews", "views.json", "PNG"), new JUCEAudioEngine(), []() -> ITrackPlayer* {return new JUCETrackPlayer();}, parent)
 {}
 
 ProjectManager::~ProjectManager(){
 
-    m_timer.stop();
+    m_timer->stop();
     m_timer_thread->quit();
     m_timer_thread->wait();
 
@@ -231,7 +248,7 @@ void ProjectManager::initProject(const QString& path_to_project){
             new Project(
                 m_audio_engine.get(),
                 m_track_players_fabric,
-                &m_timer, m_metronome,
+                m_timer, m_metronome,
                 m_track_settings_window,
                 "Project " + QString::number(m_projects_views.size() + 1),
                 "",
@@ -256,7 +273,7 @@ void ProjectManager::initProject(const QString& path_to_project){
             new Project(
                 m_audio_engine.get(),
                 m_track_players_fabric,
-                &m_timer, m_metronome,
+                m_timer, m_metronome,
                 m_track_settings_window,
                 data,
                 this
@@ -544,7 +561,7 @@ void ProjectManager::testHook_createProject(const QString& name) {
         new Project(
             m_audio_engine.get(),
             m_track_players_fabric,
-            &m_timer,
+            m_timer,
             m_metronome,
             m_track_settings_window,
             data,

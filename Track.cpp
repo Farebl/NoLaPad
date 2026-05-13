@@ -1,7 +1,17 @@
+#include "Track.h"
 
 #include <QTime>
+#include <QTimer>
+
 #include <QDebug>
-#include "Track.h"
+
+#include <QPainter>
+#include <QMouseEvent>
+#include <QThread>
+#include <QMessageBox>
+#include "MicroTimer.h"
+#include <mutex>
+#include <atomic>
 
 
 #define BORDER_RADIUS_COEF 10
@@ -12,8 +22,8 @@ Track::Track(
     float volume,
     bool is_loop,
     bool is_recording,
-    qint16 whole_tackt_lag,
-    qint16 whole_tackt_duration,
+    qint16 whole_tact_lag,
+    qint16 whole_tact_duration,
     std::array<bool, 16> beats_per_measure,
     const QString& sound_path,
     const QColor& outer_background_color,
@@ -25,10 +35,10 @@ Track::Track(
     , m_is_loop(is_loop)
     , m_is_recording(is_recording)
     , m_is_ready(false)
-    , m_whole_tackt_lag(whole_tackt_lag)
-    , m_whole_tackt_lag_fixed(whole_tackt_lag)
-    , m_whole_tackt_duration(whole_tackt_duration)
-    , m_whole_tackt_duration_fixed(whole_tackt_duration)
+    , m_whole_tact_lag(whole_tact_lag)
+    , m_whole_tact_lag_fixed(whole_tact_lag)
+    , m_whole_tact_duration(whole_tact_duration)
+    , m_whole_tact_duration_fixed(whole_tact_duration)
     , m_audio_sample_path(sound_path)
     , m_style("background-color: %1; color: %2; border-radius: %3px; margin: 2px;")
     , m_outer_color(outer_background_color)
@@ -74,9 +84,9 @@ void Track::mousePressEvent(QMouseEvent *event)
                         }
                     }
 
-                    if (m_whole_tackt_lag_fixed > 0){
-                        qDebug()<<"start with lag_fixed: "<< m_whole_tackt_lag_fixed;
-                        m_whole_tackt_lag = m_whole_tackt_lag_fixed;
+                    if (m_whole_tact_lag_fixed > 0){
+                        qDebug()<<"start with lag_fixed: "<< m_whole_tact_lag_fixed;
+                        m_whole_tact_lag = m_whole_tact_lag_fixed;
                         m_is_ready = false;
                         connect(m_timer, m_timer->m_signals[0], this, &Track::lagCountdownPlayConnect);
                     }
@@ -169,40 +179,43 @@ void Track::paintEvent(QPaintEvent *event){
 
 
 void Track::lagCountdownPlayConnect(){
-    qDebug()<<"lagCountdownPlayConnect (lag: "<<m_whole_tackt_lag<<")";
-    if (m_whole_tackt_lag > 1){
-        --m_whole_tackt_lag;
+    qDebug()<<"lagCountdownPlayConnect (lag: "<<m_whole_tact_lag<<")";
+    if (m_whole_tact_lag > 1){
+        --m_whole_tact_lag;
     }
-    else if (m_whole_tackt_lag == 1){ // preparatory stage 1 beat before the start
+    else if (m_whole_tact_lag == 1){ // preparatory stage 1 beat before the start
         auto measures_count = m_beats_per_measure.size();
         for(qsizetype i = 0; i < measures_count; ++i){
             if (m_beats_per_measure[i]){
                 connect(m_timer, m_timer->m_signals[i], this, &Track::play);
             }
         }
-        --m_whole_tackt_lag;
+        --m_whole_tact_lag;
     }
-    else if (m_whole_tackt_lag < 1){
+    else if (m_whole_tact_lag < 1){
         m_is_ready = true;
         disconnect(m_timer, m_timer->m_signals[0], this, &Track::lagCountdownPlayConnect);
+        if (m_whole_tact_duration_fixed > 0){
+            connect(m_timer, m_timer->m_signals[0], this, &Track::durationCountdownPlay);
+            m_whole_tact_duration = m_whole_tact_duration_fixed - 1;
+        }
+        // else --> track will be stoped by user
 
-        connect(m_timer, m_timer->m_signals[0], this, &Track::durationCountdownPlay);
         // The end of the lag and the start of the duration should occur at the same time,
-        // but the connection above will only be processed on the next tackt, but during
-        // this next tackt the track is already playing (m_is_ready == true ) so to compensate
+        // but the connection above will only be processed on the next tact, but during
+        // this next tact the track is already playing (m_is_ready == true ) so to compensate
         // for this delay we will reduce the duration by 1.
-        m_whole_tackt_duration = m_whole_tackt_duration_fixed - 1;
     }
 }
 
 void Track::durationCountdownPlay(){
-    qDebug()<<"durationCountdownPlay (duration: "<<m_whole_tackt_duration<<")";
+    qDebug()<<"durationCountdownPlay (duration: "<<m_whole_tact_duration<<")";
     if (!m_is_ready) {return;}
 
-    if (m_whole_tackt_duration > 0){
-        --m_whole_tackt_duration;
+    if (m_whole_tact_duration > 0){
+        --m_whole_tact_duration;
     }
-    else if(m_whole_tackt_duration < 1){
+    else if(m_whole_tact_duration < 1){
         stop();
     }
 }
@@ -239,25 +252,25 @@ void Track::stop() {
 
 void Track::setWholeTacktLag(qint16 value)
 {
-    m_whole_tackt_lag_fixed = value;
-    m_whole_tackt_lag = m_whole_tackt_lag_fixed;
-    qDebug()<<"Track::setWholeTacktLag fixed: "<< m_whole_tackt_lag_fixed;
+    m_whole_tact_lag_fixed = value;
+    m_whole_tact_lag = m_whole_tact_lag_fixed;
+    qDebug()<<"Track::setWholeTacktLag fixed: "<< m_whole_tact_lag_fixed;
 }
 
 qint16 Track::getWholeTacktLag() const {
-    return m_whole_tackt_lag_fixed;
+    return m_whole_tact_lag_fixed;
 }
 
 
 void Track::setWholeTacktDuration(qint16 value)
 {
-    m_whole_tackt_duration_fixed = value;
-    m_whole_tackt_duration = m_whole_tackt_duration_fixed;
-    qDebug()<<"Track::setWholeTacktDuration fixed: "<< m_whole_tackt_duration_fixed;
+    m_whole_tact_duration_fixed = value;
+    m_whole_tact_duration = m_whole_tact_duration_fixed;
+    qDebug()<<"Track::setWholeTacktDuration fixed: "<< m_whole_tact_duration_fixed;
 }
 
 qint16 Track::getWholeTacktDuration() const {
-    return m_whole_tackt_duration_fixed;
+    return m_whole_tact_duration_fixed;
 }
 
 

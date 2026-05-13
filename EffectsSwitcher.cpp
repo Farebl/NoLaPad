@@ -1,6 +1,8 @@
 #include "EffectsSwitcher.h"
 #include <QtMath>
 
+#include <QPainter>
+#include <QMouseEvent>
 
 EffectsSwitcher::EffectsSwitcher(uint radius, QWidget *parent)
     : QDial(parent), m_dragging(false)

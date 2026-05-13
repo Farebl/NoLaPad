@@ -2,8 +2,6 @@
 #define EFFECTSSWITCHER_H
 
 #include <QDial>
-#include <QPainter>
-#include <QMouseEvent>
 
 class EffectsSwitcher : public QDial
 {

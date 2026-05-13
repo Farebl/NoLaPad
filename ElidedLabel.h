@@ -2,8 +2,6 @@
 #define ELIDEDLABEL_H
 
 #include <QLabel>
-#include <QFontMetrics>
-#include <QPainter>
 
 class ElidedLabel : public QLabel {
     Q_OBJECT

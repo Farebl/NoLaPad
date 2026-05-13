@@ -3,7 +3,6 @@
 
 #include <QString>
 
-
 struct AudioBlockInfo;
 
 class IRecorder {

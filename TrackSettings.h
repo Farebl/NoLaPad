@@ -1,35 +1,19 @@
 #ifndef TrackSETTINGS_H
 #define TrackSETTINGS_H
 
-#include <QWidget>
-#include <QTableWidget>
 #include <QDialog>
-#include <QVBoxLayout>
-#include <QFormLayout>
-#include <QLabel>
-#include <QPushButton>
-#include <QCloseEvent>
-#include <QCheckBox>
-#include <QSlider>
-#include <QSpinBox>
-#include <QColorDialog>
-#include <QFileDialog>
-#include <QFontDatabase>
 
 
-#include "LCDDisplay.h"
-#include "Fader.h"
-
-#include "TrackColorButtons.h"
-#include "RedButton.h"
-#include "EffectsSwitcher.h"
-
-#include "AudioSampleSelector.h"
-
+class LCDDisplay;
 class LCDCounter;
+class Fader;
+class TrackColorButtons;
+class RedButton;
+class QTableWidget;
+class EffectsSwitcher;
+class AudioSampleSelector;
 class QStackedWidget;
 
-// in Track.h:
 enum class EffectType;
 struct ReverbSettings;
 struct DelaySettings;
@@ -50,8 +34,8 @@ private:
     RedButton* m_loop_button;
     QTableWidget* m_16th_matrix;
 
-    LCDCounter* m_whole_takts_lag_setter;
-    LCDCounter* m_whole_takts_duration_setter;
+    LCDCounter* m_whole_tacts_lag_setter;
+    LCDCounter* m_whole_tacts_duration_setter;
 
 
     EffectsSwitcher* m_effects_switcher;

@@ -1,4 +1,12 @@
+#include <QSpinBox>
+#include <QPushButton>
+
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QFontDatabase>
+
 #include "BPMCounter.h"
+#include "MicroTimer.h"
 
 #define MAX_BMP 500
 
@@ -15,10 +23,10 @@ BPMCounter::BPMCounter(MicroTimer *timer, quint16 bpm_value, QWidget *parent)
     setStyleSheet("background-color: transparent;");
 
 
-    int font_id = QFontDatabase::addApplicationFont("..//..//fonts//dseg7-classic-latin-400-italic.ttf");
+    int font_id = QFontDatabase::addApplicationFont(":/fonts/dseg7-classic-latin-400-italic.ttf");
     QFont lcd_font;
     if (font_id == -1) {
-        qWarning() << "Не удалось загрузить шрифт DSEG7Classic-Regular.ttf, используется стандартный шрифт";
+        qWarning() << "Не удалось загрузить шрифт dseg7-classic-latin-400-italic.ttf, используется стандартный шрифт";
         lcd_font = QFont("Arial", 12);
     } else {
         QString font_family = QFontDatabase::applicationFontFamilies(font_id).at(0);

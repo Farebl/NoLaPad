@@ -1,11 +1,9 @@
 #ifndef BEATCHECKBO_x_H
 #define BEATCHECKBO_x_H
 
-#include <QObject>
-#include <QWidget>
+
 #include <QCheckBox>
-#include <QPainter>
-#include <QStyleOptionButton>
+
 
 class BeatCheckBox : public QCheckBox
 {

@@ -1,11 +1,8 @@
 #ifndef RedButton_H
 #define RedButton_H
 
-#include <QObject>
 #include <QPushButton>
-#include <QPainter>
-#include <QMouseEvent>
-#include <QPalette>
+
 class RedButton : public QPushButton
 {
     Q_OBJECT

@@ -1,11 +1,7 @@
 #ifndef IPLAYER_H
 #define IPLAYER_H
 
-#include <QStringList>
-
-
 struct AudioBlockInfo;
-
 
 class IPlayer {
 public:

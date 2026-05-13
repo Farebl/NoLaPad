@@ -3,6 +3,9 @@
 #include <QtMath>
 #include <QApplication>
 
+#include <QColorDialog>
+#include <QMouseEvent>
+#include <QTimer>
 
 TrackColorButtons::TrackColorButtons(uint size, const QColor& outer_background_color, const QColor& inner_background_color, QWidget *parent)
     : QWidget(parent)

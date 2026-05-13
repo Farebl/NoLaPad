@@ -2,22 +2,18 @@
 #define PROJECT_H
 
 #include <QMainWindow>
-#include <QWindow>
-#include <QTableWidget>
-#include <QMediaPlayer>
-#include <QAudioOutput>
-#include <QUrl>
-#include <QVector>
-
-#include "Track.h"
-#include "TrackSettings.h"
-#include "Metronome.h"
-#include "RecorderButton.h"
-//#include "TransportCallback.h"
-#include "IAudioEngine.h"
 #include "ProjectSaveParameters.h"
 
+class QTableWidget;
 class ElidedLabel;
+class RecorderButton;
+class IAudioEngine;
+class MicroTimer;
+class Metronome;
+class TrackSettings;
+class QElapsedTimer;
+class ITrackPlayer;
+class Track;
 
 class Project : public QMainWindow
 {

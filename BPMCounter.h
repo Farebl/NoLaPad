@@ -1,16 +1,13 @@
 #ifndef BPMCounterCOUNTER_H
 #define BPMCounterCOUNTER_H
 
-#include <QObject>
+
 #include <QWidget>
-#include <QSpinBox>
-#include <QPushButton>
-#include "MicroTimer.h"
 
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QFontDatabase>
 
+class QSpinBox;
+class QPushButton;
+class MicroTimer;
 
 class BPMCounter : public QWidget
 {
@@ -23,7 +20,7 @@ private:
     MicroTimer* m_timer;
 
 public:
-    explicit BPMCounter(MicroTimer* timer = nullptr, quint16 bpm_value = 60, QWidget *parent = nullptr);
+    explicit BPMCounter(MicroTimer* timer, quint16 bpm_value = 60, QWidget *parent = nullptr);
     void setBPM(quint16 value);
     quint16 getBPM() const;
 };

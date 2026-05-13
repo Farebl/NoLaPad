@@ -1,5 +1,13 @@
 #include "MetronomeSettings.h"
 
+#include <QCloseEvent>
+#include <QMessageBox>
+
+#include <QHBoxLayout>
+#include <QFormLayout>
+#include <QSlider>
+#include <QSpinBox>
+
 MetronomeSettings::MetronomeSettings(quint8 volume_percent, QWidget *parent)
     : QDialog(parent),
     m_volume_slider(new QSlider(this)),

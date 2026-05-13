@@ -1,0 +1,15 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="/">
+        <file>images/audio_in_plugged.png</file>
+        <file>images/audio_in_unplugged.png</file>
+        <file>images/fader_track.png</file>
+        <file>images/fader_handle.png</file>
+        <file>images/fader_measures.png</file>
+
+        <file>fonts/dseg7-classic-latin-400-italic.ttf</file>
+
+        <file>music/metronome/strong_measure.wav</file>
+        <file>music/metronome/weak_measure.wav</file>
+    </qresource>
+</RCC>

@@ -11,22 +11,49 @@
 
 #include "Effects.h"
 
+
+#include <QWidget>
+#include <QTableWidget>
+#include <QVBoxLayout>
+#include <QFormLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QCloseEvent>
+#include <QCheckBox>
+#include <QSlider>
+#include <QSpinBox>
+#include <QColorDialog>
+#include <QFileDialog>
+#include <QFontDatabase>
+
+
+#include "LCDDisplay.h"
+#include "Fader.h"
+
+#include "TrackColorButtons.h"
+#include "RedButton.h"
+#include "EffectsSwitcher.h"
+
+#include "AudioSampleSelector.h"
+
+
+
 qsizetype EFFECT_POTENTIOMETER_SIZE = 50;
 
 
 TrackSettings::TrackSettings(quint8 volume_percent, bool is_loop, const std::array<bool, 16>& beats_per_measure, const QColor& outer_background_color, const QColor& inner_background_color, QWidget* parent)
     : QDialog(parent)
     , m_volume_display(new LCDDisplay())
-    , m_volume_fader(new Fader("..//..//images//fader_track.png", "..//..//images//fader_handle.png", "..//..//images//fader_measures.png", this))
+    , m_volume_fader(new Fader(":/images/fader_track.png", ":/images/fader_handle.png", ":/images/fader_measures.png", this))
 
     , m_select_track_colors_button(new TrackColorButtons(80, Qt::gray, Qt::darkGray, this))
     , m_loop_button(new RedButton(false, 80, 80, this))
     , m_16th_matrix(new QTableWidget(4, 4, this))
     , m_recording_button(new RedButton(false, 80, 40, this))
-    , m_whole_takts_lag_setter(new LCDCounter("whole takts"))
-    , m_whole_takts_duration_setter(new LCDCounter("whole takts"))
+    , m_whole_tacts_lag_setter(new LCDCounter("whole tacts"))
+    , m_whole_tacts_duration_setter(new LCDCounter("whole tacts"))
     , m_effects_switcher(new EffectsSwitcher(140, this))
-    , m_audio_input_connector(new AudioSampleSelector("..//..//images//audio_in_plugged.png", "..//..//images//audio_in_unplugged.png", this))
+    , m_audio_input_connector(new AudioSampleSelector(":/images/audio_in_plugged.png", ":/images/audio_in_unplugged.png", this))
     , m_beats_per_measure(beats_per_measure)
 
     , m_effects_settings_stack_widget(new QStackedWidget(this))
@@ -122,7 +149,7 @@ TrackSettings::TrackSettings(quint8 volume_percent, bool is_loop, const std::arr
 
     // ------ label
 
-    QLabel* beats_label = new QLabel("1/16ths of takt");
+    QLabel* beats_label = new QLabel("1/16ths of tact");
     beats_label->setStyleSheet("color: #ebebeb");
     beats_label->setAlignment(Qt::AlignCenter);
 
@@ -318,18 +345,16 @@ TrackSettings::TrackSettings(quint8 volume_percent, bool is_loop, const std::arr
 
     // -------------------- Timers
     int setter_height = 100;
-    m_whole_takts_lag_setter->setFixedHeight(setter_height);
-    m_whole_takts_duration_setter->setFixedHeight(setter_height);
-    m_whole_takts_duration_setter->setRange(1, 999);
-
+    m_whole_tacts_lag_setter->setFixedHeight(setter_height);
+    m_whole_tacts_duration_setter->setFixedHeight(setter_height);
 
     QHBoxLayout* lag_and_duration_setters_layout = new QHBoxLayout();
-    lag_and_duration_setters_layout->addWidget(m_whole_takts_lag_setter);
-    lag_and_duration_setters_layout->addWidget(m_whole_takts_duration_setter);
+    lag_and_duration_setters_layout->addWidget(m_whole_tacts_lag_setter);
+    lag_and_duration_setters_layout->addWidget(m_whole_tacts_duration_setter);
 
 
-    connect(m_whole_takts_lag_setter, &LCDCounter::changedValue, this, &TrackSettings::changedWholeTacktLag);
-    connect(m_whole_takts_duration_setter, &LCDCounter::changedValue, this, &TrackSettings::changedWholeTacktDuration);
+    connect(m_whole_tacts_lag_setter, &LCDCounter::changedValue, this, &TrackSettings::changedWholeTacktLag);
+    connect(m_whole_tacts_duration_setter, &LCDCounter::changedValue, this, &TrackSettings::changedWholeTacktDuration);
 
 
 
@@ -910,13 +935,13 @@ void TrackSettings::setVolume(float volume){
 
 void TrackSettings::setWholeTacktLag(qint16 value)
 {
-    m_whole_takts_lag_setter->setValue(value);
+    m_whole_tacts_lag_setter->setValue(value);
 }
 
 
 void TrackSettings::setWholeTacktDuration(qint16 value)
 {
-    m_whole_takts_duration_setter->setValue(value);
+    m_whole_tacts_duration_setter->setValue(value);
 }
 
 
@@ -925,10 +950,6 @@ void TrackSettings::setLoopState(bool state){
     m_loop_button->setPressed(state);
 }
 
-
-void TrackSettings::setEffectVolume(int volum_percent){
-    //m_effect_volume_fader->setValue(volum_percent);
-}
 
 void TrackSettings::setInnerActiveBackgroundColor(QColor color){
     m_select_track_colors_button->setInnerColor(color);

@@ -6,6 +6,8 @@
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QDateTime>
+#include <QPixmap>
+#include <QPushButton>
 
 class ProjectView::PreviewButton : public QPushButton {
     Q_OBJECT

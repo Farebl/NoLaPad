@@ -1,12 +1,8 @@
 #ifndef METRONOME_H
 #define METRONOME_H
 
-#include <QObject>
-#include <QPushButton>
-#include <QSlider>
-#include <QSpinBox>
+#include <QWidget>
 
-#include <QMouseEvent>
 
 class IPlayer;
 class IMetronomePlayer;
@@ -15,6 +11,7 @@ class QPushButton;
 class MetronomeSettings;
 class MicroTimer;
 class QHBoxLayout;
+class QTemporaryFile;
 
 class Metronome : public QWidget
 {
@@ -29,6 +26,9 @@ private:
     QPushButton* m_play_button;
     BPMCounter* m_bpm_counter;
 
+    std::vector<std::unique_ptr<QTemporaryFile>> m_temp_audio_files;
+    QString resolveAudioPath(const QString& path);
+
     void play();
 
 protected:
@@ -37,10 +37,10 @@ protected:
 public:
     explicit Metronome(
         MicroTimer* timer,
-        const QString& first_measure_sound_path = "..//..//music//metronome//strong_measure.wav",
-        const QString& second_measure_sound_path = "..//..//music//metronome//weak_measure.wav",
-        const QString& third_measure_sound_path = "..//..//music//metronome//weak_measure.wav",
-        const QString& fourth_measure_sound_path = "..//..//music//metronome//weak_measure.wav",
+        const QString& first_measure_sound_path,
+        const QString& second_measure_sound_path,
+        const QString& third_measure_sound_path,
+        const QString& fourth_measure_sound_path,
         float volume = 1.0,
         quint16 bpm_value = 60,
         QWidget* parent = nullptr

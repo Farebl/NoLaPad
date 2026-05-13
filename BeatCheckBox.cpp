@@ -1,4 +1,6 @@
 #include "BeatCheckBox.h"
+#include <QPainter>
+#include <QStyleOptionButton>
 
 BeatCheckBox::BeatCheckBox(bool is_checked, QWidget* parent) : QCheckBox(parent) {
     setCursor(Qt::PointingHandCursor); // курсор при наведении

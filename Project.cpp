@@ -1,4 +1,5 @@
 #include "Project.h"
+
 #include <QVBoxLayout>
 #include <QFileDialog>
 #include <QHeaderView>
@@ -8,11 +9,23 @@
 #include <QFontDatabase>
 #include <QMenu>
 #include <QAction>
+#include <QTimer>
 #include <QDesktopServices>
-#include "RecorderButton.h"
-#include "IMetronomePlayer.h"
-#include "ElidedLabel.h"
+#include <QWindow>
+#include <QTableWidget>
+#include <QUrl>
+#include <QVector>
+#include <QMouseEvent>
 
+
+#include "ElidedLabel.h"
+#include "Track.h"
+#include "TrackSettings.h"
+#include "Metronome.h"
+#include "MicroTimer.h"
+#include "RecorderButton.h"
+#include "IAudioEngine.h"
+#include "ProjectSaveParameters.h"
 
 
 Project::Project(

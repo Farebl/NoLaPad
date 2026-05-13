@@ -22,7 +22,7 @@ LCDCounter::LCDCounter(QString text, QWidget* parent)
 
     m_lcd_display->setRange(0, 999);
 
-    // lag whoole takts buttons
+    // lag whoole tacts buttons
     const QString lag_and_duration_buttons_style =
         "QPushButton {"
         "    background-color: #E0E0E0;"
