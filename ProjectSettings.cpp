@@ -18,7 +18,6 @@ ProjectSettings::ProjectSettings(QVector<ProjectView*>& projects_views_collectio
     , m_project_save_dir_path_line_edit(new QLineEdit(this))
     , m_records_save_dir_path_line_edit(new QLineEdit(this))
     , m_description_text_edit(new QTextEdit(this))
-    , m_apply_button(new QPushButton("Apply", this))
     , m_is_creating_new_project_mode(false)
     , m_projects_views_collection(projects_views_collection)
 {
@@ -89,17 +88,19 @@ ProjectSettings::ProjectSettings(QVector<ProjectView*>& projects_views_collectio
     records_save_path_layout->addWidget(m_records_save_dir_path_line_edit);
 
 
-    QHBoxLayout* cancel_and_apply_buttons_layout = new QHBoxLayout();
     QPushButton* cancel_button = new QPushButton("Cancel", this);
+    QPushButton* apply_button = new QPushButton("Apply", this);
+
+    QHBoxLayout* cancel_and_apply_buttons_layout = new QHBoxLayout();
     cancel_and_apply_buttons_layout->addWidget(cancel_button);
     cancel_and_apply_buttons_layout->addStretch();
-    cancel_and_apply_buttons_layout->addWidget(m_apply_button);
+    cancel_and_apply_buttons_layout->addWidget(apply_button);
 
     connect(cancel_button, &QPushButton::clicked, this, [this](){
         emit canceled();
         this->hide();
     });
-    connect(m_apply_button, &QPushButton::clicked, this, [this](){
+    connect(apply_button, &QPushButton::clicked, this, [this](){
 
         QString project_name = m_name_line_edit->text();
         if (project_name == ""){

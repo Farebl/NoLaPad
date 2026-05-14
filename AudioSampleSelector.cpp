@@ -3,10 +3,8 @@
 #include <QMouseEvent>
 #include <QPainter>
 
-
-
-AudioSampleSelector::AudioSampleSelector(QString active_state_image_path, QString inactive_state_image_path, QWidget *parent)
-    : QWidget(parent), m_is_active(false)
+AudioSampleSelector::AudioSampleSelector(const QString& active_state_image_path, const QString& inactive_state_image_path, const QString& title, QWidget *parent)
+    : QWidget(parent), m_is_active(false), m_title(title)
 {
     QString appDir = QCoreApplication::applicationDirPath(); // Путь к папке с .exe
     QDir dir(appDir);
@@ -34,6 +32,8 @@ AudioSampleSelector::AudioSampleSelector(QString active_state_image_path, QStrin
         setFixedSize(m_active_state_image.width(), m_active_state_image.height());
     }
     update();
+
+
 }
 
 void AudioSampleSelector::setIsAudioSampleSelectedState(bool state){
@@ -46,12 +46,15 @@ void AudioSampleSelector::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
+    painter.setPen(QColor("#ebebeb"));
+    int font_height = QFontMetrics(painter.font()).height();
 
+    painter.drawText(QRect{0, 20, width(), font_height}, Qt::AlignCenter, m_title);
     // Малюємо зображення залежно від стану
     if (m_is_active && !m_active_state_image.isNull()) {
-        painter.drawPixmap(0, 30, m_active_state_image);
+        painter.drawPixmap(0, 40, m_active_state_image);
     } else if (!m_is_active && !m_inactive_state_image.isNull()) {
-        painter.drawPixmap(0, 30, m_inactive_state_image);
+        painter.drawPixmap(0, 40, m_inactive_state_image);
     } else {
         painter.fillRect(rect(), Qt::gray); // Показуємо сірий фон, якщо зображення не завантажено
     }

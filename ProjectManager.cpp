@@ -221,7 +221,7 @@ ProjectManager::ProjectManager(IStorage* storage, IAudioEngine* audio_engine, IT
 
 
 ProjectManager::ProjectManager(QWidget *parent)
-    : ProjectManager(new JSONStorage(QCoreApplication::applicationDirPath()+"/projectsViews", "views.json", "PNG"), new JUCEAudioEngine(), []() -> ITrackPlayer* {return new JUCETrackPlayer();}, parent)
+    : ProjectManager(new JSONStorage("projectsViews", "views.json", "PNG"), new JUCEAudioEngine(), []() -> ITrackPlayer* {return new JUCETrackPlayer();}, parent)
 {}
 
 ProjectManager::~ProjectManager(){

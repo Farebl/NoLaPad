@@ -53,7 +53,7 @@ TrackSettings::TrackSettings(quint8 volume_percent, bool is_loop, const std::arr
     , m_whole_tacts_lag_setter(new LCDCounter("whole tacts"))
     , m_whole_tacts_duration_setter(new LCDCounter("whole tacts"))
     , m_effects_switcher(new EffectsSwitcher(140, this))
-    , m_audio_input_connector(new AudioSampleSelector(":/images/audio_in_plugged.png", ":/images/audio_in_unplugged.png", this))
+    , m_audio_input_connector(new AudioSampleSelector(":/images/audio_in_plugged.png", ":/images/audio_in_unplugged.png", "audio in", this))
     , m_beats_per_measure(beats_per_measure)
 
     , m_effects_settings_stack_widget(new QStackedWidget(this))
@@ -746,9 +746,8 @@ TrackSettings::TrackSettings(quint8 volume_percent, bool is_loop, const std::arr
     // -------------------- input connector
 
 
-    QLabel* audio_input_connector_label = new QLabel("audio in");
-    audio_input_connector_label->setStyleSheet("color: #ebebeb");
-    audio_input_connector_label->setAlignment(Qt::AlignCenter);
+
+
 
     connect(m_audio_input_connector, &AudioSampleSelector::selectedAudioSample, this, &TrackSettings::changedAudioSamplePath);
 
@@ -756,7 +755,6 @@ TrackSettings::TrackSettings(quint8 volume_percent, bool is_loop, const std::arr
     QVBoxLayout* audio_input_layout = new QVBoxLayout();
     audio_input_layout->setObjectName("audio_input_layout");
     audio_input_layout->setAlignment(Qt::AlignHCenter);
-    audio_input_layout->addWidget(audio_input_connector_label);
     audio_input_layout->addWidget(m_audio_input_connector);
 
 

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
-project(NoLaPad VERSION 3.1 LANGUAGES CXX)
+project(NoLaPad VERSION 3.2 LANGUAGES CXX)
 
 enable_testing()
 
@@ -73,7 +73,7 @@ qt_add_executable(NoLaPad
     TrackColorButtons.cpp TrackColorButtons.h
     ClickableLabel.cpp    ClickableLabel.h
     AudioSampleSelector.cpp AudioSampleSelector.h
-    DigitalClockFace.cpp  DigitalClockFace.h
+
     LCDCounter.cpp        LCDCounter.h
     LCDDisplay.cpp        LCDDisplay.h
     ProjectManager.cpp    ProjectManager.h

@@ -42,7 +42,6 @@ private:
 
     AudioSampleSelector* m_audio_input_connector;
     std::array<bool, 16> m_beats_per_measure;
-    std::vector<QMetaObject::Connection> m_current_connections;
 
     RedButton* m_recording_button;
 

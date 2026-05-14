@@ -42,7 +42,7 @@ Project::Project(
     , m_resizing(false)
     , m_recording_button( new RecorderButton(25, this))
     , m_title_bar(new QWidget(this))
-    , m_table_widget(new QTableWidget(this))
+    , m_tracks_table_widget(new QTableWidget(this))
     , m_timer_for_REC(new QTimer(this))
     , m_elapsed_timer_for_REC(new QElapsedTimer())
     , m_audio_engine(audio_engine)
@@ -96,7 +96,7 @@ Project::Project(
 
 
     QMenu* actions = new QMenu(action_selector);
-    actions->setStyleSheet("font-size: 14px;");
+    actions->setStyleSheet("font-size: 14px; color: #5a5a5a;font-size: 18px;");
     QAction* settings_action = new QAction("Settings");
     QAction* save_action = new QAction("Save");
     actions ->addAction(settings_action);
@@ -222,18 +222,18 @@ Project::Project(
 
 
     // ------------------------------------- Tracks matrix
-    m_table_widget->setShowGrid(false);
-    m_table_widget->horizontalHeader()->setVisible(false);
-    m_table_widget->verticalHeader()->setVisible(false);
-    m_table_widget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    m_table_widget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    m_table_widget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    m_table_widget->setRowCount(0);
-    m_table_widget->setColumnCount(0);
+    m_tracks_table_widget->setShowGrid(false);
+    m_tracks_table_widget->horizontalHeader()->setVisible(false);
+    m_tracks_table_widget->verticalHeader()->setVisible(false);
+    m_tracks_table_widget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    m_tracks_table_widget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_tracks_table_widget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_tracks_table_widget->setRowCount(0);
+    m_tracks_table_widget->setColumnCount(0);
 
-    m_table_widget->setSelectionMode(QAbstractItemView::NoSelection);
-    m_table_widget->setFocusPolicy(Qt::NoFocus);
-    m_table_widget->setStyleSheet(
+    m_tracks_table_widget->setSelectionMode(QAbstractItemView::NoSelection);
+    m_tracks_table_widget->setFocusPolicy(Qt::NoFocus);
+    m_tracks_table_widget->setStyleSheet(
         "QTableWidget         { background: transparent; border: none; outline: none; }"
         "QTableWidget::item   { background: transparent; border: none; }"
         "QTableWidget::item:selected { background: transparent; border: none; }"
@@ -242,13 +242,13 @@ Project::Project(
 
 
 
-    m_table_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    m_table_widget->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    m_tracks_table_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    m_tracks_table_widget->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
 
 
     QVBoxLayout* content_layout = new QVBoxLayout(central_widget);
-    content_layout->addWidget(m_table_widget);
+    content_layout->addWidget(m_tracks_table_widget);
 
 
 
@@ -320,8 +320,8 @@ Project::Project(
     m_rows_count = data.rows_count;
     m_columns_count = data.columns_count;
 
-    m_table_widget->setRowCount(m_rows_count);
-    m_table_widget->setColumnCount(m_columns_count);
+    m_tracks_table_widget->setRowCount(m_rows_count);
+    m_tracks_table_widget->setColumnCount(m_columns_count);
 
     qsizetype index = 0;
 
@@ -342,11 +342,8 @@ Project::Project(
                 data.tracks_info[index].inner_color,
                 this
             );
-            m_table_widget->setCellWidget(r, c, m_tracks[index]);
-
+            m_tracks_table_widget->setCellWidget(r, c, m_tracks[index]);
             m_audio_engine->addPlayer(m_tracks[index]->getPlayer());
-
-            m_table_widget->setCellWidget(r, c, m_tracks[index]);
             m_tracks[index]->setObjectName(QString::number(index));
 
             connect(m_tracks[index], &Track::rightClicked, this, &Project::openTrackSettings);
@@ -372,18 +369,18 @@ Project::~Project()
 
 
 void Project::updateTracksTable(){
-    qsizetype old_size = m_table_widget->rowCount() * m_table_widget->columnCount();
+    qsizetype old_size = m_tracks_table_widget->rowCount() * m_tracks_table_widget->columnCount();
     qsizetype new_size = m_rows_count * m_columns_count;
 
     qsizetype index = 0;
     Track* current_track = nullptr;
     if (new_size > old_size){
-        m_table_widget->setRowCount(m_rows_count);
-        m_table_widget->setColumnCount(m_columns_count);
+        m_tracks_table_widget->setRowCount(m_rows_count);
+        m_tracks_table_widget->setColumnCount(m_columns_count);
         m_tracks.resize(new_size);
         for (int r = 0; r < m_rows_count; ++r) {
             for (int c = 0; (c < m_columns_count); ++c, ++index) {
-                current_track = qobject_cast<Track*>(m_table_widget->cellWidget(r, c));
+                current_track = qobject_cast<Track*>(m_tracks_table_widget->cellWidget(r, c));
                 if (current_track == nullptr){
                     current_track = new Track(
                         m_track_players_fabric(),
@@ -404,7 +401,7 @@ void Project::updateTracksTable(){
                         Qt::red,
                         this
                     );
-                    m_table_widget->setCellWidget(r, c, current_track);
+                    m_tracks_table_widget->setCellWidget(r, c, current_track);
                 }
                 connect(current_track, &Track::rightClicked, this, &Project::openTrackSettings);
                 m_audio_engine->addPlayer(current_track->getPlayer());
@@ -414,15 +411,15 @@ void Project::updateTracksTable(){
         }
     }
     else{
-        // in this branch, we need to update order of track in accordance with their display on m_table_widget
-        // current ros & columns count in m_table_widget is really more than new values of (m_rows_count) & (m_columns_count);
-        auto current_rows_count = m_table_widget->rowCount();
-        auto current_columns_count = m_table_widget->columnCount();
+        // in this branch, we need to update order of track in accordance with their display on m_tracks_table_widget
+        // current ros & columns count in m_tracks_table_widget is really more than new values of (m_rows_count) & (m_columns_count);
+        auto current_rows_count = m_tracks_table_widget->rowCount();
+        auto current_columns_count = m_tracks_table_widget->columnCount();
 
         m_tracks.resize(m_rows_count * m_columns_count);
         for (int r = 0; r < current_rows_count; ++r) {
             for (int c = 0; c < current_columns_count; ++c) {
-                current_track = qobject_cast<Track*>(m_table_widget->cellWidget(r, c));
+                current_track = qobject_cast<Track*>(m_tracks_table_widget->cellWidget(r, c));
                 if (r >= m_rows_count || c >= m_columns_count){
                     m_audio_engine->removePlayer(current_track->getPlayer());
                 }
@@ -433,8 +430,8 @@ void Project::updateTracksTable(){
                 }
             }
         }
-        m_table_widget->setRowCount(m_rows_count);
-        m_table_widget->setColumnCount(m_columns_count);
+        m_tracks_table_widget->setRowCount(m_rows_count);
+        m_tracks_table_widget->setColumnCount(m_columns_count);
     }
 }
 
@@ -444,10 +441,10 @@ void Project::updateTracksTable(){
 
 void Project::openTrackSettings(Track* track)
 {
-    if (last_opend_track){
-        m_track_settings_window->disconnect(m_track_settings_window, nullptr, last_opend_track, nullptr);
+    if (m_last_opend_track){
+        m_track_settings_window->disconnect(m_track_settings_window, nullptr, m_last_opend_track, nullptr);
     }
-    last_opend_track = track;
+    m_last_opend_track = track;
 
     m_track_settings_window->setVolume(track->getVolume());
     m_track_settings_window->setWholeTacktLag(track->getWholeTacktLag());
@@ -567,7 +564,7 @@ QString Project::getName() const{
 void Project::setSize(const QSize& size){
     m_columns_count = size.width();
     m_rows_count = size.height();
-    updateTracksTable(); // + resize m_tracks (possible new Tracks) + + Control over the tracks lifespan passes to m_table_widget.
+    updateTracksTable(); // + resize m_tracks (possible new Tracks) + + Control over the tracks lifespan passes to m_tracks_table_widget.
 }
 
 
@@ -618,7 +615,7 @@ RecorderButton* Project::getRecordingButton() const{
 
 
 QPixmap* Project::getPreviewIcon(){
-    QWidget* vp = m_table_widget->viewport(); // реальна область контенту, без рамки/скролбарів
+    QWidget* vp = m_tracks_table_widget->viewport(); // реальна область контенту, без рамки/скролбарів
     QPixmap* preview_icon = new QPixmap(vp->size());
     preview_icon->fill(QColor(0x3f, 0x3f, 0x3f));
     vp->render(preview_icon);

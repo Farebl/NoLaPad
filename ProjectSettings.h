@@ -20,7 +20,6 @@ private:
     QLineEdit* m_project_save_dir_path_line_edit;
     QLineEdit* m_records_save_dir_path_line_edit;
     QTextEdit* m_description_text_edit;
-    QPushButton* m_apply_button;
     bool m_is_creating_new_project_mode;
 
     QVector<ProjectView*>& m_projects_views_collection;

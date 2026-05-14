@@ -73,7 +73,6 @@ ${SRC_DIR}/ClickableLabel.cpp;\
 ${SRC_DIR}/AudioSampleSelector.cpp;\
 ${SRC_DIR}/LCDCounter.cpp;\
 ${SRC_DIR}/LCDDisplay.cpp;\
-${SRC_DIR}/DigitalClockFace.cpp;\
 ${SRC_DIR}/MetronomeSettings.cpp;\
 ${SRC_DIR}/JUCETrackPlayer.cpp;\
 ${SRC_DIR}/JUCEMetronomePlayer.cpp;\
@@ -105,7 +104,6 @@ ${SRC_DIR}/ClickableLabel.cpp;\
 ${SRC_DIR}/AudioSampleSelector.cpp;\
 ${SRC_DIR}/LCDCounter.cpp;\
 ${SRC_DIR}/LCDDisplay.cpp;\
-${SRC_DIR}/DigitalClockFace.cpp;\
 ${SRC_DIR}/MetronomeSettings.cpp;\
 ${SRC_DIR}/ProjectSettings.cpp;\
 ${SRC_DIR}/JUCETrackPlayer.cpp;\

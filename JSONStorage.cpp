@@ -22,21 +22,12 @@ JSONStorage::JSONStorage(const QString& project_views_save_dir_path, const QStri
     , m_projects_views_file_name(project_views_file_name)
     , m_project_view_preview_icon_save_format(project_view_preview_icon_save_format)
 {
+    qDebug() << project_views_save_dir_path;
 
-    // 1. Собираем полный путь к папке рядом с .exe
-    QString baseDir = QCoreApplication::applicationDirPath();
-    QString fullDirPath = baseDir + "/" + m_projects_views_save_dir_path;
+    QDir().mkpath(project_views_save_dir_path);
 
-    // 2. Создаем папки (если их нет)
-    QDir().mkpath(fullDirPath);
-
-    // 3. Создаем файл внутри этой папки
-    QString fullFilePath = fullDirPath + "/" + m_projects_views_file_name;
+    QString fullFilePath = project_views_save_dir_path + "/" + project_views_file_name;
     QFile file(fullFilePath);
-
-    if (file.open(QIODevice::WriteOnly)) {
-        file.close(); // Файл создан (или перезаписан пустым)
-    }
 }
 
 

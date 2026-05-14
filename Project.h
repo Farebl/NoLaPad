@@ -37,7 +37,7 @@ private:
     RecorderButton* m_recording_button;
 
     QWidget* m_title_bar;
-    QTableWidget* m_table_widget;
+    QTableWidget* m_tracks_table_widget;
 
     IAudioEngine* m_audio_engine;
     MicroTimer* m_timer;
@@ -47,7 +47,7 @@ private:
     std::unique_ptr<QElapsedTimer> m_elapsed_timer_for_REC;
 
     QVector<Track*> m_tracks;
-    Track* last_opend_track;
+    Track* m_last_opend_track;
     ITrackPlayer*(*m_track_players_fabric)();
 
     explicit Project() = delete;
