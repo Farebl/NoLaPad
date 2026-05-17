@@ -354,8 +354,6 @@ Project::Project(
 Project::~Project()
 {
     m_metronome->mute();
-    // НЕ викликати m_audio_engine->stop() — рушій належить ProjectManager
-    // НЕ зупиняти m_timer — він також належить ProjectManager і потрібен метроному
     if (m_audio_engine) {
         for (Track* track : m_tracks) {
             m_audio_engine->removePlayer(track->getPlayer());

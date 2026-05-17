@@ -6,10 +6,10 @@
 AudioSampleSelector::AudioSampleSelector(const QString& active_state_image_path, const QString& inactive_state_image_path, const QString& title, QWidget *parent)
     : QWidget(parent), m_is_active(false), m_title(title)
 {
-    QString appDir = QCoreApplication::applicationDirPath(); // Путь к папке с .exe
+    QString appDir = QCoreApplication::applicationDirPath(); // Шлях до виконавчого файлу
     QDir dir(appDir);
 
-    dir.cdUp(); // Переходим на один уровень вверх
+    dir.cdUp(); // Переходимо на один рівень вгору (батьківська директорія)
     m_path_to_music = dir.absolutePath() + "/music";
 
     m_active_state_image = QPixmap(active_state_image_path);

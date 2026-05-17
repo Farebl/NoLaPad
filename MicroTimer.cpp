@@ -26,7 +26,7 @@ MicroTimer::MicroTimer(quint32 interval_in_nanosecond, QObject* parent)
         &MicroTimer::tick15,
     }
 {
-    // Устанавливаем интервал 1 сек. по умолчанию, если передан некорректный
+    // встановлюємо інтервал 1 с. за замовчуванням, якщо передане значення некоректне
     if (m_interval == 0) {
         m_interval = 1'000'000; // 1 sec
     }
@@ -37,12 +37,10 @@ MicroTimer::~MicroTimer() {
 }
 
 void MicroTimer::stop() {
-    qDebug()<<"MicroTimer::stop() ";
     m_running = false;
 }
 
 void MicroTimer::setInterval(quint32 nanosec) {
-    // Проверяем корректность интервала
     if (nanosec == 0) {
         qDebug() << "MicroTimer: Interval must be positive, setting to 1 sec";
         m_interval = 1'000'000; // 1 sec
@@ -56,7 +54,6 @@ quint32 MicroTimer::getInterval() const{
 }
 
 void MicroTimer::start() {
-    qDebug()<<"MicroTimer::start() ";
     QElapsedTimer timer;
     timer.start();
     m_running = true;
@@ -68,7 +65,7 @@ void MicroTimer::start() {
             if (m_tick_order == 16){
                 m_tick_order = 0;
             }
-            timer.restart();  // Сбрасываем таймер для следующего интервала
+            timer.restart();
         }
     }
 }

@@ -111,7 +111,6 @@ Metronome::Metronome(
 
 
 Metronome::~Metronome() {
-    qDebug()<<"Metronome::~Metronome() ";
 }
 
 

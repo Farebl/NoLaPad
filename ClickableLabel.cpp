@@ -10,7 +10,6 @@ ClickableLabel::ClickableLabel(QString text, QWidget *parent)
 void ClickableLabel::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
-        emit clicked(); // Испускаем сигнал при нажатии левой кнопкой мыши
+        emit clicked();
     }
-    QLabel::mousePressEvent(event); // Вызываем родительский обработчик
-}
+    QLabel::mousePressEvent(event);

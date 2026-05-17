@@ -129,7 +129,7 @@ ProjectView::ProjectView(
 
 
     QPushButton* descriprion_button = new QPushButton("🗩", this);
-    descriprion_button->setStyleSheet(QString("color: #5a5a5a; font-size: %1px;").arg(m_title_bar->height() - 4));
+    descriprion_button->setStyleSheet(QString("color: #5a5a5a; font-size: %1px;").arg(m_title_bar->height() - 8));
 
     connect(descriprion_button, &QPushButton::clicked, this, &ProjectView::descriptionButtonClicked);
 
@@ -143,6 +143,7 @@ ProjectView::ProjectView(
     title_layout->addWidget(project_bpm_prefix_label);
     title_layout->addWidget(m_project_bpm_label);
     title_layout->addStretch(1);
+    title_layout->addWidget(m_date_of_last_use_label);
     title_layout->addWidget(descriprion_button);
     title_layout->setStretchFactor(descriprion_button, 0);
 

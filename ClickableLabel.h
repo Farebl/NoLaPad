@@ -14,7 +14,7 @@ public:
     explicit ClickableLabel(QString text = "", QWidget *parent = nullptr);
 
 signals:
-    void clicked(); // Сигнал, который будет испускаться при клике
+    void clicked();
 
 };
 

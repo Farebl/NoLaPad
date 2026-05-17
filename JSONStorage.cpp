@@ -212,7 +212,6 @@ QVector<ProjectView*> JSONStorage::loadProjectsViews() {
         current_view->setPreviewIcon(preview_icon);
         views.push_back(current_view);
     }
-
     return views;
 }
 

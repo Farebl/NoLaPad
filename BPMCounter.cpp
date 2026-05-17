@@ -104,7 +104,7 @@ BPMCounter::BPMCounter(MicroTimer *timer, quint16 bpm_value, QWidget *parent)
         m_display->setValue(m_display->value() - 1);
     });
 
-    // Обновление таймера при изменении значения
+    // Оновлення таймеру при зміні значення темпу
     connect(m_display, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int new_bpm_value) {
         m_display->setValue(new_bpm_value);
         m_timer->setInterval(static_cast<quint32>(60.0 / (m_display->value() * 4) * 1'000'000)); // (m_display->value() * 4) because the timer generates 16th parts

@@ -149,6 +149,7 @@ ProjectManager::ProjectManager(IStorage* storage, IAudioEngine* audio_engine, IT
     // ------------   load views
 
     m_projects_views = m_storage->loadProjectsViews();
+    qDebug()<<"Project amanger views count: "<<m_projects_views.length();
     for (auto view : m_projects_views){
         view->setFixedSize(window_side/m_columns_of_views_count, window_side/m_columns_of_views_count);
 
@@ -163,9 +164,9 @@ ProjectManager::ProjectManager(IStorage* storage, IAudioEngine* audio_engine, IT
 
         QTextEdit* description_window = new QTextEdit();
         description_window->setWindowTitle("Project description");
-        description_window->setReadOnly(true); // Только для чтения
-        description_window->setText(view->getDescription()); // Твой текст
-        description_window->resize(400, 300); // Начальный размер
+        description_window->setReadOnly(true);
+        description_window->setText(view->getDescription());
+        description_window->resize(400, 300);
 
 
         connect(view, &ProjectView::descriptionButtonClicked, description_window, [description_window](){
