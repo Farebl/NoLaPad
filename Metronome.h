@@ -35,16 +35,9 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
 
 public:
-    explicit Metronome(
-        MicroTimer* timer,
-        const QString& first_measure_sound_path,
-        const QString& second_measure_sound_path,
-        const QString& third_measure_sound_path,
-        const QString& fourth_measure_sound_path,
-        float volume = 1.0,
-        quint16 bpm_value = 60,
-        QWidget* parent = nullptr
-    );
+    explicit Metronome(MicroTimer* timer, IMetronomePlayer* player,
+                       quint16 bpm_value = 60, QWidget* parent = nullptr);
+
 
     ~Metronome();
     void mute();

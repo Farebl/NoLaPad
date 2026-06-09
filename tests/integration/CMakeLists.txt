@@ -1,5 +1,7 @@
 # tests/integration/CMakeLists.txt
 
+# tests/integration/CMakeLists.txt
+
 cmake_minimum_required(VERSION 3.22)
 
 set(SRC_DIR        ${CMAKE_SOURCE_DIR})
@@ -7,7 +9,6 @@ set(MOCKS_DIR      ${CMAKE_SOURCE_DIR}/tests/mocks)
 set(TESTS_UNIT_DIR ${CMAKE_SOURCE_DIR}/tests/unit)
 
 function(add_qt_integration_test TARGET_NAME SOURCE_FILE EXTRA_SOURCES)
-
     qt_add_executable(${TARGET_NAME}
         ${SOURCE_FILE}
         ${EXTRA_SOURCES}
@@ -45,15 +46,8 @@ function(add_qt_integration_test TARGET_NAME SOURCE_FILE EXTRA_SOURCES)
         NAME    ${TARGET_NAME}
         COMMAND ${TARGET_NAME}
     )
-
 endfunction()
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Файли тестів беремо з tests/unit/ — там де вони фактично знаходяться
-# ─────────────────────────────────────────────────────────────────────────────
-
-# ── test_project ──────────────────────────────────────────────────────────────
-# Потребує: Project + Track + усі GUI-віджети які Project/TrackSettings створюють
 add_qt_integration_test(test_project
     ${TESTS_UNIT_DIR}/test_project.cpp
     "${SRC_DIR}/Project.cpp;\
@@ -76,12 +70,10 @@ ${SRC_DIR}/LCDDisplay.cpp;\
 ${SRC_DIR}/MetronomeSettings.cpp;\
 ${SRC_DIR}/JUCETrackPlayer.cpp;\
 ${SRC_DIR}/JUCEMetronomePlayer.cpp;\
-${SRC_DIR}/Potentiometer.cpp"
+${SRC_DIR}/Potentiometer.cpp;\
+${SRC_DIR}/resources.qrc"
 )
- 
-# ── test_projectmanager ───────────────────────────────────────────────────────
-# Потребує: ProjectManager + усі його залежності
-# testHook_* методи мають бути додані у ProjectManager (див. ProjectManager.h)
+
 add_qt_integration_test(test_projectmanager
     ${TESTS_UNIT_DIR}/test_projectmanager.cpp
     "${SRC_DIR}/ProjectManager.cpp;\
@@ -110,6 +102,6 @@ ${SRC_DIR}/JUCETrackPlayer.cpp;\
 ${SRC_DIR}/JUCEMetronomePlayer.cpp;\
 ${SRC_DIR}/JUCEAudioEngine.cpp;\
 ${SRC_DIR}/JUCERecorder.cpp;\
-${SRC_DIR}/Potentiometer.cpp"
+${SRC_DIR}/Potentiometer.cpp;\
+${SRC_DIR}/resources.qrc"
 )
- 

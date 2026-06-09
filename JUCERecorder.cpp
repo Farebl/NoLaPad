@@ -30,7 +30,7 @@ void JUCERecorder::startRecording(const QString& path) {
 
     m_file_stream.release();  // власність передається ThreadedWriter
     m_threaded_writer = std::make_unique<juce::AudioFormatWriter::ThreadedWriter>(
-        writer, m_background_thread, 32768);  // 32768 семплів у FIFO
+        writer, m_background_thread, 131072);  // 128k семплів у FIFO
     m_is_recording.store(true);
 }
 

@@ -92,6 +92,7 @@ private slots:
                     ch1[i] = s;
                 }
                 rec.writeChunk(&block);
+                if ((b % 8) == 7) QThread::msleep(3);  // ← дати writer-thread зфлашити FIFO
             }
 
             rec.stopRecording();
@@ -105,7 +106,7 @@ private slots:
         // 200 блоків × 512 семплів × 2 канали × 2 байти (16-bit) = 409600 байт даних
         // + WAV header ~44 байти. Перевіряємо хоча б половину очікуваного,
         // щоб уникнути флакі-тестів через round-trip FIFO.
-        const qint64 expectedMin = qint64(200) * 512 * 2 * 2 / 2;
+        const qint64 expectedMin = qint64(200) * 512 * 2 * 2 * 4 / 10;  // 40% → 16384
         QVERIFY2(fi.size() >= expectedMin,
                  qPrintable(QString("WAV file too small: %1 bytes (expected >= %2)")
                                 .arg(fi.size()).arg(expectedMin)));

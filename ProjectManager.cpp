@@ -26,7 +26,7 @@
 #include "TrackSettings.h"
 #include "ProjectSettings.h"
 #include "Metronome.h"
-
+#include "JUCEMetronomePlayer.h"
 
 extern const qsizetype ICON_SIZE = 600;
 
@@ -38,16 +38,19 @@ ProjectManager::ProjectManager(IStorage* storage, IAudioEngine* audio_engine, IT
     , m_audio_engine(audio_engine)
     , m_timer_thread(new QThread(this))
     , m_timer(new MicroTimer(static_cast<quint32>(60.0/(120*4)*1'000'000), nullptr))
-    , m_metronome( new Metronome(
-          m_timer,
-          ":/music/metronome/strong_measure.wav",
-          ":/music/metronome/weak_measure.wav",
-          ":/music/metronome/weak_measure.wav",
-          ":/music/metronome/weak_measure.wav",
-          1.0,
-          60,
-          this
-          )
+    , m_metronome(
+        new Metronome(
+            m_timer,
+            new JUCEMetronomePlayer(
+              ":/music/metronome/strong_measure.wav",
+              ":/music/metronome/weak_measure.wav",
+              ":/music/metronome/weak_measure.wav",
+              ":/music/metronome/weak_measure.wav",
+              1.0
+            ),
+            60,
+            this
+        )
     )
     , m_track_settings_window(new TrackSettings(100, false, {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, Qt::gray, Qt::darkGray))
     , m_project_settings_window(new ProjectSettings(m_projects_views, this))

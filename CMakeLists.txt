@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
-project(NoLaPad VERSION 3.2 LANGUAGES CXX)
+project(NoLaPad VERSION 3.3 LANGUAGES CXX)
 
 enable_testing()
 

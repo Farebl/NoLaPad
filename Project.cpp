@@ -361,6 +361,7 @@ Project::~Project()
             m_timer->disconnect(track);
         }
     }
+    m_metronome->setParent(nullptr);
     // Даємо аудіопотоку час завершити поточний блок перед знищенням плеєрів
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
 }

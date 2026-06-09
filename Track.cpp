@@ -176,10 +176,9 @@ void Track::paintEvent(QPaintEvent *event){
 }
 
 
-
-
 void Track::lagCountdownPlayConnect(){
-    qDebug()<<"lagCountdownPlayConnect (lag: "<<m_whole_tact_lag<<")";
+    if (!m_timer) return;
+
     if (m_whole_tact_lag > 1){
         --m_whole_tact_lag;
     }
@@ -209,8 +208,7 @@ void Track::lagCountdownPlayConnect(){
 }
 
 void Track::durationCountdownPlay(){
-    qDebug()<<"durationCountdownPlay (duration: "<<m_whole_tact_duration<<")";
-    if (!m_is_ready) {return;}
+    if (!m_is_ready || !m_timer) {return;}
 
     if (m_whole_tact_duration > 0){
         --m_whole_tact_duration;
@@ -223,30 +221,32 @@ void Track::durationCountdownPlay(){
 
 void Track::play()
 {
-    qDebug()<<"Track::paly (m_is_ready: "<<m_is_ready<<")";
     if (m_is_ready == true){
         m_player->play();
     }
 }
 
 void Track::stop() {
-    qDebug()<<"Track::stop";
+    if (!m_timer) {
+        m_player->stop();
+        m_is_active = false;
+        m_is_ready  = false;
+        update();
+        return;
+    }
     disconnect(m_timer, m_timer->m_signals[0], this, &Track::stop);
     m_player->stop();
     auto measures_count = m_beats_per_measure.size();
-
-    for(qsizetype i = 0; i < measures_count; ++i){
-        if (m_beats_per_measure[i]){
+    for (qsizetype i = 0; i < measures_count; ++i) {
+        if (m_beats_per_measure[i]) {
             disconnect(m_timer, m_timer->m_signals[i], this, &Track::play);
         }
     }
-
     m_is_active = false;
     m_is_ready = false;
     disconnect(m_timer, m_timer->m_signals[0], this, &Track::durationCountdownPlay);
     update();
 }
-
 
 
 
@@ -308,6 +308,7 @@ bool Track::getLoopState() const
 void Track::setLoopState(bool state)
 {
     m_is_loop = state;
+    if (!m_timer) return;
     if (!m_is_loop){
         disconnect(m_timer, m_timer->m_signals[0], this, &Track::lagCountdownPlayConnect);
         disconnect(m_timer, m_timer->m_signals[0], this, &Track::durationCountdownPlay);
@@ -352,9 +353,8 @@ std::array<bool, 16> Track::getBeatsStates() const
 
 void Track::setBeatState(quint8 index, bool state)
 {
-    qDebug()<<"Track::changedBeatState --> "<<index<<": "<<state;
-
     m_beats_per_measure[index] = state;
+    if (!m_timer) return;
 
     if (m_beats_per_measure[index]){
         if (m_is_active){

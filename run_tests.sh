@@ -45,7 +45,9 @@ echo "============================================================"
 echo "  TEST COVERAGE REPORT"
 echo "============================================================"
 
-gcovr -r .. \
+gcovr \
+    -r "$PROJECT_ROOT" \
+    --object-directory "$PROJECT_ROOT/build" \
     --merge-mode-functions=merge-use-line-min \
     --gcov-ignore-parse-errors=negative_hits.warn \
     --gcov-ignore-errors=no_working_dir_found \

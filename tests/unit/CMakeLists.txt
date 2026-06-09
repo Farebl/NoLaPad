@@ -1,10 +1,9 @@
 # tests/unit/CMakeLists.txt
+# tests/unit/CMakeLists.txt
 
 set(SRC_DIR ${CMAKE_SOURCE_DIR})
 set(MOCKS_DIR ${CMAKE_SOURCE_DIR}/tests/mocks)
 
-
-# ── Допоміжна функція для реєстрації тесту ──────────────────────────────────
 function(add_qt_test TARGET_NAME SOURCE_FILE EXTRA_SOURCES)
     qt_add_executable(${TARGET_NAME}
         ${SOURCE_FILE}
@@ -38,14 +37,11 @@ function(add_qt_test TARGET_NAME SOURCE_FILE EXTRA_SOURCES)
         JUCE_DISPLAY_NOTIFICATIONS=0
     )
 
-    # Реєстрація в CTest
     add_test(
         NAME ${TARGET_NAME}
         COMMAND ${TARGET_NAME}
     )
 endfunction()
-
-# ── Реєстрація кожного тесту ─────────────────────────────────────────────────
 
 add_qt_test(test_microtimer
     test_microtimer.cpp
@@ -60,7 +56,6 @@ add_qt_test(test_track
 add_qt_test(test_jsonstorage
     test_jsonstorage.cpp
     "${SRC_DIR}/JSONStorage.cpp;${SRC_DIR}/ProjectView.cpp"
-    
 )
 
 add_qt_test(test_jucerecorder

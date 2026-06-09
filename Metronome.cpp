@@ -12,19 +12,10 @@
 #include <QDir>
 #include <QTemporaryFile>
 
-Metronome::Metronome(
-    MicroTimer* timer,
-    const QString& first_measure_sound_path,
-    const QString& second_measure_sound_path,
-    const QString& third_measure_sound_path,
-    const QString& fourth_measure_sound_path,
-    float volume,
-    quint16 bpm_value,
-    QWidget *parent)
+Metronome::Metronome( MicroTimer* timer, IMetronomePlayer* player, quint16 bpm_value, QWidget* parent)
     : QWidget(parent)
     , m_is_muted(true)
-    , m_volume(volume)
-    , m_player(nullptr)
+    , m_player(player)
     , m_timer(timer)
     , m_settings_window(new MetronomeSettings(100, this))
     , m_bpm_counter(new BPMCounter(m_timer, bpm_value, this))
@@ -32,14 +23,7 @@ Metronome::Metronome(
 
 {
 
-    m_player.reset(new JUCEMetronomePlayer(
-        resolveAudioPath(first_measure_sound_path),
-        resolveAudioPath(second_measure_sound_path),
-        resolveAudioPath(third_measure_sound_path),
-        resolveAudioPath(fourth_measure_sound_path),
-        volume
-        )
-    );
+
 
     QString unmute_style = QString(
                                "QPushButton {"
@@ -82,7 +66,7 @@ Metronome::Metronome(
     layout->addWidget(m_bpm_counter, 0, Qt::AlignVCenter);
     layout->setContentsMargins(0,0,0,0);
 
-    setVolume(volume);
+    setVolume(m_player->getVolume());
     connect(m_settings_window, &MetronomeSettings::changedVolume, this, [this](int value){
         setVolume(value/100.0f);
     });

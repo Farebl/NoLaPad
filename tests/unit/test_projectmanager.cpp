@@ -4,6 +4,7 @@
 #include "MockStorage.h"
 #include "MockAudioEngine.h"
 #include "MockTrackPlayer.h"
+#include "MockMetronomePlayer.h"
 
 class TestProjectManager : public QObject {
     Q_OBJECT

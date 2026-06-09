@@ -3,6 +3,7 @@
 #include "Project.h"
 #include "MockAudioEngine.h"
 #include "MockTrackPlayer.h"
+#include "MockMetronomePlayer.h"
 #include "MicroTimer.h"
 #include "Metronome.h"
 #include "TrackSettings.h"
@@ -50,7 +51,7 @@ static ProjectSaveParameters make4x4() {
 void TestProject::testCreationFromSaveData_AddsAllTracks() {
     MockAudioEngine eng;
     MicroTimer timer(1000);
-    Metronome m(&timer, "", "", "", "", 1.0, 60, nullptr);
+    Metronome m(&timer, new MockMetronomePlayer(), 60, nullptr);
     TrackSettings ts(100, false, {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, Qt::gray, Qt::darkGray);
 
     Project p(&eng, makeMockFactory(), &timer, &m, &ts, make4x4(), nullptr);
@@ -61,7 +62,7 @@ void TestProject::testTracksRegisteredOnce() {
     // Регресія для багу подвійного addPlayer у конструкторі з ProjectSaveParameters
     MockAudioEngine eng;
     MicroTimer timer(1000);
-    Metronome m(&timer, "", "", "", "", 1.0, 60, nullptr);
+    Metronome m(&timer, new MockMetronomePlayer(), 60, nullptr);
     TrackSettings ts(100, false, {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, Qt::gray, Qt::darkGray);
 
     Project p(&eng, makeMockFactory(), &timer, &m, &ts, make4x4(), nullptr);
@@ -74,7 +75,7 @@ void TestProject::testTracksRegisteredOnce() {
 void TestProject::testDestructorRemovesPlayers() {
     MockAudioEngine eng;
     MicroTimer timer(1000);
-    Metronome m(&timer, "", "", "", "", 1.0, 60, nullptr);
+    Metronome m(&timer, new MockMetronomePlayer(), 60, nullptr);
     TrackSettings ts(100, false, {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, Qt::gray, Qt::darkGray);
 
     {
@@ -88,7 +89,7 @@ void TestProject::testDestructorRemovesPlayers() {
 void TestProject::testRecordingButtonStartsEngine() {
     MockAudioEngine eng;
     MicroTimer timer(1000);
-    Metronome m(&timer, "", "", "", "", 1.0, 60, nullptr);
+    Metronome m(&timer, new MockMetronomePlayer(), 60, nullptr);
     TrackSettings ts(100, false, {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, Qt::gray, Qt::darkGray);
 
     Project p(&eng, makeMockFactory(), &timer, &m, &ts, make4x4(), nullptr);
