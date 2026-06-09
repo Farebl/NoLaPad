@@ -156,6 +156,15 @@ void Metronome::unmute(){
     m_play_button->setChecked(true);
 }
 
+
+void Metronome::loadSoundsFromPaths(const QString& p1, const QString& p2, const QString& p3, const QString& p4) {
+    m_player->loadAudioFileForFirstMeasure(resolveAudioPath(p1));
+    m_player->loadAudioFileForSecondMeasure(resolveAudioPath(p2));
+    m_player->loadAudioFileForThirdMeasure(resolveAudioPath(p3));
+    m_player->loadAudioFileForFourthMeasure(resolveAudioPath(p4));
+}
+
+
 bool Metronome::isMuted(){return m_is_muted;}
 
 

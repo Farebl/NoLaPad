@@ -43,6 +43,8 @@ public:
     void mute();
     void unmute();
 
+    void loadSoundsFromPaths(const QString& p1, const QString& p2, const QString& p3, const QString& p4);
+
     bool isMuted();
 
     void setVolume(float volume);

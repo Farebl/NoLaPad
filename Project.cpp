@@ -40,6 +40,7 @@ Project::Project(
     , m_project_name_label(new ElidedLabel(this))
     , m_dragging(false)
     , m_resizing(false)
+    , m_last_opend_track(nullptr)
     , m_recording_button( new RecorderButton(25, this))
     , m_title_bar(new QWidget(this))
     , m_tracks_table_widget(new QTableWidget(this))
@@ -357,12 +358,14 @@ Project::~Project()
     if (m_audio_engine) {
         for (Track* track : m_tracks) {
             m_audio_engine->removePlayer(track->getPlayer());
-            // Відключаємо всі сигнали таймера від цього треку
             m_timer->disconnect(track);
         }
     }
-    m_metronome->setParent(nullptr);
-    // Даємо аудіопотоку час завершити поточний блок перед знищенням плеєрів
+    // Відвʼязуємо тільки якщо метроном ще належить НАМ,
+    // а не вже новому проєкту
+    if (m_metronome->parentWidget() == m_title_bar) {
+        m_metronome->setParent(nullptr);
+    }
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
 }
 

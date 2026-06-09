@@ -41,13 +41,7 @@ ProjectManager::ProjectManager(IStorage* storage, IAudioEngine* audio_engine, IT
     , m_metronome(
         new Metronome(
             m_timer,
-            new JUCEMetronomePlayer(
-              ":/music/metronome/strong_measure.wav",
-              ":/music/metronome/weak_measure.wav",
-              ":/music/metronome/weak_measure.wav",
-              ":/music/metronome/weak_measure.wav",
-              1.0
-            ),
+            new JUCEMetronomePlayer( QString(), QString(), QString(), QString(), 1.0),
             60,
             this
         )
@@ -69,7 +63,12 @@ ProjectManager::ProjectManager(IStorage* storage, IAudioEngine* audio_engine, IT
 
     m_metronome->clearFocus();
     m_audio_engine->addPlayer(m_metronome->getPlayer());
-
+    m_metronome->loadSoundsFromPaths(
+        ":/music/metronome/strong_measure.wav",
+        ":/music/metronome/weak_measure.wav",
+        ":/music/metronome/weak_measure.wav",
+        ":/music/metronome/weak_measure.wav"
+    );
 
 
     ///////////////////////////////////// GUI ////////////////////////////////////////
